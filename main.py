@@ -7,7 +7,6 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-
 def get_db():
     db = SessionLocal()
     try:
@@ -57,7 +56,8 @@ def obtener_estacion(id: int, db: Session = Depends(get_db)):
 def eliminar_estacion(id: int, db: Session = Depends(get_db)):
     return crud.eliminar_estacion(db, id)
 
+# ---------------------- PÁGINA PRINCIPAL ----------------------
 
 @app.get("/")
 def root():
-    return {"mensaje": "API de TransMilenio funcionando "}
+    return {"mensaje": "API de TransMilenio funcionando"}

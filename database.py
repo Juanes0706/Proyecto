@@ -1,19 +1,21 @@
-import databases
-from sqlalchemy import create_engine, MetaData
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
-
-from dotenv import load_dotenv
 import os
+from dotenv import load_dotenv
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from databases import Database
+from sqlalchemy.ext.declarative import declarative_base
 
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-database = databases.Database(DATABASE_URL)
+if DATABASE_URL is None:
+    raise ValueError("La variable de entorno DATABASE_URL no está definida")
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+database = Database(DATABASE_URL)
 
 Base = declarative_base()
 
