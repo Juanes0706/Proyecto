@@ -77,6 +77,13 @@ def cambiar_estado_estacion(id: int, activo: bool, db: Session = Depends(get_db)
         raise HTTPException(status_code=404, detail="Estación no encontrada")
     return {"mensaje": f"Estado de estación actualizado a {'activo' if activo else 'inactivo'}"}
 
+@app.put("/estaciones/{id}/id")
+def cambiar_id_estacion(id: int, nuevo_id: int, db: Session = Depends(get_db)):
+    estacion = crud.actualizar_id_estacion(db, id, nuevo_id)
+    if not estacion:
+        raise HTTPException(status_code=404, detail="Estación no encontrada")
+    return {"mensaje": f"ID de estación actualizado a {nuevo_id}"}
+
 @app.get("/")
 def root():
     return {"mensaje": "API de TransMilenio funcionando"}

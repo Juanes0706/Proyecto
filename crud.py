@@ -73,6 +73,15 @@ def actualizar_estado_estacion(db: Session, estacion_id: int, nuevo_estado: bool
         db.refresh(estacion)
     return estacion
 
+def actualizar_id_estacion(db: Session, estacion_id: int, nuevo_id: int):
+    estacion = obtener_estacion_por_id(db, estacion_id)
+    if estacion:
+        estacion.id = nuevo_id
+        db.commit()
+        db.refresh(estacion)
+        return estacion
+    return None
+
 def crear_estacion(db: Session, estacion: schemas.EstacionCreate):
     nueva_estacion = models.Estacion(
         nombre_estacion=estacion.nombre_estacion,
