@@ -36,6 +36,7 @@ def crear_bus(db: Session, bus: schemas.BusCreate):
     nuevo_bus = models.Bus(
         nombre_bus=bus.nombre_bus,
         tipo=bus.tipo,
+        horario=bus.horario,  
         activo=bus.activo
     )
     db.add(nuevo_bus)
