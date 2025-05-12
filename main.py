@@ -49,8 +49,8 @@ def crear_bus(bus: schemas.BusCreate, db: Session = Depends(get_db)):
     return crud.crear_bus(db, bus)
 
 @app.get("/buses/", response_model=list[schemas.Bus])
-def listar_buses(db: Session = Depends(get_db)):
-    return crud.obtener_buses(db)
+def listar_buses(sector: str = None, tipo: str = None, db: Session = Depends(get_db)):
+    return crud.obtener_buses(db, sector=sector, tipo=tipo)
 
 @app.get("/buses/{id}", response_model=schemas.Bus)
 def obtener_bus(id: int, db: Session = Depends(get_db)):

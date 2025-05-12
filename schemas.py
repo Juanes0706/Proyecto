@@ -6,7 +6,7 @@ from typing import List, Optional
 class EstacionBase(BaseModel):
     nombre_estacion: str
     localidad: str
-    rutas_asociadas: str  
+    rutas_asociadas: str
     activo: bool = True
 
 class EstacionCreate(EstacionBase):
@@ -20,11 +20,10 @@ class Estacion(EstacionBase):
 # ---------------------- BUSES ----------------------
 
 class BusBase(BaseModel):
-    placa: str
-    modelo: str
-    capacidad: int
-    estacion_id: int  
+    nombre_bus: str
+    tipo: str 
     activo: bool = True
+    estacion_id: int
 
 class BusCreate(BusBase):
     pass

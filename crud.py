@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 import models, schemas
+from sqlalchemy import or_
 
 # ---------------------- ESTACIONES ----------------------
 
@@ -40,8 +41,13 @@ def crear_bus(db: Session, bus: schemas.BusCreate):
     db.refresh(db_bus)
     return db_bus
 
-def obtener_buses(db: Session):
-    return db.query(models.Bus).all()
+def obtener_buses(db: Session, sector: Optional[str] = None, tipo: Optional[str] = None):
+    query = db.query(models.Bus)
+    if sector:
+        query = query.join(models.Estacion).filter(models.Estacion.nombre_estacion == sector)
+    if tipo:
+        query = query.filter(models.Bus.tipo == tipo)
+    return query.all()
 
 def obtener_bus_por_id(db: Session, bus_id: int):
     return db.query(models.Bus).filter(models.Bus.id == bus_id).first()
