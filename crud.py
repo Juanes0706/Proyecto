@@ -59,9 +59,10 @@ def obtener_estacion_por_id(db: Session, estacion_id: int):
 
 def eliminar_estacion(db: Session, estacion_id: int):
     estacion = obtener_estacion_por_id(db, estacion_id)
-    if estacion:
-        db.delete(estacion)
-        db.commit()
+    if not estacion:
+        return None
+    db.delete(estacion)
+    db.commit()
     return {"mensaje": "Estación eliminada"}
 
 def actualizar_estado_estacion(db: Session, estacion_id: int, nuevo_estado: bool):

@@ -34,7 +34,10 @@ def obtener_bus(id: int, db: Session = Depends(get_db)):
 
 @app.delete("/buses/{id}")
 def eliminar_bus(id: int, db: Session = Depends(get_db)):
-    return crud.eliminar_bus(db, id)
+    resultado = crud.eliminar_bus(db, id)
+    if resultado is None:
+        raise HTTPException(status_code=404, detail="Bus no encontrado")
+    return resultado
 
 @app.put("/buses/{id}/estado")
 def cambiar_estado_bus(id: int, activo: bool, db: Session = Depends(get_db)):
@@ -62,7 +65,10 @@ def obtener_estacion(id: int, db: Session = Depends(get_db)):
 
 @app.delete("/estaciones/{id}")
 def eliminar_estacion(id: int, db: Session = Depends(get_db)):
-    return crud.eliminar_estacion(db, id)
+    resultado = crud.eliminar_estacion(db, id)
+    if resultado is None:
+        raise HTTPException(status_code=404, detail="Estación no encontrada")
+    return resultado
 
 @app.put("/estaciones/{id}/estado")
 def cambiar_estado_estacion(id: int, activo: bool, db: Session = Depends(get_db)):
