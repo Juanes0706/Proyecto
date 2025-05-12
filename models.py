@@ -14,7 +14,6 @@ class Bus(Base):
     id = Column(Integer, primary_key=True, index=True)
     nombre_bus = Column(String, index=True)
     tipo = Column(String)  
-    horario = Column(String)  
     activo = Column(Boolean, default=True)
 
 class Estacion(Base):
@@ -24,5 +23,3 @@ class Estacion(Base):
     localidad = Column(String)  
     rutas_asociadas = Column(String)
     activo = Column(Boolean, default=True)
-
-

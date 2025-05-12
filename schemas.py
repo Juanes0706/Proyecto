@@ -6,7 +6,6 @@ from typing import List, Optional
 class BusBase(BaseModel):
     nombre_bus: str
     tipo: str  
-    horario: str  
     activo: bool = True
 
 class BusCreate(BusBase):
