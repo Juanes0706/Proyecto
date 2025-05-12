@@ -51,6 +51,7 @@ def crear_bus(db: Session, bus: schemas.BusCreate):
 
 def obtener_buses(db: Session, tipo: Optional[str] = None):
     query = db.query(models.Bus)
+    
     if tipo:
         query = query.filter(models.Bus.tipo == tipo)
 

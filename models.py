@@ -16,8 +16,5 @@ class Bus(Base):
     __tablename__ = "buses"
     id = Column(Integer, primary_key=True, index=True)
     nombre_bus = Column(String)
-    tipo = Column(String)  # troncal o zonal
+    tipo = Column(String)  
     activo = Column(Boolean, default=True)
-
-    estacion_id = Column(Integer, ForeignKey("estaciones.id"))
-    estacion = relationship("Estacion", back_populates="buses")

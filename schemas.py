@@ -21,9 +21,8 @@ class Estacion(EstacionBase):
 
 class BusBase(BaseModel):
     nombre_bus: str
-    tipo: str 
+    tipo: str  # troncal o zonal
     activo: bool = True
-    estacion_id: int
 
 class BusCreate(BusBase):
     pass
