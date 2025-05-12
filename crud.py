@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 import models, schemas
 from sqlalchemy import or_
+from typing import Optional
 
 # ---------------------- ESTACIONES ----------------------
 
@@ -11,8 +12,15 @@ def crear_estacion(db: Session, estacion: schemas.EstacionCreate):
     db.refresh(db_estacion)
     return db_estacion
 
-def obtener_estaciones(db: Session):
-    return db.query(models.Estacion).all()
+def obtener_estaciones(db: Session, sector: Optional[str] = None):
+    query = db.query(models.Estacion)
+    if sector:
+        query = query.filter(or_(
+            models.Estacion.localidad == sector,
+            models.Estacion.nombre_estacion == sector
+        ))
+
+    return query.all()
 
 def obtener_estacion_por_id(db: Session, estacion_id: int):
     return db.query(models.Estacion).filter(models.Estacion.id == estacion_id).first()
@@ -41,12 +49,11 @@ def crear_bus(db: Session, bus: schemas.BusCreate):
     db.refresh(db_bus)
     return db_bus
 
-def obtener_buses(db: Session, sector: Optional[str] = None, tipo: Optional[str] = None):
+def obtener_buses(db: Session, tipo: Optional[str] = None):
     query = db.query(models.Bus)
-    if sector:
-        query = query.join(models.Estacion).filter(models.Estacion.nombre_estacion == sector)
     if tipo:
         query = query.filter(models.Bus.tipo == tipo)
+
     return query.all()
 
 def obtener_bus_por_id(db: Session, bus_id: int):
