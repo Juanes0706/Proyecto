@@ -32,6 +32,17 @@ def actualizar_estado_bus(db: Session, bus_id: int, nuevo_estado: bool):
         db.refresh(bus)
     return bus
 
+def crear_bus(db: Session, bus: schemas.BusCreate):
+    nuevo_bus = models.Bus(
+        nombre_bus=bus.nombre_bus,
+        tipo=bus.tipo,
+        activo=bus.activo
+    )
+    db.add(nuevo_bus)
+    db.commit()
+    db.refresh(nuevo_bus)
+    return nuevo_bus
+
 
 # ---------------------- ESTACIONES ----------------------
 
@@ -60,3 +71,15 @@ def actualizar_estado_estacion(db: Session, estacion_id: int, nuevo_estado: bool
         db.commit()
         db.refresh(estacion)
     return estacion
+
+def crear_estacion(db: Session, estacion: schemas.EstacionCreate):
+    nueva_estacion = models.Estacion(
+        nombre_estacion=estacion.nombre_estacion,
+        localidad=estacion.localidad,
+        rutas_asociadas=estacion.rutas_asociadas,
+        activo=estacion.activo
+    )
+    db.add(nueva_estacion)
+    db.commit()
+    db.refresh(nueva_estacion)
+    return nueva_estacion
