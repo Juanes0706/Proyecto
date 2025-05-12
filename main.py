@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
-from db import SessionLocal, engine
+from database import SessionLocal, engine
 import models, schemas, crud
 
 models.Base.metadata.create_all(bind=engine)
@@ -35,28 +35,40 @@ def obtener_ruta(id: int, db: Session = Depends(get_db)):
 def eliminar_ruta(id: int, db: Session = Depends(get_db)):
     return crud.eliminar_ruta(db, id)
 
-# ---------------------- ESTACIONES ----------------------
+@app.put("/rutas/{id}/estado")
+def cambiar_estado_ruta(id: int, activo: bool, db: Session = Depends(get_db)):
+    ruta = crud.actualizar_estado_ruta(db, id, activo)
+    if not ruta:
+        raise HTTPException(status_code=404, detail="Ruta no encontrada")
+    return {"mensaje": f"Estado de ruta actualizado a {'activo' if activo else 'inactivo'}"}
 
-@app.post("/estaciones/", response_model=schemas.Estacion)
-def crear_estacion(estacion: schemas.EstacionCreate, db: Session = Depends(get_db)):
-    return crud.crear_estacion(db, estacion)
+# ---------------------- BUSES ----------------------
 
-@app.get("/estaciones/", response_model=list[schemas.Estacion])
-def listar_estaciones(db: Session = Depends(get_db)):
-    return crud.obtener_estaciones(db)
+@app.post("/buses/", response_model=schemas.Bus)
+def crear_bus(bus: schemas.BusCreate, db: Session = Depends(get_db)):
+    return crud.crear_bus(db, bus)
 
-@app.get("/estaciones/{id}", response_model=schemas.Estacion)
-def obtener_estacion(id: int, db: Session = Depends(get_db)):
-    estacion = crud.obtener_estacion_por_id(db, id)
-    if not estacion:
-        raise HTTPException(status_code=404, detail="Estación no encontrada")
-    return estacion
+@app.get("/buses/", response_model=list[schemas.Bus])
+def listar_buses(db: Session = Depends(get_db)):
+    return crud.obtener_buses(db)
 
-@app.delete("/estaciones/{id}")
-def eliminar_estacion(id: int, db: Session = Depends(get_db)):
-    return crud.eliminar_estacion(db, id)
+@app.get("/buses/{id}", response_model=schemas.Bus)
+def obtener_bus(id: int, db: Session = Depends(get_db)):
+    bus = crud.obtener_bus_por_id(db, id)
+    if not bus:
+        raise HTTPException(status_code=404, detail="Bus no encontrado")
+    return bus
 
-# ---------------------- PÁGINA PRINCIPAL ----------------------
+@app.delete("/buses/{id}")
+def eliminar_bus(id: int, db: Session = Depends(get_db)):
+    return crud.eliminar_bus(db, id)
+
+@app.put("/buses/{id}/estado")
+def cambiar_estado_bus(id: int, activo: bool, db: Session = Depends(get_db)):
+    bus = crud.actualizar_estado_bus(db, id, activo)
+    if not bus:
+        raise HTTPException(status_code=404, detail="Bus no encontrado")
+    return {"mensaje": f"Estado de bus actualizado a {'activo' if activo else 'inactivo'}"}
 
 @app.get("/")
 def root():

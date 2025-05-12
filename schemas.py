@@ -7,29 +7,29 @@ class RutaBase(BaseModel):
     nombre_ruta: str
     tipo_servicio: str
     horario: str
+    activo: bool = True
 
 class RutaCreate(RutaBase):
     pass
 
 class Ruta(RutaBase):
     id: int
-    activo: bool
-
     class Config:
-        orm_mode = True  
+        orm_mode = True
 
-# ---------------------- ESTACIONES ----------------------
+# ---------------------- BUSES ----------------------
 
-class EstacionBase(BaseModel):
-    nombre_estacion: str
-    localidad: str
-    rutas_asociadas: List[int]  
-class EstacionCreate(EstacionBase):
+class BusBase(BaseModel):
+    placa: str
+    modelo: str
+    capacidad: int
+    ruta_id: int
+    activo: bool = True
+
+class BusCreate(BusBase):
     pass
 
-class Estacion(EstacionBase):
+class Bus(BusBase):
     id: int
-    activo: bool
-
     class Config:
         orm_mode = True
