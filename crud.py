@@ -3,6 +3,7 @@ from sqlalchemy import or_
 import models, schemas
 from typing import Optional
 
+
 # ---------------------- BUSES ----------------------
 
 def obtener_buses(db: Session, tipo: Optional[str] = None):
