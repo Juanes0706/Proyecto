@@ -3,7 +3,6 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import os
 
-# Obtener la URL de la base de datos desde una variable de entorno
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 if not DATABASE_URL:
