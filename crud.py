@@ -10,7 +10,7 @@ def obtener_buses(db: Session, tipo: Optional[str] = None):
     query = db.query(models.Bus)
     
     if tipo:
-        query = query.filter(models.Bus.tipo == tipo)
+        query = query.filter(models.Bus.tipo.ilike(tipo))
 
     return query.all()
 
@@ -50,7 +50,7 @@ def obtener_estaciones(db: Session, sector: Optional[str] = None):
     query = db.query(models.Estacion)
     
     if sector:
-        query = query.filter(models.Estacion.localidad == sector)
+        query = query.filter(models.Estacion.localidad.ilike(sector))
 
     return query.all()
 
