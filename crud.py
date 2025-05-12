@@ -1,35 +1,35 @@
 from sqlalchemy.orm import Session
 import models, schemas
 
-# ---------------------- RUTAS ----------------------
+# ---------------------- ESTACIONES ----------------------
 
-def crear_ruta(db: Session, ruta: schemas.RutaCreate):
-    db_ruta = models.Ruta(**ruta.dict())
-    db.add(db_ruta)
+def crear_estacion(db: Session, estacion: schemas.EstacionCreate):
+    db_estacion = models.Estacion(**estacion.dict())
+    db.add(db_estacion)
     db.commit()
-    db.refresh(db_ruta)
-    return db_ruta
+    db.refresh(db_estacion)
+    return db_estacion
 
-def obtener_rutas(db: Session):
-    return db.query(models.Ruta).all()
+def obtener_estaciones(db: Session):
+    return db.query(models.Estacion).all()
 
-def obtener_ruta_por_id(db: Session, ruta_id: int):
-    return db.query(models.Ruta).filter(models.Ruta.id == ruta_id).first()
+def obtener_estacion_por_id(db: Session, estacion_id: int):
+    return db.query(models.Estacion).filter(models.Estacion.id == estacion_id).first()
 
-def eliminar_ruta(db: Session, ruta_id: int):
-    ruta = obtener_ruta_por_id(db, ruta_id)
-    if ruta:
-        db.delete(ruta)
+def eliminar_estacion(db: Session, estacion_id: int):
+    estacion = obtener_estacion_por_id(db, estacion_id)
+    if estacion:
+        db.delete(estacion)
         db.commit()
-    return {"mensaje": "Ruta eliminada"}
+    return {"mensaje": "Estacion eliminada"}
 
-def actualizar_estado_ruta(db: Session, ruta_id: int, nuevo_estado: bool):
-    ruta = obtener_ruta_por_id(db, ruta_id)
-    if ruta:
-        ruta.activo = nuevo_estado
+def actualizar_estado_estacion(db: Session, estacion_id: int, nuevo_estado: bool):
+    estacion = obtener_estacion_por_id(db, estacion_id)
+    if estacion:
+        estacion.activo = nuevo_estado
         db.commit()
-        db.refresh(ruta)
-    return ruta
+        db.refresh(estacion)
+    return estacion
 
 # ---------------------- BUSES ----------------------
 

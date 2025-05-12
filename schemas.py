@@ -1,18 +1,18 @@
 from pydantic import BaseModel
 from typing import List, Optional
 
-# ---------------------- RUTAS ----------------------
+# ---------------------- ESTACIONES ----------------------
 
-class RutaBase(BaseModel):
-    nombre_ruta: str
-    tipo_servicio: str
-    horario: str
+class EstacionBase(BaseModel):
+    nombre_estacion: str
+    localidad: str
+    rutas_asociadas: str  
     activo: bool = True
 
-class RutaCreate(RutaBase):
+class EstacionCreate(EstacionBase):
     pass
 
-class Ruta(RutaBase):
+class Estacion(EstacionBase):
     id: int
     class Config:
         orm_mode = True
@@ -23,7 +23,7 @@ class BusBase(BaseModel):
     placa: str
     modelo: str
     capacidad: int
-    ruta_id: int
+    estacion_id: int  
     activo: bool = True
 
 class BusCreate(BusBase):

@@ -2,15 +2,15 @@ from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 from db import Base
 
-class Ruta(Base):
-    __tablename__ = "rutas"
+class Estacion(Base): 
+    __tablename__ = "estaciones"
     id = Column(Integer, primary_key=True, index=True)
-    nombre_ruta = Column(String, unique=True, index=True)
-    tipo_servicio = Column(String)
-    horario = Column(String)
+    nombre_estacion = Column(String, unique=True, index=True)
+    localidad = Column(String)
+    rutas_asociadas = Column(String)  
     activo = Column(Boolean, default=True)
 
-    buses = relationship("Bus", back_populates="ruta")
+    buses = relationship("Bus", back_populates="estacion")
 
 class Bus(Base):
     __tablename__ = "buses"
@@ -21,13 +21,5 @@ class Bus(Base):
     tipo = Column(String)  # troncal o zonal
     activo = Column(Boolean, default=True)
 
-    ruta_id = Column(Integer, ForeignKey("rutas.id"))
-    ruta = relationship("Ruta", back_populates="buses")
-
-class Estacion(Base):
-    __tablename__ = "estaciones"
-    id = Column(Integer, primary_key=True, index=True)
-    nombre_estacion = Column(String, unique=True, index=True)
-    localidad = Column(String)
-    rutas_asociadas = Column(String)
-    activo = Column(Boolean, default=True)
+    estacion_id = Column(Integer, ForeignKey("estaciones.id")) 
+    estacion = relationship("Estacion", back_populates="buses")

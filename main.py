@@ -14,33 +14,33 @@ def get_db():
     finally:
         db.close()
 
-# ---------------------- RUTAS ----------------------
+# ---------------------- ESTACIONES ----------------------
 
-@app.post("/rutas/", response_model=schemas.Ruta)
-def crear_ruta(ruta: schemas.RutaCreate, db: Session = Depends(get_db)):
-    return crud.crear_ruta(db, ruta)
+@app.post("/estaciones/", response_model=schemas.Estacion)
+def crear_estacion(estacion: schemas.EstacionCreate, db: Session = Depends(get_db)):
+    return crud.crear_estacion(db, estacion)
 
-@app.get("/rutas/", response_model=list[schemas.Ruta])
-def listar_rutas(db: Session = Depends(get_db)):
-    return crud.obtener_rutas(db)
+@app.get("/estaciones/", response_model=list[schemas.Estacion])
+def listar_estaciones(db: Session = Depends(get_db)):
+    return crud.obtener_estaciones(db)
 
-@app.get("/rutas/{id}", response_model=schemas.Ruta)
-def obtener_ruta(id: int, db: Session = Depends(get_db)):
-    ruta = crud.obtener_ruta_por_id(db, id)
-    if not ruta:
-        raise HTTPException(status_code=404, detail="Ruta no encontrada")
-    return ruta
+@app.get("/estaciones/{id}", response_model=schemas.Estacion)
+def obtener_estacion(id: int, db: Session = Depends(get_db)):
+    estacion = crud.obtener_estacion_por_id(db, id)
+    if not estacion:
+        raise HTTPException(status_code=404, detail="Estación no encontrada")
+    return estacion
 
-@app.delete("/rutas/{id}")
-def eliminar_ruta(id: int, db: Session = Depends(get_db)):
-    return crud.eliminar_ruta(db, id)
+@app.delete("/estaciones/{id}")
+def eliminar_estacion(id: int, db: Session = Depends(get_db)):
+    return crud.eliminar_estacion(db, id)
 
-@app.put("/rutas/{id}/estado")
-def cambiar_estado_ruta(id: int, activo: bool, db: Session = Depends(get_db)):
-    ruta = crud.actualizar_estado_ruta(db, id, activo)
-    if not ruta:
-        raise HTTPException(status_code=404, detail="Ruta no encontrada")
-    return {"mensaje": f"Estado de ruta actualizado a {'activo' if activo else 'inactivo'}"}
+@app.put("/estaciones/{id}/estado")
+def cambiar_estado_estacion(id: int, activo: bool, db: Session = Depends(get_db)):
+    estacion = crud.actualizar_estado_estacion(db, id, activo)
+    if not estacion:
+        raise HTTPException(status_code=404, detail="Estación no encontrada")
+    return {"mensaje": f"Estado de estación actualizado a {'activo' if activo else 'inactivo'}"}
 
 # ---------------------- BUSES ----------------------
 
@@ -72,4 +72,4 @@ def cambiar_estado_bus(id: int, activo: bool, db: Session = Depends(get_db)):
 
 @app.get("/")
 def root():
-    return {"mensaje": "API de TransMilenio funcionando"}
+    return {"mensaje": "API de Estaciones y Buses funcionando"}
