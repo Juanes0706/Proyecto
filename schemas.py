@@ -1,6 +1,21 @@
 from pydantic import BaseModel
 from typing import List, Optional
 
+# ---------------------- BUSES ----------------------
+
+class BusBase(BaseModel):
+    nombre_bus: str
+    tipo: str  
+    activo: bool = True
+
+class BusCreate(BusBase):
+    pass
+
+class Bus(BusBase):
+    id: int
+    class Config:
+        orm_mode = True
+
 # ---------------------- ESTACIONES ----------------------
 
 class EstacionBase(BaseModel):
@@ -13,21 +28,6 @@ class EstacionCreate(EstacionBase):
     pass
 
 class Estacion(EstacionBase):
-    id: int
-    class Config:
-        orm_mode = True
-
-# ---------------------- BUSES ----------------------
-
-class BusBase(BaseModel):
-    nombre_bus: str
-    tipo: str  # troncal o zonal
-    activo: bool = True
-
-class BusCreate(BusBase):
-    pass
-
-class Bus(BusBase):
     id: int
     class Config:
         orm_mode = True

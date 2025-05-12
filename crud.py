@@ -1,53 +1,9 @@
 from sqlalchemy.orm import Session
-import models, schemas
 from sqlalchemy import or_
+import models, schemas
 from typing import Optional
 
-# ---------------------- ESTACIONES ----------------------
-
-def crear_estacion(db: Session, estacion: schemas.EstacionCreate):
-    db_estacion = models.Estacion(**estacion.dict())
-    db.add(db_estacion)
-    db.commit()
-    db.refresh(db_estacion)
-    return db_estacion
-
-def obtener_estaciones(db: Session, sector: Optional[str] = None):
-    query = db.query(models.Estacion)
-    if sector:
-        query = query.filter(or_(
-            models.Estacion.localidad == sector,
-            models.Estacion.nombre_estacion == sector
-        ))
-
-    return query.all()
-
-def obtener_estacion_por_id(db: Session, estacion_id: int):
-    return db.query(models.Estacion).filter(models.Estacion.id == estacion_id).first()
-
-def eliminar_estacion(db: Session, estacion_id: int):
-    estacion = obtener_estacion_por_id(db, estacion_id)
-    if estacion:
-        db.delete(estacion)
-        db.commit()
-    return {"mensaje": "Estacion eliminada"}
-
-def actualizar_estado_estacion(db: Session, estacion_id: int, nuevo_estado: bool):
-    estacion = obtener_estacion_por_id(db, estacion_id)
-    if estacion:
-        estacion.activo = nuevo_estado
-        db.commit()
-        db.refresh(estacion)
-    return estacion
-
 # ---------------------- BUSES ----------------------
-
-def crear_bus(db: Session, bus: schemas.BusCreate):
-    db_bus = models.Bus(**bus.dict())
-    db.add(db_bus)
-    db.commit()
-    db.refresh(db_bus)
-    return db_bus
 
 def obtener_buses(db: Session, tipo: Optional[str] = None):
     query = db.query(models.Bus)
@@ -74,3 +30,32 @@ def actualizar_estado_bus(db: Session, bus_id: int, nuevo_estado: bool):
         db.commit()
         db.refresh(bus)
     return bus
+
+
+# ---------------------- ESTACIONES ----------------------
+
+def obtener_estaciones(db: Session, sector: Optional[str] = None):
+    query = db.query(models.Estacion)
+    
+    if sector:
+        query = query.filter(models.Estacion.localidad == sector)
+
+    return query.all()
+
+def obtener_estacion_por_id(db: Session, estacion_id: int):
+    return db.query(models.Estacion).filter(models.Estacion.id == estacion_id).first()
+
+def eliminar_estacion(db: Session, estacion_id: int):
+    estacion = obtener_estacion_por_id(db, estacion_id)
+    if estacion:
+        db.delete(estacion)
+        db.commit()
+    return {"mensaje": "Estación eliminada"}
+
+def actualizar_estado_estacion(db: Session, estacion_id: int, nuevo_estado: bool):
+    estacion = obtener_estacion_por_id(db, estacion_id)
+    if estacion:
+        estacion.activo = nuevo_estado
+        db.commit()
+        db.refresh(estacion)
+    return estacion
