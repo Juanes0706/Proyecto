@@ -12,7 +12,10 @@ def obtener_buses(db: Session, tipo: Optional[str] = None):
     query = db.query(models.Bus)
     
     if tipo:
-        query = query.filter(func.unaccent(models.Bus.tipo).ilike(func.unaccent(tipo)))
+        try:
+            query = query.filter(func.unaccent(models.Bus.tipo).ilike(func.unaccent(tipo)))
+        except Exception:
+            query = query.filter(models.Bus.tipo.ilike(tipo))
 
     return query.all()
 
@@ -52,7 +55,10 @@ def obtener_estaciones(db: Session, sector: Optional[str] = None):
     query = db.query(models.Estacion)
     
     if sector:
-        query = query.filter(func.unaccent(models.Estacion.localidad).ilike(func.unaccent(sector)))
+        try:
+            query = query.filter(func.unaccent(models.Estacion.localidad).ilike(func.unaccent(sector)))
+        except Exception:
+            query = query.filter(models.Estacion.localidad.ilike(sector))
 
     return query.all()
 
