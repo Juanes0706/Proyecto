@@ -32,7 +32,28 @@
     <h1 class="mt-5">Lista de Estaciones</h1>
     <div class="mb-3">
         <label for="filterLocalidadEstacion" class="form-label">Filtrar por localidad:</label>
-        <input type="text" id="filterLocalidadEstacion" class="form-control" placeholder="Ejemplo: norte" />
+        <select id="filterLocalidadEstacion" class="form-select">
+            <option value="">-- Seleccione una localidad --</option>
+            <option value="Usaquén">Usaquén</option>
+            <option value="Chapinero">Chapinero</option>
+            <option value="Santa Fe">Santa Fe</option>
+            <option value="San Cristóbal">San Cristóbal</option>
+            <option value="Usme">Usme</option>
+            <option value="Tunjuelito">Tunjuelito</option>
+            <option value="Bosa">Bosa</option>
+            <option value="Kennedy">Kennedy</option>
+            <option value="Fontibón">Fontibón</option>
+            <option value="Engativá">Engativá</option>
+            <option value="Suba">Suba</option>
+            <option value="Barrios Unidos">Barrios Unidos</option>
+            <option value="Teusaquillo">Teusaquillo</option>
+            <option value="Los Mártires">Los Mártires</option>
+            <option value="Antonio Nariño">Antonio Nariño</option>
+            <option value="Puente Aranda">Puente Aranda</option>
+            <option value="La Candelaria">La Candelaria</option>
+            <option value="Rafael Uribe Uribe">Rafael Uribe Uribe</option>
+            <option value="Ciudad Bolívar">Ciudad Bolívar</option>
+        </select>
     </div>
     <ul id="listaEstaciones" class="list-group"></ul>
 </div>
@@ -76,7 +97,7 @@
         loadBuses();
     });
 
-    document.getElementById("filterLocalidadEstacion").addEventListener("input", () => {
+    document.getElementById("filterLocalidadEstacion").addEventListener("change", () => {
         loadEstaciones();
     });
 
