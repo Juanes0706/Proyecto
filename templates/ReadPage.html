@@ -24,8 +24,12 @@
 <div class="container mt-5">
     <h1>Lista de Buses</h1>
     <div class="mb-3">
-        <label for="filterTipoBus" class="form-label">Filtrar por tipo de bus (troncal o zonal):</label>
-        <input type="text" id="filterTipoBus" class="form-control" placeholder="Ejemplo: troncal" />
+        <label for="filterTipoBus" class="form-label">Filtrar por tipo de bus:</label>
+        <select id="filterTipoBus" class="form-select">
+            <option value="">-- Seleccione un tipo --</option>
+            <option value="troncal">Troncal</option>
+            <option value="zonal">Zonal</option>
+        </select>
     </div>
     <ul id="listaBuses" class="list-group"></ul>
 
@@ -93,7 +97,7 @@
         }
     }
 
-    document.getElementById("filterTipoBus").addEventListener("input", () => {
+    document.getElementById("filterTipoBus").addEventListener("change", () => {
         loadBuses();
     });
 
