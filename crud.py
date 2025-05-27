@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import or_
 import models, schemas
 from typing import Optional
+import unicodedata
 
 
 # ---------------------- BUSES ----------------------
@@ -13,6 +14,7 @@ def obtener_buses(db: Session, tipo: Optional[str] = None):
         query = query.filter(models.Bus.tipo.ilike(f"%{tipo}%"))
 
     buses = query.all()
+    # Normalize tipo to lowercase and strip spaces in response
     for bus in buses:
         if bus.tipo:
             bus.tipo = bus.tipo.strip().lower()
@@ -51,13 +53,15 @@ def crear_bus(db: Session, bus: schemas.BusCreate):
 
 # ---------------------- ESTACIONES ----------------------
 
-def obtener_estaciones(db: Session, sector: Optional[str] = None):
-    query = db.query(models.Estacion)
-    
-    if sector:
-        query = query.filter(models.Estacion.localidad.ilike(f"%{sector}%"))
+def normalize_string(s: str) -> str:
+    return ''.join(c for c in unicodedata.normalize('NFD', s.lower()) if unicodedata.category(c) != 'Mn').strip()
 
-    return query.all()
+def obtener_estaciones(db: Session, sector: Optional[str] = None):
+    estaciones = db.query(models.Estacion).all()
+    if sector:
+        sector_norm = normalize_string(sector)
+        estaciones = [e for e in estaciones if normalize_string(e.localidad) == sector_norm]
+    return estaciones
 
 def obtener_estacion_por_id(db: Session, estacion_id: int):
     return db.query(models.Estacion).filter(models.Estacion.id == estacion_id).first()

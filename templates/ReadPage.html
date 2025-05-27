@@ -26,7 +26,7 @@
     <div class="mb-3">
         <label for="filterTipoBus" class="form-label">Filtrar por tipo de bus:</label>
         <select id="filterTipoBus" class="form-select">
-            <option value="">-- Seleccione un tipo --</option>
+            <option value="">-- Todos los tipos --</option>
             <option value="troncal">Troncal</option>
             <option value="zonal">Zonal</option>
         </select>
@@ -36,28 +36,7 @@
     <h1 class="mt-5">Lista de Estaciones</h1>
     <div class="mb-3">
         <label for="filterLocalidadEstacion" class="form-label">Filtrar por localidad:</label>
-        <select id="filterLocalidadEstacion" class="form-select">
-            <option value="">-- Seleccione una localidad --</option>
-            <option value="Usaquén">Usaquén</option>
-            <option value="Chapinero">Chapinero</option>
-            <option value="Santa Fe">Santa Fe</option>
-            <option value="San Cristóbal">San Cristóbal</option>
-            <option value="Usme">Usme</option>
-            <option value="Tunjuelito">Tunjuelito</option>
-            <option value="Bosa">Bosa</option>
-            <option value="Kennedy">Kennedy</option>
-            <option value="Fontibón">Fontibón</option>
-            <option value="Engativá">Engativá</option>
-            <option value="Suba">Suba</option>
-            <option value="Barrios Unidos">Barrios Unidos</option>
-            <option value="Teusaquillo">Teusaquillo</option>
-            <option value="Los Mártires">Los Mártires</option>
-            <option value="Antonio Nariño">Antonio Nariño</option>
-            <option value="Puente Aranda">Puente Aranda</option>
-            <option value="La Candelaria">La Candelaria</option>
-            <option value="Rafael Uribe Uribe">Rafael Uribe Uribe</option>
-            <option value="Ciudad Bolívar">Ciudad Bolívar</option>
-        </select>
+        <input type="text" id="filterLocalidadEstacion" class="form-control" placeholder="Escriba la localidad para filtrar" />
     </div>
     <ul id="listaEstaciones" class="list-group"></ul>
 </div>
@@ -66,34 +45,48 @@
     async function loadBuses() {
         const tipo = document.getElementById("filterTipoBus").value;
         const url = tipo ? `/buses/?tipo=${encodeURIComponent(tipo)}` : "/buses/";
-        const response = await fetch(url);
-        if (response.ok) {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error("Error al cargar buses");
             const buses = await response.json();
             const listaBuses = document.getElementById("listaBuses");
             listaBuses.innerHTML = "";
-            buses.forEach((bus) => {
-                const li = document.createElement("li");
-                li.className = "list-group-item";
-                li.textContent = `ID: ${bus.id} - Nombre: ${bus.nombre_bus} - Tipo: ${bus.tipo} - Activo: ${bus.activo}`;
-                listaBuses.appendChild(li);
-            });
+            if (buses.length === 0) {
+                listaBuses.innerHTML = "<li class='list-group-item'>No se encontraron buses.</li>";
+            } else {
+                buses.forEach((bus) => {
+                    const li = document.createElement("li");
+                    li.className = "list-group-item";
+                    li.textContent = `ID: ${bus.id} - Nombre: ${bus.nombre_bus} - Tipo: ${bus.tipo} - Activo: ${bus.activo}`;
+                    listaBuses.appendChild(li);
+                });
+            }
+        } catch (error) {
+            alert(error.message);
         }
     }
 
     async function loadEstaciones() {
-        const localidad = document.getElementById("filterLocalidadEstacion").value;
+        const localidad = document.getElementById("filterLocalidadEstacion").value.trim();
         const url = localidad ? `/estaciones/?sector=${encodeURIComponent(localidad)}` : "/estaciones/";
-        const response = await fetch(url);
-        if (response.ok) {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error("Error al cargar estaciones");
             const estaciones = await response.json();
             const listaEstaciones = document.getElementById("listaEstaciones");
             listaEstaciones.innerHTML = "";
-            estaciones.forEach((estacion) => {
-                const li = document.createElement("li");
-                li.className = "list-group-item";
-                li.textContent = `ID: ${estacion.id} - Nombre: ${estacion.nombre_estacion} - Localidad: ${estacion.localidad} - Rutas Asociadas: ${estacion.rutas_asociadas} - Activo: ${estacion.activo}`;
-                listaEstaciones.appendChild(li);
-            });
+            if (estaciones.length === 0) {
+                listaEstaciones.innerHTML = "<li class='list-group-item'>No se encontraron estaciones.</li>";
+            } else {
+                estaciones.forEach((estacion) => {
+                    const li = document.createElement("li");
+                    li.className = "list-group-item";
+                    li.textContent = `ID: ${estacion.id} - Nombre: ${estacion.nombre_estacion} - Localidad: ${estacion.localidad} - Rutas Asociadas: ${estacion.rutas_asociadas} - Activo: ${estacion.activo}`;
+                    listaEstaciones.appendChild(li);
+                });
+            }
+        } catch (error) {
+            alert(error.message);
         }
     }
 
@@ -101,8 +94,12 @@
         loadBuses();
     });
 
-    document.getElementById("filterLocalidadEstacion").addEventListener("change", () => {
-        loadEstaciones();
+    let debounceTimeout;
+    document.getElementById("filterLocalidadEstacion").addEventListener("input", () => {
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(() => {
+            loadEstaciones();
+        }, 300);
     });
 
     window.onload = () => {
