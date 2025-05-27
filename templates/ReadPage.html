@@ -26,7 +26,7 @@
     <div class="mb-3">
         <label for="filterTipoBus" class="form-label">Filtrar por tipo de bus:</label>
         <select id="filterTipoBus" class="form-select">
-            <option value="">-- Seleccione un tipo --</option>
+            <option value="">-- Todos los tipos --</option>
             <option value="troncal">Troncal</option>
             <option value="zonal">Zonal</option>
         </select>
@@ -37,7 +37,7 @@
     <div class="mb-3">
         <label for="filterLocalidadEstacion" class="form-label">Filtrar por localidad:</label>
         <select id="filterLocalidadEstacion" class="form-select">
-            <option value="">-- Seleccione una localidad --</option>
+            <option value="">-- Todas las localidades --</option>
             <option value="Usaquén">Usaquén</option>
             <option value="Chapinero">Chapinero</option>
             <option value="Santa Fe">Santa Fe</option>
@@ -66,34 +66,48 @@
     async function loadBuses() {
         const tipo = document.getElementById("filterTipoBus").value;
         const url = tipo ? `/buses/?tipo=${encodeURIComponent(tipo)}` : "/buses/";
-        const response = await fetch(url);
-        if (response.ok) {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error("Error al cargar buses");
             const buses = await response.json();
             const listaBuses = document.getElementById("listaBuses");
             listaBuses.innerHTML = "";
-            buses.forEach((bus) => {
-                const li = document.createElement("li");
-                li.className = "list-group-item";
-                li.textContent = `ID: ${bus.id} - Nombre: ${bus.nombre_bus} - Tipo: ${bus.tipo} - Activo: ${bus.activo}`;
-                listaBuses.appendChild(li);
-            });
+            if (buses.length === 0) {
+                listaBuses.innerHTML = "<li class='list-group-item'>No se encontraron buses.</li>";
+            } else {
+                buses.forEach((bus) => {
+                    const li = document.createElement("li");
+                    li.className = "list-group-item";
+                    li.textContent = `ID: ${bus.id} - Nombre: ${bus.nombre_bus} - Tipo: ${bus.tipo} - Activo: ${bus.activo}`;
+                    listaBuses.appendChild(li);
+                });
+            }
+        } catch (error) {
+            alert(error.message);
         }
     }
 
     async function loadEstaciones() {
         const localidad = document.getElementById("filterLocalidadEstacion").value;
         const url = localidad ? `/estaciones/?sector=${encodeURIComponent(localidad)}` : "/estaciones/";
-        const response = await fetch(url);
-        if (response.ok) {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error("Error al cargar estaciones");
             const estaciones = await response.json();
             const listaEstaciones = document.getElementById("listaEstaciones");
             listaEstaciones.innerHTML = "";
-            estaciones.forEach((estacion) => {
-                const li = document.createElement("li");
-                li.className = "list-group-item";
-                li.textContent = `ID: ${estacion.id} - Nombre: ${estacion.nombre_estacion} - Localidad: ${estacion.localidad} - Rutas Asociadas: ${estacion.rutas_asociadas} - Activo: ${estacion.activo}`;
-                listaEstaciones.appendChild(li);
-            });
+            if (estaciones.length === 0) {
+                listaEstaciones.innerHTML = "<li class='list-group-item'>No se encontraron estaciones.</li>";
+            } else {
+                estaciones.forEach((estacion) => {
+                    const li = document.createElement("li");
+                    li.className = "list-group-item";
+                    li.textContent = `ID: ${estacion.id} - Nombre: ${estacion.nombre_estacion} - Localidad: ${estacion.localidad} - Rutas Asociadas: ${estacion.rutas_asociadas} - Activo: ${estacion.activo}`;
+                    listaEstaciones.appendChild(li);
+                });
+            }
+        } catch (error) {
+            alert(error.message);
         }
     }
 
