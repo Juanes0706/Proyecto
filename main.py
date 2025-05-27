@@ -1,12 +1,20 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from typing import Optional
 import models, schemas, crud
 from db import SessionLocal, engine
 
-
+# Crear tablas
+models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+# Configuración para plantillas HTML
+templates = Jinja2Templates(directory="templates")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 def get_db():
     db = SessionLocal()
@@ -14,6 +22,12 @@ def get_db():
         yield db
     finally:
         db.close()
+
+# ---------------------- RUTA PRINCIPAL CON HTML ----------------------
+
+@app.get("/", response_class=HTMLResponse)
+async def read_root(request: Request):
+    return templates.TemplateResponse("CrudAppPage.html", {"request": request})
 
 # ---------------------- BUSES ----------------------
 
@@ -83,7 +97,3 @@ def cambiar_id_estacion(id: int, nuevo_id: int, db: Session = Depends(get_db)):
     if not estacion:
         raise HTTPException(status_code=404, detail="Estación no encontrada")
     return {"mensaje": f"ID de estación actualizado a {nuevo_id}"}
-
-@app.get("/")
-def root():
-    return {"mensaje": "API de TransMilenio funcionando"}
