@@ -6,11 +6,13 @@ from typing import Optional
 
 # ---------------------- BUSES ----------------------
 
+from sqlalchemy import func
+
 def obtener_buses(db: Session, tipo: Optional[str] = None):
     query = db.query(models.Bus)
     
     if tipo:
-        query = query.filter(models.Bus.tipo.ilike(tipo))
+        query = query.filter(func.unaccent(models.Bus.tipo).ilike(func.unaccent(tipo)))
 
     return query.all()
 
