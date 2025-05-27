@@ -1,21 +1,16 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import or_, func
+from sqlalchemy import or_
 import models, schemas
 from typing import Optional
 
 
 # ---------------------- BUSES ----------------------
 
-from sqlalchemy import func
-
 def obtener_buses(db: Session, tipo: Optional[str] = None):
     query = db.query(models.Bus)
     
     if tipo:
-        try:
-            query = query.filter(func.unaccent(models.Bus.tipo).ilike(func.unaccent(tipo)))
-        except Exception:
-            query = query.filter(models.Bus.tipo.ilike(tipo))
+        query = query.filter(models.Bus.tipo.ilike(f"%{tipo}%"))
 
     return query.all()
 
@@ -55,10 +50,7 @@ def obtener_estaciones(db: Session, sector: Optional[str] = None):
     query = db.query(models.Estacion)
     
     if sector:
-        try:
-            query = query.filter(func.unaccent(models.Estacion.localidad).ilike(func.unaccent(sector)))
-        except Exception:
-            query = query.filter(models.Estacion.localidad.ilike(sector))
+        query = query.filter(models.Estacion.localidad.ilike(f"%{sector}%"))
 
     return query.all()
 
