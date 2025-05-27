@@ -12,7 +12,11 @@ def obtener_buses(db: Session, tipo: Optional[str] = None):
     if tipo:
         query = query.filter(models.Bus.tipo.ilike(f"%{tipo}%"))
 
-    return query.all()
+    buses = query.all()
+    for bus in buses:
+        if bus.tipo:
+            bus.tipo = bus.tipo.strip().lower()
+    return buses
 
 def obtener_bus_por_id(db: Session, bus_id: int):
     return db.query(models.Bus).filter(models.Bus.id == bus_id).first()
@@ -33,9 +37,10 @@ def actualizar_estado_bus(db: Session, bus_id: int, nuevo_estado: bool):
     return bus
 
 def crear_bus(db: Session, bus: schemas.BusCreate):
+    tipo_normalizado = bus.tipo.value.lower().strip() if hasattr(bus.tipo, 'value') else bus.tipo.lower().strip()
     nuevo_bus = models.Bus(
         nombre_bus=bus.nombre_bus,
-        tipo=bus.tipo.value.lower() if hasattr(bus.tipo, 'value') else bus.tipo.lower(),
+        tipo=tipo_normalizado,
         activo=bus.activo
     )
     db.add(nuevo_bus)
