@@ -31,8 +31,8 @@
 
     <h1 class="mt-5">Lista de Estaciones</h1>
     <div class="mb-3">
-        <label for="filterSectorEstacion" class="form-label">Filtrar por sector:</label>
-        <input type="text" id="filterSectorEstacion" class="form-control" placeholder="Ejemplo: norte" />
+        <label for="filterLocalidadEstacion" class="form-label">Filtrar por localidad:</label>
+        <input type="text" id="filterLocalidadEstacion" class="form-control" placeholder="Ejemplo: norte" />
     </div>
     <ul id="listaEstaciones" class="list-group"></ul>
 </div>
@@ -56,8 +56,8 @@
     }
 
     async function loadEstaciones() {
-        const sector = document.getElementById("filterSectorEstacion").value;
-        const url = sector ? `/estaciones/?sector=${encodeURIComponent(sector)}` : "/estaciones/";
+        const localidad = document.getElementById("filterLocalidadEstacion").value;
+        const url = localidad ? `/estaciones/?sector=${encodeURIComponent(localidad)}` : "/estaciones/";
         const response = await fetch(url);
         if (response.ok) {
             const estaciones = await response.json();
@@ -76,7 +76,7 @@
         loadBuses();
     });
 
-    document.getElementById("filterSectorEstacion").addEventListener("input", () => {
+    document.getElementById("filterLocalidadEstacion").addEventListener("input", () => {
         loadEstaciones();
     });
 
