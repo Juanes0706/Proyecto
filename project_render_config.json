@@ -1,0 +1,15 @@
+   {
+     "name": "proyecto-render",
+     "version": "1.0.0",
+     "description": "Proyecto simple para Render que sirve un archivo HTML",
+     "main": "server.js",
+     "scripts": {
+       "start": "node server.js"
+     },
+     "dependencies": {
+       "express": "^4.18.2"
+     },
+     "engines": {
+       "node": ">=14.0.0"
+     }
+   }
