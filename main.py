@@ -119,3 +119,10 @@ def cambiar_id_estacion(id: int, nuevo_id: int, db: Session = Depends(get_db)):
     if not estacion:
         raise HTTPException(status_code=404, detail="Estación no encontrada")
     return {"mensaje": f"ID de estación actualizado a {nuevo_id}"}
+
+from fastapi import APIRouter
+
+@app.get("/localidades", response_model=list[str])
+def listar_localidades(db: Session = Depends(get_db)):
+    localidades = db.query(models.Estacion.localidad).distinct().all()
+    return [loc[0] for loc in localidades]

@@ -1,11 +1,16 @@
 from pydantic import BaseModel
 from typing import List, Optional
+from enum import Enum
 
 # ---------------------- BUSES ----------------------
 
+class BusType(str, Enum):
+    troncal = "troncal"
+    zonal = "zonal"
+
 class BusBase(BaseModel):
     nombre_bus: str
-    tipo: str  
+    tipo: BusType  
     activo: bool = True
 
 class BusCreate(BusBase):

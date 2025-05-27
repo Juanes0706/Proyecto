@@ -35,7 +35,7 @@ def actualizar_estado_bus(db: Session, bus_id: int, nuevo_estado: bool):
 def crear_bus(db: Session, bus: schemas.BusCreate):
     nuevo_bus = models.Bus(
         nombre_bus=bus.nombre_bus,
-        tipo=bus.tipo,
+        tipo=bus.tipo.value.lower() if hasattr(bus.tipo, 'value') else bus.tipo.lower(),
         activo=bus.activo
     )
     db.add(nuevo_bus)
