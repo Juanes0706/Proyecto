@@ -23,15 +23,25 @@
 </nav>
 <div class="container mt-5">
     <h1>Lista de Buses</h1>
+    <div class="mb-3">
+        <label for="filterTipoBus" class="form-label">Filtrar por tipo de bus (troncal o zonal):</label>
+        <input type="text" id="filterTipoBus" class="form-control" placeholder="Ejemplo: troncal" />
+    </div>
     <ul id="listaBuses" class="list-group"></ul>
 
     <h1 class="mt-5">Lista de Estaciones</h1>
+    <div class="mb-3">
+        <label for="filterSectorEstacion" class="form-label">Filtrar por sector:</label>
+        <input type="text" id="filterSectorEstacion" class="form-control" placeholder="Ejemplo: norte" />
+    </div>
     <ul id="listaEstaciones" class="list-group"></ul>
 </div>
 
 <script>
     async function loadBuses() {
-        const response = await fetch("/buses/");
+        const tipo = document.getElementById("filterTipoBus").value;
+        const url = tipo ? `/buses/?tipo=${encodeURIComponent(tipo)}` : "/buses/";
+        const response = await fetch(url);
         if (response.ok) {
             const buses = await response.json();
             const listaBuses = document.getElementById("listaBuses");
@@ -46,7 +56,9 @@
     }
 
     async function loadEstaciones() {
-        const response = await fetch("/estaciones/");
+        const sector = document.getElementById("filterSectorEstacion").value;
+        const url = sector ? `/estaciones/?sector=${encodeURIComponent(sector)}` : "/estaciones/";
+        const response = await fetch(url);
         if (response.ok) {
             const estaciones = await response.json();
             const listaEstaciones = document.getElementById("listaEstaciones");
@@ -59,6 +71,14 @@
             });
         }
     }
+
+    document.getElementById("filterTipoBus").addEventListener("input", () => {
+        loadBuses();
+    });
+
+    document.getElementById("filterSectorEstacion").addEventListener("input", () => {
+        loadEstaciones();
+    });
 
     window.onload = () => {
         loadBuses();
