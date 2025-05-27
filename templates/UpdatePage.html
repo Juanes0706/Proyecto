@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Actualizar Buses y Estaciones</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">CRUD App</a>
+        <div id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="/">Inicio</a></li>
+                <li class="nav-item"><a class="nav-link" href="/create">Crear</a></li>
+                <li class="nav-item"><a class="nav-link" href="/read">Leer</a></li>
+                <li class="nav-item"><a class="nav-link" href="/update">Actualizar</a></li>
+                <li class="nav-item"><a class="nav-link" href="/delete">Eliminar</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="container mt-5">
+    <h1>Actualizar Estado de Bus</h1>
+    <form id="actualizarBusForm">
+        <div class="mb-3">
+            <label for="idBusActualizar" class="form-label">ID del Bus</label>
+            <input type="number" class="form-control" id="idBusActualizar" required />
+        </div>
+        <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="activoBusActualizar" />
+            <label class="form-check-label" for="activoBusActualizar">Activo</label>
+        </div>
+        <button type="submit" class="btn btn-primary">Actualizar Estado Bus</button>
+    </form>
+
+    <h1 class="mt-5">Actualizar Estado de Estación</h1>
+    <form id="actualizarEstacionForm">
+        <div class="mb-3">
+            <label for="idEstacionActualizar" class="form-label">ID de la Estación</label>
+            <input type="number" class="form-control" id="idEstacionActualizar" required />
+        </div>
+        <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="activoEstacionActualizar" />
+            <label class="form-check-label" for="activoEstacionActualizar">Activo</label>
+        </div>
+        <button type="submit" class="btn btn-primary">Actualizar Estado Estación</button>
+    </form>
+</div>
+
+<script>
+    // Actualizar estado bus
+    document.getElementById("actualizarBusForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const id = document.getElementById("idBusActualizar").value;
+        const activo = document.getElementById("activoBusActualizar").checked;
+
+        const response = await fetch(`/buses/${id}/estado?activo=${activo}`, {
+            method: "PUT",
+        });
+        if (response.ok) {
+            alert("Estado del bus actualizado");
+            e.target.reset();
+        } else {
+            alert("Error al actualizar estado del bus");
+        }
+    });
+
+    // Actualizar estado estación
+    document.getElementById("actualizarEstacionForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const id = document.getElementById("idEstacionActualizar").value;
+        const activo = document.getElementById("activoEstacionActualizar").checked;
+
+        const response = await fetch(`/estaciones/${id}/estado?activo=${activo}`, {
+            method: "PUT",
+        });
+        if (response.ok) {
+            alert("Estado de la estación actualizado");
+            e.target.reset();
+        } else {
+            alert("Error al actualizar estado de la estación");
+        }
+    });
+</script>
+</body>
+</html>

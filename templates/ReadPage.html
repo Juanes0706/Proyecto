@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Leer Buses y Estaciones</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">CRUD App</a>
+        <div id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="/">Inicio</a></li>
+                <li class="nav-item"><a class="nav-link" href="/create">Crear</a></li>
+                <li class="nav-item"><a class="nav-link" href="/read">Leer</a></li>
+                <li class="nav-item"><a class="nav-link" href="/update">Actualizar</a></li>
+                <li class="nav-item"><a class="nav-link" href="/delete">Eliminar</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="container mt-5">
+    <h1>Lista de Buses</h1>
+    <ul id="listaBuses" class="list-group"></ul>
+
+    <h1 class="mt-5">Lista de Estaciones</h1>
+    <ul id="listaEstaciones" class="list-group"></ul>
+</div>
+
+<script>
+    async function loadBuses() {
+        const response = await fetch("/buses/");
+        if (response.ok) {
+            const buses = await response.json();
+            const listaBuses = document.getElementById("listaBuses");
+            listaBuses.innerHTML = "";
+            buses.forEach((bus) => {
+                const li = document.createElement("li");
+                li.className = "list-group-item";
+                li.textContent = `ID: ${bus.id} - Nombre: ${bus.nombre_bus} - Tipo: ${bus.tipo} - Activo: ${bus.activo}`;
+                listaBuses.appendChild(li);
+            });
+        }
+    }
+
+    async function loadEstaciones() {
+        const response = await fetch("/estaciones/");
+        if (response.ok) {
+            const estaciones = await response.json();
+            const listaEstaciones = document.getElementById("listaEstaciones");
+            listaEstaciones.innerHTML = "";
+            estaciones.forEach((estacion) => {
+                const li = document.createElement("li");
+                li.className = "list-group-item";
+                li.textContent = `ID: ${estacion.id} - Nombre: ${estacion.nombre_estacion} - Localidad: ${estacion.localidad} - Activo: ${estacion.activo}`;
+                listaEstaciones.appendChild(li);
+            });
+        }
+    }
+
+    window.onload = () => {
+        loadBuses();
+        loadEstaciones();
+    };
+</script>
+</body>
+</html>

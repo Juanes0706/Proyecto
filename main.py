@@ -35,6 +35,22 @@ async def read_root(request: Request):
 async def operations_page(request: Request):
     return templates.TemplateResponse("OperationsPage.html", {"request": request})
 
+@app.get("/create", response_class=HTMLResponse)
+async def create_page(request: Request):
+    return templates.TemplateResponse("CreatePage.html", {"request": request})
+
+@app.get("/read", response_class=HTMLResponse)
+async def read_page(request: Request):
+    return templates.TemplateResponse("ReadPage.html", {"request": request})
+
+@app.get("/update", response_class=HTMLResponse)
+async def update_page(request: Request):
+    return templates.TemplateResponse("UpdatePage.html", {"request": request})
+
+@app.get("/delete", response_class=HTMLResponse)
+async def delete_page(request: Request):
+    return templates.TemplateResponse("DeletePage.html", {"request": request})
+
 # ---------------------- BUSES ----------------------
 
 @app.post("/buses/", response_model=schemas.Bus)
