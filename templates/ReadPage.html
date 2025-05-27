@@ -91,7 +91,7 @@
             estaciones.forEach((estacion) => {
                 const li = document.createElement("li");
                 li.className = "list-group-item";
-                li.textContent = `ID: ${estacion.id} - Nombre: ${estacion.nombre_estacion} - Localidad: ${estacion.localidad} - Activo: ${estacion.activo}`;
+                li.textContent = `ID: ${estacion.id} - Nombre: ${estacion.nombre_estacion} - Localidad: ${estacion.localidad} - Rutas Asociadas: ${estacion.rutas_asociadas} - Activo: ${estacion.activo}`;
                 listaEstaciones.appendChild(li);
             });
         }

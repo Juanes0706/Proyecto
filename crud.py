@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import or_
+from sqlalchemy import or_, func
 import models, schemas
 from typing import Optional
 
@@ -50,7 +50,7 @@ def obtener_estaciones(db: Session, sector: Optional[str] = None):
     query = db.query(models.Estacion)
     
     if sector:
-        query = query.filter(models.Estacion.localidad.ilike(sector))
+        query = query.filter(func.unaccent(models.Estacion.localidad).ilike(func.unaccent(sector)))
 
     return query.all()
 
