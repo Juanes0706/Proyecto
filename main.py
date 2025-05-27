@@ -31,6 +31,10 @@ def get_db():
 async def read_root(request: Request):
     return templates.TemplateResponse("CrudAppPage.html", {"request": request})
 
+@app.get("/operations", response_class=HTMLResponse)
+async def operations_page(request: Request):
+    return templates.TemplateResponse("OperationsPage.html", {"request": request})
+
 # ---------------------- BUSES ----------------------
 
 @app.post("/buses/", response_model=schemas.Bus)
