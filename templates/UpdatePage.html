@@ -5,69 +5,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Actualizar Buses y Estaciones</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+            background-color: #f4f4f4;
+        }
+        .navbar-brand img {
+            height: 40px;
+        }
+    </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+<nav class="navbar navbar-expand-lg navbar-dark bg-danger">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#">CRUD App</a>
+        <a class="navbar-brand" href="/">
+            <img src="/static/img/logo transmilenio.png" alt="Logo TransMilenio" />
+        </a>
         <div id="navbarNav">
             <ul class="navbar-nav">
-                <li class="nav-item"><a class="nav-link" href="/">Inicio</a></li>
-                <li class="nav-item"><a class="nav-link" href="/create">Crear</a></li>
-                <li class="nav-item"><a class="nav-link" href="/read">Leer</a></li>
-                <li class="nav-item"><a class="nav-link active" aria-current="page" href="/update">Actualizar</a></li>
-                <li class="nav-item"><a class="nav-link" href="/delete">Eliminar</a></li>
+                <li class="nav-item"><a class="nav-link" href="/create">🆕 Crear</a></li>
+                <li class="nav-item"><a class="nav-link" href="/read">📖 Leer</a></li>
+                <li class="nav-item"><a class="nav-link active" aria-current="page" href="/update">✏️ Actualizar</a></li>
+                <li class="nav-item"><a class="nav-link" href="/delete">❌ Eliminar</a></li>
             </ul>
         </div>
     </div>
 </nav>
 
 <div class="container mt-5">
-    <div class="row g-4">
-        <!-- Actualizar Bus -->
-        <div class="col-md-6">
-            <div class="card shadow rounded-4">
-                <div class="card-header bg-info text-white">
-                    <h4 class="mb-0">Actualizar Estado de Bus</h4>
-                </div>
-                <div class="card-body">
-                    <form id="actualizarBusForm" novalidate>
-                        <div class="mb-3">
-                            <label for="idBusActualizar" class="form-label">ID del Bus</label>
-                            <input type="number" class="form-control" id="idBusActualizar" required />
-                        </div>
-                        <div class="form-check mb-3">
-                            <input type="checkbox" class="form-check-input" id="activoBusActualizar" />
-                            <label class="form-check-label" for="activoBusActualizar">Activo</label>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">Actualizar Estado Bus</button>
-                    </form>
-                </div>
-            </div>
+    <h2 class="text-center mb-4">✏️ Actualizar Estado de Bus</h2>
+    <form id="actualizarBusForm" class="mb-5">
+        <div class="mb-3">
+            <label for="idBusActualizar" class="form-label">ID del Bus</label>
+            <input type="number" class="form-control" id="idBusActualizar" required />
         </div>
+        <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="activoBusActualizar" />
+            <label class="form-check-label" for="activoBusActualizar">Activo</label>
+        </div>
+        <button type="submit" class="btn btn-danger">Actualizar Estado Bus</button>
+    </form>
 
-        <!-- Actualizar Estación -->
-        <div class="col-md-6">
-            <div class="card shadow rounded-4">
-                <div class="card-header bg-info text-white">
-                    <h4 class="mb-0">Actualizar Estado de Estación</h4>
-                </div>
-                <div class="card-body">
-                    <form id="actualizarEstacionForm" novalidate>
-                        <div class="mb-3">
-                            <label for="idEstacionActualizar" class="form-label">ID de la Estación</label>
-                            <input type="number" class="form-control" id="idEstacionActualizar" required />
-                        </div>
-                        <div class="form-check mb-3">
-                            <input type="checkbox" class="form-check-input" id="activoEstacionActualizar" />
-                            <label class="form-check-label" for="activoEstacionActualizar">Activo</label>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">Actualizar Estado Estación</button>
-                    </form>
-                </div>
-            </div>
+    <h2 class="text-center mb-4">✏️ Actualizar Estado de Estación</h2>
+    <form id="actualizarEstacionForm">
+        <div class="mb-3">
+            <label for="idEstacionActualizar" class="form-label">ID de la Estación</label>
+            <input type="number" class="form-control" id="idEstacionActualizar" required />
         </div>
-    </div>
+        <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="activoEstacionActualizar" />
+            <label class="form-check-label" for="activoEstacionActualizar">Activo</label>
+        </div>
+        <button type="submit" class="btn btn-danger">Actualizar Estado Estación</button>
+    </form>
 </div>
 
 <script>
@@ -87,13 +76,13 @@
                 method: "PUT",
             });
             if (response.ok) {
-                alert("Estado del bus actualizado correctamente.");
+                alert("✅ Estado del bus actualizado correctamente.");
                 e.target.reset();
             } else {
-                alert("Error al actualizar estado del bus.");
+                alert("❌ Error al actualizar estado del bus.");
             }
         } catch (error) {
-            alert("Error de conexión al actualizar estado del bus.");
+            alert("❌ Error de conexión al actualizar estado del bus.");
         }
     });
 
@@ -113,16 +102,15 @@
                 method: "PUT",
             });
             if (response.ok) {
-                alert("Estado de la estación actualizado correctamente.");
+                alert("✅ Estado de la estación actualizado correctamente.");
                 e.target.reset();
             } else {
-                alert("Error al actualizar estado de la estación.");
+                alert("❌ Error al actualizar estado de la estación.");
             }
         } catch (error) {
-            alert("Error de conexión al actualizar estado de la estación.");
+            alert("❌ Error de conexión al actualizar estado de la estación.");
         }
     });
 </script>
-
 </body>
 </html>
