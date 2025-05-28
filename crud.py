@@ -20,12 +20,15 @@ def obtener_buses(db: Session, tipo: Optional[str] = None, activo: Optional[bool
         if bus.tipo:
             bus.tipo = bus.tipo.strip().lower()
     return buses
-<<<<<<< SEARCH
-def obtener_estaciones(db: Session, sector: Optional[str] = None):
-    estaciones = db.query(models.Estacion).all()
+=======
+def obtener_estaciones(db: Session, sector: Optional[str] = None, activo: Optional[bool] = None):
+    query = db.query(models.Estacion)
     if sector:
         sector_norm = normalize_string(sector)
-        estaciones = [e for e in estaciones if normalize_string(e.localidad) == sector_norm]
+        query = query.filter(models.Estacion.localidad.ilike(f"%{sector_norm}%"))
+    if activo is not None:
+        query = query.filter(models.Estacion.activo == activo)
+    estaciones = query.all()
     return estaciones
 =======
 def obtener_estaciones(db: Session, sector: Optional[str] = None, activo: Optional[bool] = None):
