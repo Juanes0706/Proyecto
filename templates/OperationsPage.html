@@ -1,185 +1,337 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Operaciones CRUD</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
-  <style>
-    body {
-      background-color: #f5f7fa;
-    }
-    .card {
-      margin-bottom: 2rem;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-      border-radius: 1rem;
-    }
-    h1, h2 {
-      color: #0d6efd;
-    }
-    footer {
-      background-color: #0d6efd;
-      color: white;
-      text-align: center;
-      padding: 1rem;
-      margin-top: 4rem;
-    }
-    .header-image {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-      border-bottom-left-radius: 1rem;
-      border-bottom-right-radius: 1rem;
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Operaciones CRUD</title>
+    <!-- Bootstrap CDN para estilo -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
 </head>
-<body>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+<body class="bg-light">
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#"><i class="bi bi-bus-front-fill"></i> CRUD Transporte</a>
-      <div id="navbarNav">
-        <ul class="navbar-nav">
-          <li class="nav-item"><a class="nav-link" href="/">Inicio</a></li>
-          <li class="nav-item"><a class="nav-link" href="#crear">Crear</a></li>
-          <li class="nav-item"><a class="nav-link" href="#leer">Leer</a></li>
-          <li class="nav-item"><a class="nav-link" href="#actualizar">Actualizar</a></li>
-          <li class="nav-item"><a class="nav-link" href="#eliminar">Eliminar</a></li>
-        </ul>
-      </div>
+        <a class="navbar-brand fw-bold" href="#">CRUD App</a>
+        <div id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="#crear">Crear</a></li>
+                <li class="nav-item"><a class="nav-link" href="#leer">Leer</a></li>
+                <li class="nav-item"><a class="nav-link" href="#actualizar">Actualizar</a></li>
+                <li class="nav-item"><a class="nav-link" href="#eliminar">Eliminar</a></li>
+            </ul>
+        </div>
     </div>
-  </nav>
+</nav>
 
-  <img src="https://images.unsplash.com/photo-1603791440384-56cd371ee9a7" alt="Bus decorativo" class="header-image" />
+<div class="container mt-5">
+    <div class="text-center mb-5">
+        <h1 class="display-5 fw-semibold">Operaciones CRUD</h1>
+        <p class="lead text-muted">Gestión de Buses y Estaciones</p>
+    </div>
 
-  <div class="container mt-5">
-    <h1 class="text-center mb-4">Operaciones CRUD de Transporte</h1>
-    <p class="text-center mb-5">Gestione los registros de buses y estaciones de manera fácil y rápida.</p>
+    <!-- Crear -->
+    <section id="crear" class="mb-5">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card shadow rounded-4">
+                    <div class="card-header bg-success text-white">Crear Bus</div>
+                    <div class="card-body">
+                        <form id="crearBusForm">
+                            <div class="mb-3">
+                                <label for="nombreBus" class="form-label">Nombre del Bus</label>
+                                <input type="text" class="form-control" id="nombreBus" required />
+                            </div>
+                            <div class="mb-3">
+                                <label for="tipoBus" class="form-label">Tipo</label>
+                                <input type="text" class="form-control" id="tipoBus" required />
+                            </div>
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="activoBus" checked />
+                                <label class="form-check-label" for="activoBus">Activo</label>
+                            </div>
+                            <button type="submit" class="btn btn-success">Crear Bus</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
 
-    <!-- CREAR -->
-    <section id="crear">
-      <div class="card p-4">
-        <h2><i class="bi bi-plus-circle-fill text-success"></i> Crear Bus</h2>
-        <form id="crearBusForm">
-          <div class="mb-3">
-            <label for="nombreBus" class="form-label">Nombre del Bus</label>
-            <input type="text" class="form-control" id="nombreBus" required />
-          </div>
-          <div class="mb-3">
-            <label for="tipoBus" class="form-label">Tipo</label>
-            <input type="text" class="form-control" id="tipoBus" required />
-          </div>
-          <div class="mb-3 form-check">
-            <input type="checkbox" class="form-check-input" id="activoBus" checked />
-            <label class="form-check-label" for="activoBus">Activo</label>
-          </div>
-          <button type="submit" class="btn btn-success">Crear Bus</button>
-        </form>
-
-        <hr class="my-4"/>
-
-        <h2><i class="bi bi-plus-circle-fill text-success"></i> Crear Estación</h2>
-        <form id="crearEstacionForm">
-          <div class="mb-3">
-            <label for="nombreEstacion" class="form-label">Nombre de la Estación</label>
-            <input type="text" class="form-control" id="nombreEstacion" required />
-          </div>
-          <div class="mb-3">
-            <label for="localidadEstacion" class="form-label">Localidad</label>
-            <input type="text" class="form-control" id="localidadEstacion" required />
-          </div>
-          <div class="mb-3">
-            <label for="rutasAsociadas" class="form-label">Rutas Asociadas</label>
-            <input type="text" class="form-control" id="rutasAsociadas" required />
-          </div>
-          <div class="mb-3 form-check">
-            <input type="checkbox" class="form-check-input" id="activoEstacion" checked />
-            <label class="form-check-label" for="activoEstacion">Activo</label>
-          </div>
-          <button type="submit" class="btn btn-success">Crear Estación</button>
-        </form>
-      </div>
+            <div class="col-md-6">
+                <div class="card shadow rounded-4">
+                    <div class="card-header bg-success text-white">Crear Estación</div>
+                    <div class="card-body">
+                        <form id="crearEstacionForm">
+                            <div class="mb-3">
+                                <label for="nombreEstacion" class="form-label">Nombre de la Estación</label>
+                                <input type="text" class="form-control" id="nombreEstacion" required />
+                            </div>
+                            <div class="mb-3">
+                                <label for="localidadEstacion" class="form-label">Localidad</label>
+                                <input type="text" class="form-control" id="localidadEstacion" required />
+                            </div>
+                            <div class="mb-3">
+                                <label for="rutasAsociadas" class="form-label">Rutas Asociadas</label>
+                                <input type="text" class="form-control" id="rutasAsociadas" required />
+                            </div>
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="activoEstacion" checked />
+                                <label class="form-check-label" for="activoEstacion">Activo</label>
+                            </div>
+                            <button type="submit" class="btn btn-success">Crear Estación</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
 
-    <!-- LEER -->
-    <section id="leer">
-      <div class="card p-4">
-        <h2><i class="bi bi-eye-fill text-primary"></i> Lista de Buses</h2>
-        <ul id="listaBuses" class="list-group"></ul>
+    <!-- Leer -->
+    <section id="leer" class="mb-5">
+        <div class="card shadow rounded-4 mb-4">
+            <div class="card-header bg-info text-white">Lista de Buses</div>
+            <div class="card-body">
+                <ul id="listaBuses" class="list-group"></ul>
+            </div>
+        </div>
 
-        <hr class="my-4"/>
-
-        <h2><i class="bi bi-eye-fill text-primary"></i> Lista de Estaciones</h2>
-        <ul id="listaEstaciones" class="list-group"></ul>
-      </div>
+        <div class="card shadow rounded-4">
+            <div class="card-header bg-info text-white">Lista de Estaciones</div>
+            <div class="card-body">
+                <ul id="listaEstaciones" class="list-group"></ul>
+            </div>
+        </div>
     </section>
 
-    <!-- ACTUALIZAR -->
-    <section id="actualizar">
-      <div class="card p-4">
-        <h2><i class="bi bi-arrow-repeat text-warning"></i> Actualizar Bus</h2>
-        <form id="actualizarBusForm">
-          <div class="mb-3">
-            <label for="idBusActualizar" class="form-label">ID del Bus</label>
-            <input type="number" class="form-control" id="idBusActualizar" required />
-          </div>
-          <div class="mb-3 form-check">
-            <input type="checkbox" class="form-check-input" id="activoBusActualizar" />
-            <label class="form-check-label" for="activoBusActualizar">Activo</label>
-          </div>
-          <button type="submit" class="btn btn-warning">Actualizar Estado Bus</button>
-        </form>
+    <!-- Actualizar -->
+    <section id="actualizar" class="mb-5">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card shadow rounded-4">
+                    <div class="card-header bg-warning text-dark">Actualizar Bus</div>
+                    <div class="card-body">
+                        <form id="actualizarBusForm">
+                            <div class="mb-3">
+                                <label for="idBusActualizar" class="form-label">ID del Bus</label>
+                                <input type="number" class="form-control" id="idBusActualizar" required />
+                            </div>
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="activoBusActualizar" />
+                                <label class="form-check-label" for="activoBusActualizar">Activo</label>
+                            </div>
+                            <button type="submit" class="btn btn-warning text-white">Actualizar Estado Bus</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
 
-        <hr class="my-4"/>
-
-        <h2><i class="bi bi-arrow-repeat text-warning"></i> Actualizar Estación</h2>
-        <form id="actualizarEstacionForm">
-          <div class="mb-3">
-            <label for="idEstacionActualizar" class="form-label">ID de la Estación</label>
-            <input type="number" class="form-control" id="idEstacionActualizar" required />
-          </div>
-          <div class="mb-3 form-check">
-            <input type="checkbox" class="form-check-input" id="activoEstacionActualizar" />
-            <label class="form-check-label" for="activoEstacionActualizar">Activo</label>
-          </div>
-          <button type="submit" class="btn btn-warning">Actualizar Estado Estación</button>
-        </form>
-      </div>
+            <div class="col-md-6">
+                <div class="card shadow rounded-4">
+                    <div class="card-header bg-warning text-dark">Actualizar Estación</div>
+                    <div class="card-body">
+                        <form id="actualizarEstacionForm">
+                            <div class="mb-3">
+                                <label for="idEstacionActualizar" class="form-label">ID de la Estación</label>
+                                <input type="number" class="form-control" id="idEstacionActualizar" required />
+                            </div>
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="activoEstacionActualizar" />
+                                <label class="form-check-label" for="activoEstacionActualizar">Activo</label>
+                            </div>
+                            <button type="submit" class="btn btn-warning text-white">Actualizar Estado Estación</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
 
-    <!-- ELIMINAR -->
-    <section id="eliminar">
-      <div class="card p-4">
-        <h2><i class="bi bi-trash-fill text-danger"></i> Eliminar Bus</h2>
-        <form id="eliminarBusForm">
-          <div class="mb-3">
-            <label for="idBusEliminar" class="form-label">ID del Bus</label>
-            <input type="number" class="form-control" id="idBusEliminar" required />
-          </div>
-          <button type="submit" class="btn btn-danger">Eliminar Bus</button>
-        </form>
+    <!-- Eliminar -->
+    <section id="eliminar" class="mb-5">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card shadow rounded-4">
+                    <div class="card-header bg-danger text-white">Eliminar Bus</div>
+                    <div class="card-body">
+                        <form id="eliminarBusForm">
+                            <div class="mb-3">
+                                <label for="idBusEliminar" class="form-label">ID del Bus</label>
+                                <input type="number" class="form-control" id="idBusEliminar" required />
+                            </div>
+                            <button type="submit" class="btn btn-danger">Eliminar Bus</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
 
-        <hr class="my-4"/>
-
-        <h2><i class="bi bi-trash-fill text-danger"></i> Eliminar Estación</h2>
-        <form id="eliminarEstacionForm">
-          <div class="mb-3">
-            <label for="idEstacionEliminar" class="form-label">ID de la Estación</label>
-            <input type="number" class="form-control" id="idEstacionEliminar" required />
-          </div>
-          <button type="submit" class="btn btn-danger">Eliminar Estación</button>
-        </form>
-      </div>
+            <div class="col-md-6">
+                <div class="card shadow rounded-4">
+                    <div class="card-header bg-danger text-white">Eliminar Estación</div>
+                    <div class="card-body">
+                        <form id="eliminarEstacionForm">
+                            <div class="mb-3">
+                                <label for="idEstacionEliminar" class="form-label">ID de la Estación</label>
+                                <input type="number" class="form-control" id="idEstacionEliminar" required />
+                            </div>
+                            <button type="submit" class="btn btn-danger">Eliminar Estación</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
-  </div>
+</div>
 
-  <footer>
-    <p>&copy; 2025 CRUD Transporte. Todos los derechos reservados.</p>
-  </footer>
+<script>
+    const apiBaseUrl = "";
 
-  <!-- Tu script permanece igual -->
-  <script>
-    // (Todo el código JS queda igual que en tu mensaje anterior)
-  </script>
+    // Crear Bus
+    document.getElementById("crearBusForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const nombre_bus = document.getElementById("nombreBus").value;
+        const tipo = document.getElementById("tipoBus").value;
+        const activo = document.getElementById("activoBus").checked;
+
+        const response = await fetch("/buses/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nombre_bus, tipo, activo }),
+        });
+        if (response.ok) {
+            alert("Bus creado exitosamente");
+            loadBuses();
+            e.target.reset();
+        } else {
+            alert("Error al crear bus");
+        }
+    });
+
+    // Crear Estación
+    document.getElementById("crearEstacionForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const nombre_estacion = document.getElementById("nombreEstacion").value;
+        const localidad = document.getElementById("localidadEstacion").value;
+        const rutas_asociadas = document.getElementById("rutasAsociadas").value;
+        const activo = document.getElementById("activoEstacion").checked;
+
+        const response = await fetch("/estaciones/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nombre_estacion, localidad, rutas_asociadas, activo }),
+        });
+        if (response.ok) {
+            alert("Estación creada exitosamente");
+            loadEstaciones();
+            e.target.reset();
+        } else {
+            alert("Error al crear estación");
+        }
+    });
+
+    // Cargar lista de buses
+    async function loadBuses() {
+        const response = await fetch("/buses/");
+        if (response.ok) {
+            const buses = await response.json();
+            const listaBuses = document.getElementById("listaBuses");
+            listaBuses.innerHTML = "";
+            buses.forEach((bus) => {
+                const li = document.createElement("li");
+                li.className = "list-group-item";
+                li.textContent = `ID: ${bus.id} - Nombre: ${bus.nombre_bus} - Tipo: ${bus.tipo} - Activo: ${bus.activo}`;
+                listaBuses.appendChild(li);
+            });
+        }
+    }
+
+    // Cargar lista de estaciones
+    async function loadEstaciones() {
+        const response = await fetch("/estaciones/");
+        if (response.ok) {
+            const estaciones = await response.json();
+            const listaEstaciones = document.getElementById("listaEstaciones");
+            listaEstaciones.innerHTML = "";
+            estaciones.forEach((estacion) => {
+                const li = document.createElement("li");
+                li.className = "list-group-item";
+                li.textContent = `ID: ${estacion.id} - Nombre: ${estacion.nombre_estacion} - Localidad: ${estacion.localidad} - Activo: ${estacion.activo}`;
+                listaEstaciones.appendChild(li);
+            });
+        }
+    }
+
+    // Actualizar estado bus
+    document.getElementById("actualizarBusForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const id = document.getElementById("idBusActualizar").value;
+        const activo = document.getElementById("activoBusActualizar").checked;
+
+        const response = await fetch(`/buses/${id}/estado?activo=${activo}`, {
+            method: "PUT",
+        });
+        if (response.ok) {
+            alert("Estado del bus actualizado");
+            loadBuses();
+            e.target.reset();
+        } else {
+            alert("Error al actualizar estado del bus");
+        }
+    });
+
+    // Actualizar estado estación
+    document.getElementById("actualizarEstacionForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const id = document.getElementById("idEstacionActualizar").value;
+        const activo = document.getElementById("activoEstacionActualizar").checked;
+
+        const response = await fetch(`/estaciones/${id}/estado?activo=${activo}`, {
+            method: "PUT",
+        });
+        if (response.ok) {
+            alert("Estado de la estación actualizado");
+            loadEstaciones();
+            e.target.reset();
+        } else {
+            alert("Error al actualizar estado de la estación");
+        }
+    });
+
+    // Eliminar bus
+    document.getElementById("eliminarBusForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const id = document.getElementById("idBusEliminar").value;
+
+        const response = await fetch(`/buses/${id}`, {
+            method: "DELETE",
+        });
+        if (response.ok) {
+            alert("Bus eliminado");
+            loadBuses();
+            e.target.reset();
+        } else {
+            alert("Error al eliminar bus");
+        }
+    });
+
+    // Eliminar estación
+    document.getElementById("eliminarEstacionForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const id = document.getElementById("idEstacionEliminar").value;
+
+        const response = await fetch(`/estaciones/${id}`, {
+            method: "DELETE",
+        });
+        if (response.ok) {
+            alert("Estación eliminada");
+            loadEstaciones();
+            e.target.reset();
+        } else {
+            alert("Error al eliminar estación");
+        }
+    });
+
+    // Cargar listas al cargar la página
+    window.onload = () => {
+        loadBuses();
+        loadEstaciones();
+    };
+</script>
 </body>
 </html>
