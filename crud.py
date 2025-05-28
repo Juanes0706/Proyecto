@@ -7,18 +7,36 @@ import unicodedata
 
 # ---------------------- BUSES ----------------------
 
-def obtener_buses(db: Session, tipo: Optional[str] = None):
+def obtener_buses(db: Session, tipo: Optional[str] = None, activo: Optional[bool] = None):
     query = db.query(models.Bus)
     
     if tipo:
         query = query.filter(models.Bus.tipo.ilike(f"%{tipo}%"))
+    if activo is not None:
+        query = query.filter(models.Bus.activo == activo)
 
     buses = query.all()
-    # Normalize tipo to lowercase and strip spaces in response
     for bus in buses:
         if bus.tipo:
             bus.tipo = bus.tipo.strip().lower()
     return buses
+<<<<<<< SEARCH
+def obtener_estaciones(db: Session, sector: Optional[str] = None):
+    estaciones = db.query(models.Estacion).all()
+    if sector:
+        sector_norm = normalize_string(sector)
+        estaciones = [e for e in estaciones if normalize_string(e.localidad) == sector_norm]
+    return estaciones
+=======
+def obtener_estaciones(db: Session, sector: Optional[str] = None, activo: Optional[bool] = None):
+    query = db.query(models.Estacion)
+    if sector:
+        sector_norm = normalize_string(sector)
+        query = query.filter(models.Estacion.localidad.ilike(f"%{sector_norm}%"))
+    if activo is not None:
+        query = query.filter(models.Estacion.activo == activo)
+    estaciones = query.all()
+    return estaciones
 
 def obtener_bus_por_id(db: Session, bus_id: int):
     return db.query(models.Bus).filter(models.Bus.id == bus_id).first()

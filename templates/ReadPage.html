@@ -31,6 +31,14 @@
             <option value="zonal">Zonal</option>
         </select>
     </div>
+    <div class="mb-3">
+        <label for="filterActivoBus" class="form-label">Filtrar por estado:</label>
+        <select id="filterActivoBus" class="form-select">
+            <option value="">-- Todos --</option>
+            <option value="true">Activo</option>
+            <option value="false">Inactivo</option>
+        </select>
+    </div>
     <ul id="listaBuses" class="list-group"></ul>
 
     <h1 class="mt-5">Lista de Estaciones</h1>
@@ -38,13 +46,26 @@
         <label for="filterLocalidadEstacion" class="form-label">Filtrar por localidad:</label>
         <input type="text" id="filterLocalidadEstacion" class="form-control" placeholder="Escriba la localidad para filtrar" />
     </div>
+    <div class="mb-3">
+        <label for="filterActivoEstacion" class="form-label">Filtrar por estado:</label>
+        <select id="filterActivoEstacion" class="form-select">
+            <option value="">-- Todos --</option>
+            <option value="true">Activo</option>
+            <option value="false">Inactivo</option>
+        </select>
+    </div>
     <ul id="listaEstaciones" class="list-group"></ul>
 </div>
 
 <script>
     async function loadBuses() {
         const tipo = document.getElementById("filterTipoBus").value;
-        const url = tipo ? `/buses/?tipo=${encodeURIComponent(tipo)}` : "/buses/";
+        const activo = document.getElementById("filterActivoBus").value;
+        let url = "/buses/";
+        const params = [];
+        if (tipo) params.push(`tipo=${encodeURIComponent(tipo)}`);
+        if (activo) params.push(`activo=${encodeURIComponent(activo)}`);
+        if (params.length > 0) url += "?" + params.join("&");
         try {
             const response = await fetch(url);
             if (!response.ok) throw new Error("Error al cargar buses");
@@ -68,7 +89,12 @@
 
     async function loadEstaciones() {
         const localidad = document.getElementById("filterLocalidadEstacion").value.trim();
-        const url = localidad ? `/estaciones/?sector=${encodeURIComponent(localidad)}` : "/estaciones/";
+        const activo = document.getElementById("filterActivoEstacion").value;
+        let url = "/estaciones/";
+        const params = [];
+        if (localidad) params.push(`sector=${encodeURIComponent(localidad)}`);
+        if (activo) params.push(`activo=${encodeURIComponent(activo)}`);
+        if (params.length > 0) url += "?" + params.join("&");
         try {
             const response = await fetch(url);
             if (!response.ok) throw new Error("Error al cargar estaciones");
@@ -93,6 +119,9 @@
     document.getElementById("filterTipoBus").addEventListener("change", () => {
         loadBuses();
     });
+    document.getElementById("filterActivoBus").addEventListener("change", () => {
+        loadBuses();
+    });
 
     let debounceTimeout;
     document.getElementById("filterLocalidadEstacion").addEventListener("input", () => {
@@ -100,6 +129,9 @@
         debounceTimeout = setTimeout(() => {
             loadEstaciones();
         }, 300);
+    });
+    document.getElementById("filterActivoEstacion").addEventListener("change", () => {
+        loadEstaciones();
     });
 
     window.onload = () => {

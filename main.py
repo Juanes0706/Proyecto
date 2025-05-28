@@ -58,8 +58,8 @@ def crear_bus(bus: schemas.BusCreate, db: Session = Depends(get_db)):
     return crud.crear_bus(db, bus)
 
 @app.get("/buses/", response_model=list[schemas.Bus])
-def listar_buses(tipo: Optional[str] = None, db: Session = Depends(get_db)):
-    return crud.obtener_buses(db, tipo=tipo)
+def listar_buses(tipo: Optional[str] = None, activo: Optional[bool] = None, db: Session = Depends(get_db)):
+    return crud.obtener_buses(db, tipo=tipo, activo=activo)
 
 @app.get("/buses/{id}", response_model=schemas.Bus)
 def obtener_bus(id: int, db: Session = Depends(get_db)):
@@ -89,8 +89,8 @@ def crear_estacion(estacion: schemas.EstacionCreate, db: Session = Depends(get_d
     return crud.crear_estacion(db, estacion)
 
 @app.get("/estaciones/", response_model=list[schemas.Estacion])
-def listar_estaciones(sector: Optional[str] = None, db: Session = Depends(get_db)):
-    return crud.obtener_estaciones(db, sector=sector)
+def listar_estaciones(sector: Optional[str] = None, activo: Optional[bool] = None, db: Session = Depends(get_db)):
+    return crud.obtener_estaciones(db, sector=sector, activo=activo)
 
 @app.get("/estaciones/{id}", response_model=schemas.Estacion)
 def obtener_estacion(id: int, db: Session = Depends(get_db)):
