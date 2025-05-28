@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -13,9 +12,7 @@
         .navbar-brand img {
             height: 40px;
         }
-        .mapa-transmilenio {
-            max-width: 100%;
-            height: auto;
+        .img-fluid {
             margin-top: 20px;
         }
     </style>
@@ -38,10 +35,60 @@
 </nav>
 
 <div class="container text-center mt-5">
-    <h1 class="display-5">Sistema CRUD de Rutas TransMilenio</h1>
-    <p class="lead">Consulta, crea y gestiona la información del sistema TransMilenio con facilidad.</p>
-    <img src="/mnt/data/rutas transmilenio.png" class="mapa-transmilenio" alt="Mapa Rutas TransMilenio">
-</div>
+    <h1 class="display-5">ANÁLISIS Y GESTIÓN DIGITAL DE RUTAS Y ESTACIONES DEL SISTEMA TRANSMILENIO MEDIANTE UNA API DESARROLLADA CON FASTAPI Y POSTGRESQL</h1>
+    <p class="lead">Por: Juan Esteban Tovar Vargas - 67001350</p>
+    <p class="lead mt-3">Consulta, crea y gestiona la información del sistema TransMilenio con facilidad.</p>
 
+    <section id="objetivo" class="mt-5 text-start">
+        <h3>Objetivo</h3>
+        <p>Desarrollar una API con FastAPI que permita registrar, consultar, filtrar y administrar rutas y estaciones del sistema de transporte TransMilenio, almacenando los datos en una base de datos PostgreSQL y preparándola para despliegue en la nube (Render).</p>
+    </section>
+
+    <section id="problema" class="mt-4 text-start">
+        <h3>Problema / situación / oportunidad</h3>
+        <p>El sistema TransMilenio es fundamental para la movilidad en Bogotá, pero el acceso a datos organizados, actualizables y reutilizables por terceros (desarrolladores, analistas, ciudadanos) es limitado. La mayoría de los datos están dispersos o requieren limpieza antes de ser usados. Esto representa una oportunidad para desarrollar una solución moderna y flexible que permita administrar y consultar estos datos mediante una API, facilitando el desarrollo de futuros sistemas o análisis que contribuyan a mejorar la eficiencia del transporte público.</p>
+    </section>
+
+    <div class="text-center mt-4">
+        <img src="/static/img/transmilenio.jpg" alt="Transmilenio" class="img-fluid" />
+    </div>
+
+    <section id="historia" class="mt-5 text-start">
+        <h3>Breve historia de TransMilenio</h3>
+        <p>TransMilenio es el sistema de transporte masivo de Bogotá, Colombia, inaugurado el 4 de diciembre del año 2000. Inspirado en el modelo de autobuses de tránsito rápido (BRT) de Curitiba, Brasil, fue concebido como una solución a los crecientes problemas de movilidad en la capital colombiana.</p>
+        <p>Desde su inicio, TransMilenio se destacó por operar con buses articulados que circulan por carriles exclusivos, lo que permite mayor rapidez y eficiencia. El sistema comenzó con la Troncal Caracas y se fue expandiendo gradualmente por diferentes corredores viales de la ciudad.</p>
+        <p>A lo largo de los años, TransMilenio ha enfrentado desafíos importantes como la congestión, problemas de seguridad y mantenimiento. Sin embargo, también ha sido reconocido internacionalmente como un modelo de transporte urbano accesible y de bajo costo de implementación comparado con los metros subterráneos.</p>
+    </section>
+
+    <section id="troncales" class="mt-5 text-start">
+        <h3>Principales troncales del sistema</h3>
+        <ul>
+            <li><strong>Caracas:</strong> Conecta el centro con el sur de la ciudad.</li>
+            <li><strong>Autopista Norte:</strong> Recorre el norte de Bogotá.</li>
+            <li><strong>Avenida Suba:</strong> Conecta el occidente de la ciudad.</li>
+            <li><strong>Calle 80:</strong> Sirve al occidente con estaciones como Portal 80.</li>
+            <li><strong>NQS Central y Sur:</strong> Conecta zonas desde el norte hasta el sur.</li>
+            <li><strong>Avenida Las Américas:</strong> Atraviesa el suroccidente.</li>
+            <li><strong>Avenida Eldorado (Calle 26):</strong> Conecta occidente y centro.</li>
+            <li><strong>Carrera Décima y Carrera Séptima:</strong> Recorren el centro y oriente.</li>
+        </ul>
+    </section>
+
+    <section id="datos-curiosos" class="mt-5 text-start">
+        <h3>Datos curiosos de TransMilenio</h3>
+        <ul>
+            <li>Inspirado en el BRT de Curitiba.</li>
+            <li>Más de 100 km de troncales.</li>
+            <li>Ha movilizado más de 2.5 millones de personas al día.</li>
+            <li>Buses de hasta 27 metros de largo.</li>
+            <li>Primer sistema BRT moderno de Latinoamérica.</li>
+            <li>Campañas de cultura ciudadana en sus inicios.</li>
+            <li>La estación “San Victorino” es conocida como estación fantasma.</li>
+            <li>Ha contribuido a reducir las emisiones contaminantes.</li>
+            <li>Hace parte del SITP para integración modal.</li>
+            <li>Ganador del Sustainable Transport Award en 2005.</li>
+        </ul>
+    </section>
+</div>
 </body>
 </html>
