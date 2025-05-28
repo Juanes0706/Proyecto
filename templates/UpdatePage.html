@@ -15,74 +15,114 @@
                 <li class="nav-item"><a class="nav-link" href="/">Inicio</a></li>
                 <li class="nav-item"><a class="nav-link" href="/create">Crear</a></li>
                 <li class="nav-item"><a class="nav-link" href="/read">Leer</a></li>
-                <li class="nav-item"><a class="nav-link" href="/update">Actualizar</a></li>
+                <li class="nav-item"><a class="nav-link active" aria-current="page" href="/update">Actualizar</a></li>
                 <li class="nav-item"><a class="nav-link" href="/delete">Eliminar</a></li>
             </ul>
         </div>
     </div>
 </nav>
-<div class="container mt-5">
-    <h1>Actualizar Estado de Bus</h1>
-    <form id="actualizarBusForm">
-        <div class="mb-3">
-            <label for="idBusActualizar" class="form-label">ID del Bus</label>
-            <input type="number" class="form-control" id="idBusActualizar" required />
-        </div>
-        <div class="mb-3 form-check">
-            <input type="checkbox" class="form-check-input" id="activoBusActualizar" />
-            <label class="form-check-label" for="activoBusActualizar">Activo</label>
-        </div>
-        <button type="submit" class="btn btn-primary">Actualizar Estado Bus</button>
-    </form>
 
-    <h1 class="mt-5">Actualizar Estado de Estación</h1>
-    <form id="actualizarEstacionForm">
-        <div class="mb-3">
-            <label for="idEstacionActualizar" class="form-label">ID de la Estación</label>
-            <input type="number" class="form-control" id="idEstacionActualizar" required />
+<div class="container mt-5">
+    <div class="row g-4">
+        <!-- Actualizar Bus -->
+        <div class="col-md-6">
+            <div class="card shadow rounded-4">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">Actualizar Estado de Bus</h4>
+                </div>
+                <div class="card-body">
+                    <form id="actualizarBusForm" novalidate>
+                        <div class="mb-3">
+                            <label for="idBusActualizar" class="form-label">ID del Bus</label>
+                            <input type="number" class="form-control" id="idBusActualizar" required />
+                        </div>
+                        <div class="form-check mb-3">
+                            <input type="checkbox" class="form-check-input" id="activoBusActualizar" />
+                            <label class="form-check-label" for="activoBusActualizar">Activo</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Actualizar Estado Bus</button>
+                    </form>
+                </div>
+            </div>
         </div>
-        <div class="mb-3 form-check">
-            <input type="checkbox" class="form-check-input" id="activoEstacionActualizar" />
-            <label class="form-check-label" for="activoEstacionActualizar">Activo</label>
+
+        <!-- Actualizar Estación -->
+        <div class="col-md-6">
+            <div class="card shadow rounded-4">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">Actualizar Estado de Estación</h4>
+                </div>
+                <div class="card-body">
+                    <form id="actualizarEstacionForm" novalidate>
+                        <div class="mb-3">
+                            <label for="idEstacionActualizar" class="form-label">ID de la Estación</label>
+                            <input type="number" class="form-control" id="idEstacionActualizar" required />
+                        </div>
+                        <div class="form-check mb-3">
+                            <input type="checkbox" class="form-check-input" id="activoEstacionActualizar" />
+                            <label class="form-check-label" for="activoEstacionActualizar">Activo</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Actualizar Estado Estación</button>
+                    </form>
+                </div>
+            </div>
         </div>
-        <button type="submit" class="btn btn-primary">Actualizar Estado Estación</button>
-    </form>
+    </div>
 </div>
 
 <script>
     // Actualizar estado bus
     document.getElementById("actualizarBusForm").addEventListener("submit", async (e) => {
         e.preventDefault();
-        const id = document.getElementById("idBusActualizar").value;
+        const id = document.getElementById("idBusActualizar").value.trim();
         const activo = document.getElementById("activoBusActualizar").checked;
 
-        const response = await fetch(`/buses/${id}/estado?activo=${activo}`, {
-            method: "PUT",
-        });
-        if (response.ok) {
-            alert("Estado del bus actualizado");
-            e.target.reset();
-        } else {
-            alert("Error al actualizar estado del bus");
+        if (!id) {
+            alert("Por favor, ingrese un ID válido para el bus.");
+            return;
+        }
+
+        try {
+            const response = await fetch(`/buses/${id}/estado?activo=${activo}`, {
+                method: "PUT",
+            });
+            if (response.ok) {
+                alert("Estado del bus actualizado correctamente.");
+                e.target.reset();
+            } else {
+                alert("Error al actualizar estado del bus.");
+            }
+        } catch (error) {
+            alert("Error de conexión al actualizar estado del bus.");
         }
     });
 
     // Actualizar estado estación
     document.getElementById("actualizarEstacionForm").addEventListener("submit", async (e) => {
         e.preventDefault();
-        const id = document.getElementById("idEstacionActualizar").value;
+        const id = document.getElementById("idEstacionActualizar").value.trim();
         const activo = document.getElementById("activoEstacionActualizar").checked;
 
-        const response = await fetch(`/estaciones/${id}/estado?activo=${activo}`, {
-            method: "PUT",
-        });
-        if (response.ok) {
-            alert("Estado de la estación actualizado");
-            e.target.reset();
-        } else {
-            alert("Error al actualizar estado de la estación");
+        if (!id) {
+            alert("Por favor, ingrese un ID válido para la estación.");
+            return;
+        }
+
+        try {
+            const response = await fetch(`/estaciones/${id}/estado?activo=${activo}`, {
+                method: "PUT",
+            });
+            if (response.ok) {
+                alert("Estado de la estación actualizado correctamente.");
+                e.target.reset();
+            } else {
+                alert("Error al actualizar estado de la estación.");
+            }
+        } catch (error) {
+            alert("Error de conexión al actualizar estado de la estación.");
         }
     });
 </script>
+
 </body>
 </html>
