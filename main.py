@@ -77,8 +77,8 @@ async def crear_bus(
             bucket = "buses"
             # Upload image to Supabase Storage
             response = supabase.storage.from_(bucket).upload(unique_filename, content)
-            if response.get("error"):
-                logging.error(f"Supabase upload error: {response['error']}")
+            if response.error:
+                logging.error(f"Supabase upload error: {response.error.message}")
                 raise HTTPException(status_code=500, detail="Error uploading image")
             imagen_url = f"{supabase.storage_url}/object/public/{bucket}/{unique_filename}"
         except Exception as e:
@@ -139,9 +139,9 @@ async def crear_estacion(
             content = await imagen.read()
             bucket = "estaciones"
             # Upload image to Supabase Storage
-            response = await supabase.storage.from_(bucket).upload(unique_filename, content)
-            if response.get("error"):
-                logging.error(f"Supabase upload error: {response['error']}")
+            response = supabase.storage.from_(bucket).upload(unique_filename, content)
+            if response.error:
+                logging.error(f"Supabase upload error: {response.error.message}")
                 raise HTTPException(status_code=500, detail="Error uploading image")
             imagen_url = f"{supabase.storage_url}/object/public/{bucket}/{unique_filename}"
         except Exception as e:
