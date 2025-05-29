@@ -76,7 +76,7 @@ async def crear_bus(
             content = await imagen.read()
             bucket = "buses"
             # Upload image to Supabase Storage
-            response = await supabase.storage.from_(bucket).upload(unique_filename, content)
+            response = supabase.storage.from_(bucket).upload(unique_filename, content)
             if response.get("error"):
                 logging.error(f"Supabase upload error: {response['error']}")
                 raise HTTPException(status_code=500, detail="Error uploading image")
