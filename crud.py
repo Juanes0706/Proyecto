@@ -51,7 +51,7 @@ def eliminar_bus(bus_id: int):
     response = supabase.table("buses").delete().eq("id", bus_id).execute()
     if response.status_code == 204:
         return {"mensaje": "Bus eliminado"}
-    return None
+    return {"error": "Error eliminando bus"}
 
 def actualizar_estado_bus(bus_id: int, nuevo_estado: bool):
     response = supabase.table("buses").update({"activo": nuevo_estado}).eq("id", bus_id).execute()
@@ -88,7 +88,7 @@ def eliminar_estacion(estacion_id: int):
     response = supabase.table("estaciones").delete().eq("id", estacion_id).execute()
     if response.status_code == 204:
         return {"mensaje": "Estación eliminada"}
-    return None
+    return {"error": "Error eliminando estación"}
 
 def actualizar_estado_estacion(estacion_id: int, nuevo_estado: bool):
     response = supabase.table("estaciones").update({"activo": nuevo_estado}).eq("id", estacion_id).execute()

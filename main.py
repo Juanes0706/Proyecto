@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from typing import Optional
 import models, schemas, crud
 from db import SessionLocal, engine
+from supabase_client import supabase
 
 # Crear tablas
 models.Base.metadata.create_all(bind=engine)
@@ -96,7 +97,6 @@ async def delete_page(request: Request):
 # ---------------------- BUSES ----------------------
 
 from fastapi import File, UploadFile, Form
-from supabase_client import supabase
 from typing import Optional
 from fastapi import HTTPException
 import uuid
