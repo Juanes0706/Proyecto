@@ -57,6 +57,8 @@ from fastapi import File, UploadFile, Form
 from supabase_client import supabase
 from typing import Optional
 from fastapi import HTTPException
+import uuid
+import logging
 
 @app.post("/buses/", response_model=dict)
 async def crear_bus(
@@ -67,11 +69,21 @@ async def crear_bus(
 ):
     imagen_url = None
     if imagen:
-        # Upload image to Supabase Storage
-        content = await imagen.read()
-        bucket = "buses"
-        await supabase.storage.from_(bucket).upload(imagen.filename, content)
-        imagen_url = f"{supabase.storage_url}/object/public/{bucket}/{imagen.filename}"
+        try:
+            # Generate unique filename
+            ext = imagen.filename.split('.')[-1]
+            unique_filename = f"{uuid.uuid4()}.{ext}"
+            content = await imagen.read()
+            bucket = "buses"
+            # Upload image to Supabase Storage
+            response = await supabase.storage.from_(bucket).upload(unique_filename, content)
+            if response.get("error"):
+                logging.error(f"Supabase upload error: {response['error']}")
+                raise HTTPException(status_code=500, detail="Error uploading image")
+            imagen_url = f"{supabase.storage_url}/object/public/{bucket}/{unique_filename}"
+        except Exception as e:
+            logging.error(f"Exception during image upload: {e}")
+            raise HTTPException(status_code=500, detail="Error uploading image")
     bus_data = {
         "nombre_bus": nombre_bus,
         "tipo": tipo.lower().strip(),
@@ -120,11 +132,21 @@ async def crear_estacion(
 ):
     imagen_url = None
     if imagen:
-        # Upload image to Supabase Storage
-        content = await imagen.read()
-        bucket = "estaciones"
-        await supabase.storage.from_(bucket).upload(imagen.filename, content)
-        imagen_url = f"{supabase.storage_url}/object/public/{bucket}/{imagen.filename}"
+        try:
+            # Generate unique filename
+            ext = imagen.filename.split('.')[-1]
+            unique_filename = f"{uuid.uuid4()}.{ext}"
+            content = await imagen.read()
+            bucket = "estaciones"
+            # Upload image to Supabase Storage
+            response = await supabase.storage.from_(bucket).upload(unique_filename, content)
+            if response.get("error"):
+                logging.error(f"Supabase upload error: {response['error']}")
+                raise HTTPException(status_code=500, detail="Error uploading image")
+            imagen_url = f"{supabase.storage_url}/object/public/{bucket}/{unique_filename}"
+        except Exception as e:
+            logging.error(f"Exception during image upload: {e}")
+            raise HTTPException(status_code=500, detail="Error uploading image")
     estacion_data = {
         "nombre_estacion": nombre_estacion,
         "localidad": localidad,
