@@ -15,6 +15,7 @@ class Bus(Base):
     nombre_bus = Column(String, index=True)
     tipo = Column(String)  
     activo = Column(Boolean, default=True)
+    imagen = Column(String, nullable=True)  
 
 class Estacion(Base):
     __tablename__ = "estaciones"
@@ -23,3 +24,4 @@ class Estacion(Base):
     localidad = Column(String)  
     rutas_asociadas = Column(String)
     activo = Column(Boolean, default=True)
+    imagen = Column(String, nullable=True)  

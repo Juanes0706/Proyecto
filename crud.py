@@ -54,12 +54,28 @@ def actualizar_estado_bus(db: Session, bus_id: int, nuevo_estado: bool):
         db.refresh(bus)
     return bus
 
-def crear_bus(db: Session, bus: schemas.BusCreate):
+from PIL import Image
+import os
+
+def crear_bus(db: Session, bus: schemas.BusCreate, imagen_path: str = None):
     tipo_normalizado = bus.tipo.value.lower().strip() if hasattr(bus.tipo, 'value') else bus.tipo.lower().strip()
+    imagen_guardada = None
+    if imagen_path:
+        # Resize and save image
+        img = Image.open(imagen_path)
+        img = img.resize((300, 200))  # Example size
+        carpeta_img = "img/buses"
+        os.makedirs(carpeta_img, exist_ok=True)
+        nombre_archivo = os.path.basename(imagen_path)
+        ruta_guardado = os.path.join(carpeta_img, nombre_archivo)
+        img.save(ruta_guardado)
+        imagen_guardada = ruta_guardado
+
     nuevo_bus = models.Bus(
         nombre_bus=bus.nombre_bus,
         tipo=tipo_normalizado,
-        activo=bus.activo
+        activo=bus.activo,
+        imagen=imagen_guardada
     )
     db.add(nuevo_bus)
     db.commit()
@@ -94,12 +110,25 @@ def actualizar_id_estacion(db: Session, estacion_id: int, nuevo_id: int):
         return estacion
     return None
 
-def crear_estacion(db: Session, estacion: schemas.EstacionCreate):
+def crear_estacion(db: Session, estacion: schemas.EstacionCreate, imagen_path: str = None):
+    imagen_guardada = None
+    if imagen_path:
+        # Resize and save image
+        img = Image.open(imagen_path)
+        img = img.resize((300, 200))  # Example size
+        carpeta_img = "img/estaciones"
+        os.makedirs(carpeta_img, exist_ok=True)
+        nombre_archivo = os.path.basename(imagen_path)
+        ruta_guardado = os.path.join(carpeta_img, nombre_archivo)
+        img.save(ruta_guardado)
+        imagen_guardada = ruta_guardado
+
     nueva_estacion = models.Estacion(
         nombre_estacion=estacion.nombre_estacion,
         localidad=estacion.localidad,
         rutas_asociadas=estacion.rutas_asociadas,
-        activo=estacion.activo
+        activo=estacion.activo,
+        imagen=imagen_guardada
     )
     db.add(nueva_estacion)
     db.commit()

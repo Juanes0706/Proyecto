@@ -53,9 +53,27 @@ async def delete_page(request: Request):
 
 # ---------------------- BUSES ----------------------
 
+from fastapi import File, UploadFile, Form
+
 @app.post("/buses/", response_model=schemas.Bus)
-def crear_bus(bus: schemas.BusCreate, db: Session = Depends(get_db)):
-    return crud.crear_bus(db, bus)
+async def crear_bus(
+    nombre_bus: str = Form(...),
+    tipo: str = Form(...),
+    activo: bool = Form(...),
+    imagen: UploadFile = File(None),
+    db: Session = Depends(get_db)
+):
+    imagen_path = None
+    if imagen:
+        carpeta_img = "img/buses"
+        import os
+        os.makedirs(carpeta_img, exist_ok=True)
+        ruta_guardado = os.path.join(carpeta_img, imagen.filename)
+        with open(ruta_guardado, "wb") as buffer:
+            buffer.write(await imagen.read())
+        imagen_path = ruta_guardado
+    bus_create = schemas.BusCreate(nombre_bus=nombre_bus, tipo=tipo, activo=activo)
+    return crud.crear_bus(db, bus_create, imagen_path=imagen_path)
 
 @app.get("/buses/", response_model=list[schemas.Bus])
 def listar_buses(tipo: Optional[str] = None, activo: Optional[bool] = None, db: Session = Depends(get_db)):
@@ -85,8 +103,30 @@ def cambiar_estado_bus(id: int, activo: bool, db: Session = Depends(get_db)):
 # ---------------------- ESTACIONES ----------------------
 
 @app.post("/estaciones/", response_model=schemas.Estacion)
-def crear_estacion(estacion: schemas.EstacionCreate, db: Session = Depends(get_db)):
-    return crud.crear_estacion(db, estacion)
+async def crear_estacion(
+    nombre_estacion: str = Form(...),
+    localidad: str = Form(...),
+    rutas_asociadas: str = Form(...),
+    activo: bool = Form(...),
+    imagen: UploadFile = File(None),
+    db: Session = Depends(get_db)
+):
+    imagen_path = None
+    if imagen:
+        carpeta_img = "img/estaciones"
+        import os
+        os.makedirs(carpeta_img, exist_ok=True)
+        ruta_guardado = os.path.join(carpeta_img, imagen.filename)
+        with open(ruta_guardado, "wb") as buffer:
+            buffer.write(await imagen.read())
+        imagen_path = ruta_guardado
+    estacion_create = schemas.EstacionCreate(
+        nombre_estacion=nombre_estacion,
+        localidad=localidad,
+        rutas_asociadas=rutas_asociadas,
+        activo=activo
+    )
+    return crud.crear_estacion(db, estacion_create, imagen_path=imagen_path)
 
 @app.get("/estaciones/", response_model=list[schemas.Estacion])
 def listar_estaciones(sector: Optional[str] = None, activo: Optional[bool] = None, db: Session = Depends(get_db)):
