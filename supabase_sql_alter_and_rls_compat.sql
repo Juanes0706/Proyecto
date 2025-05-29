@@ -19,16 +19,16 @@ ALTER TABLE estaciones ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Allow insert on buses" ON buses;
 DROP POLICY IF EXISTS "Allow insert on estaciones" ON estaciones;
 
--- Create policy to allow inserts on buses table
+-- Create policy to allow inserts on buses table for service_role
 CREATE POLICY "Allow insert on buses"
 ON buses
 FOR INSERT
-TO public
+TO authenticated
 WITH CHECK (true);
 
--- Create policy to allow inserts on estaciones table
+-- Create policy to allow inserts on estaciones table for service_role
 CREATE POLICY "Allow insert on estaciones"
 ON estaciones
 FOR INSERT
-TO public
+TO authenticated
 WITH CHECK (true);

@@ -1,2 +1,5 @@
 SUPABASE_URL = "https://yotmkfccxktsupzdtbvb.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlvdG1rZmNjeGt0c3VwemR0YnZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg1NDc5MDQsImV4cCI6MjA2NDEyMzkwNH0.TF2Ax8466NraLCo4KakMPy55GnsPE1VPC849zQGzW-M"
+
+# Add your Supabase service role key here (keep this secret)
+SUPABASE_SERVICE_ROLE_KEY = "your-service-role-key-here"
