@@ -37,6 +37,17 @@ def obtener_bus_por_id(bus_id: int):
     return response.data
 
 def eliminar_bus(bus_id: int):
+    bus = obtener_bus_por_id(bus_id)
+    if not bus:
+        return None
+    imagen_url = bus.get("imagen")
+    if imagen_url:
+        try:
+            bucket = "buses"
+            filename = imagen_url.split(f"/{bucket}/")[-1]
+            supabase.storage.from_(bucket).remove([filename])
+        except Exception as e:
+            print(f"Error deleting bus image: {e}")
     response = supabase.table("buses").delete().eq("id", bus_id).execute()
     if response.status_code == 204:
         return {"mensaje": "Bus eliminado"}
@@ -63,6 +74,17 @@ def obtener_estacion_por_id(estacion_id: int):
     return response.data
 
 def eliminar_estacion(estacion_id: int):
+    estacion = obtener_estacion_por_id(estacion_id)
+    if not estacion:
+        return None
+    imagen_url = estacion.get("imagen")
+    if imagen_url:
+        try:
+            bucket = "estaciones"
+            filename = imagen_url.split(f"/{bucket}/")[-1]
+            supabase.storage.from_(bucket).remove([filename])
+        except Exception as e:
+            print(f"Error deleting estacion image: {e}")
     response = supabase.table("estaciones").delete().eq("id", estacion_id).execute()
     if response.status_code == 204:
         return {"mensaje": "Estación eliminada"}

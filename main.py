@@ -47,6 +47,48 @@ async def read_page(request: Request):
 async def update_page(request: Request):
     return templates.TemplateResponse("UpdatePage.html", {"request": request})
 
+from fastapi import Body
+
+@app.put("/buses/{id}", response_model=dict)
+async def actualizar_bus(id: int, bus: dict = Body(...)):
+    existing_bus = crud.obtener_bus_por_id(id)
+    if not existing_bus:
+        raise HTTPException(status_code=404, detail="Bus no encontrado")
+    update_data = {}
+    if "nombre_bus" in bus:
+        update_data["nombre_bus"] = bus["nombre_bus"]
+    if "tipo" in bus:
+        update_data["tipo"] = bus["tipo"].lower().strip()
+    if "activo" in bus:
+        update_data["activo"] = bus["activo"]
+    if "imagen" in bus and bus["imagen"] is not None:
+        update_data["imagen"] = bus["imagen"]
+    response = supabase.table("buses").update(update_data).eq("id", id).execute()
+    if response.error:
+        raise HTTPException(status_code=500, detail="Error actualizando bus")
+    return response.data[0]
+
+@app.put("/estaciones/{id}", response_model=dict)
+async def actualizar_estacion(id: int, estacion: dict = Body(...)):
+    existing_estacion = crud.obtener_estacion_por_id(id)
+    if not existing_estacion:
+        raise HTTPException(status_code=404, detail="Estación no encontrada")
+    update_data = {}
+    if "nombre_estacion" in estacion:
+        update_data["nombre_estacion"] = estacion["nombre_estacion"]
+    if "localidad" in estacion:
+        update_data["localidad"] = estacion["localidad"]
+    if "rutas_asociadas" in estacion:
+        update_data["rutas_asociadas"] = estacion["rutas_asociadas"]
+    if "activo" in estacion:
+        update_data["activo"] = estacion["activo"]
+    if "imagen" in estacion and estacion["imagen"] is not None:
+        update_data["imagen"] = estacion["imagen"]
+    response = supabase.table("estaciones").update(update_data).eq("id", id).execute()
+    if response.error:
+        raise HTTPException(status_code=500, detail="Error actualizando estación")
+    return response.data[0]
+
 @app.get("/delete", response_class=HTMLResponse)
 async def delete_page(request: Request):
     return templates.TemplateResponse("DeletePage.html", {"request": request})
