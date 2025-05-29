@@ -54,115 +54,124 @@ async def delete_page(request: Request):
 # ---------------------- BUSES ----------------------
 
 from fastapi import File, UploadFile, Form
+from supabase_client import supabase
+from typing import Optional
+from fastapi import HTTPException
 
-@app.post("/buses/", response_model=schemas.Bus)
+@app.post("/buses/", response_model=dict)
 async def crear_bus(
     nombre_bus: str = Form(...),
     tipo: str = Form(...),
     activo: bool = Form(...),
-    imagen: UploadFile = File(None),
-    db: Session = Depends(get_db)
+    imagen: UploadFile = File(None)
 ):
-    imagen_path = None
+    imagen_url = None
     if imagen:
-        carpeta_img = "img/buses"
-        import os
-        os.makedirs(carpeta_img, exist_ok=True)
-        ruta_guardado = os.path.join(carpeta_img, imagen.filename)
-        with open(ruta_guardado, "wb") as buffer:
-            buffer.write(await imagen.read())
-        imagen_path = ruta_guardado
-    bus_create = schemas.BusCreate(nombre_bus=nombre_bus, tipo=tipo, activo=activo)
-    return crud.crear_bus(db, bus_create, imagen_path=imagen_path)
+        # Upload image to Supabase Storage
+        content = await imagen.read()
+        bucket = "buses"
+        await supabase.storage.from_(bucket).upload(imagen.filename, content)
+        imagen_url = f"{supabase.storage_url}/object/public/{bucket}/{imagen.filename}"
+    bus_data = {
+        "nombre_bus": nombre_bus,
+        "tipo": tipo.lower().strip(),
+        "activo": activo,
+        "imagen": imagen_url
+    }
+    created_bus = crud.crear_bus(bus_data)
+    if not created_bus:
+        raise HTTPException(status_code=500, detail="Error creating bus")
+    return created_bus
 
-@app.get("/buses/", response_model=list[schemas.Bus])
-def listar_buses(tipo: Optional[str] = None, activo: Optional[bool] = None, db: Session = Depends(get_db)):
-    return crud.obtener_buses(db, tipo=tipo, activo=activo)
+@app.get("/buses/", response_model=list[dict])
+def listar_buses(tipo: Optional[str] = None, activo: Optional[bool] = None):
+    return crud.obtener_buses(tipo=tipo, activo=activo)
 
-@app.get("/buses/{id}", response_model=schemas.Bus)
-def obtener_bus(id: int, db: Session = Depends(get_db)):
-    bus = crud.obtener_bus_por_id(db, id)
+@app.get("/buses/{id}", response_model=dict)
+def obtener_bus(id: int):
+    bus = crud.obtener_bus_por_id(id)
     if not bus:
         raise HTTPException(status_code=404, detail="Bus no encontrado")
     return bus
 
 @app.delete("/buses/{id}")
-def eliminar_bus(id: int, db: Session = Depends(get_db)):
-    resultado = crud.eliminar_bus(db, id)
+def eliminar_bus(id: int):
+    resultado = crud.eliminar_bus(id)
     if resultado is None:
         raise HTTPException(status_code=404, detail="Bus no encontrado")
     return resultado
 
 @app.put("/buses/{id}/estado")
-def cambiar_estado_bus(id: int, activo: bool, db: Session = Depends(get_db)):
-    bus = crud.actualizar_estado_bus(db, id, activo)
-    if not bus:
+def cambiar_estado_bus(id: int, activo: bool):
+    resultado = crud.actualizar_estado_bus(id, activo)
+    if resultado is None:
         raise HTTPException(status_code=404, detail="Bus no encontrado")
-    return {"mensaje": f"Estado de bus actualizado a {'activo' if activo else 'inactivo'}"}
+    return resultado
 
 # ---------------------- ESTACIONES ----------------------
 
-@app.post("/estaciones/", response_model=schemas.Estacion)
+@app.post("/estaciones/", response_model=dict)
 async def crear_estacion(
     nombre_estacion: str = Form(...),
     localidad: str = Form(...),
     rutas_asociadas: str = Form(...),
     activo: bool = Form(...),
-    imagen: UploadFile = File(None),
-    db: Session = Depends(get_db)
+    imagen: UploadFile = File(None)
 ):
-    imagen_path = None
+    imagen_url = None
     if imagen:
-        carpeta_img = "img/estaciones"
-        import os
-        os.makedirs(carpeta_img, exist_ok=True)
-        ruta_guardado = os.path.join(carpeta_img, imagen.filename)
-        with open(ruta_guardado, "wb") as buffer:
-            buffer.write(await imagen.read())
-        imagen_path = ruta_guardado
-    estacion_create = schemas.EstacionCreate(
-        nombre_estacion=nombre_estacion,
-        localidad=localidad,
-        rutas_asociadas=rutas_asociadas,
-        activo=activo
-    )
-    return crud.crear_estacion(db, estacion_create, imagen_path=imagen_path)
+        # Upload image to Supabase Storage
+        content = await imagen.read()
+        bucket = "estaciones"
+        await supabase.storage.from_(bucket).upload(imagen.filename, content)
+        imagen_url = f"{supabase.storage_url}/object/public/{bucket}/{imagen.filename}"
+    estacion_data = {
+        "nombre_estacion": nombre_estacion,
+        "localidad": localidad,
+        "rutas_asociadas": rutas_asociadas,
+        "activo": activo,
+        "imagen": imagen_url
+    }
+    created_estacion = crud.crear_estacion(estacion_data)
+    if not created_estacion:
+        raise HTTPException(status_code=500, detail="Error creating estación")
+    return created_estacion
 
-@app.get("/estaciones/", response_model=list[schemas.Estacion])
-def listar_estaciones(sector: Optional[str] = None, activo: Optional[bool] = None, db: Session = Depends(get_db)):
-    return crud.obtener_estaciones(db, sector=sector, activo=activo)
+@app.get("/estaciones/", response_model=list[dict])
+def listar_estaciones(sector: Optional[str] = None, activo: Optional[bool] = None):
+    return crud.obtener_estaciones(sector=sector, activo=activo)
 
-@app.get("/estaciones/{id}", response_model=schemas.Estacion)
-def obtener_estacion(id: int, db: Session = Depends(get_db)):
-    estacion = crud.obtener_estacion_por_id(db, id)
+@app.get("/estaciones/{id}", response_model=dict)
+def obtener_estacion(id: int):
+    estacion = crud.obtener_estacion_por_id(id)
     if not estacion:
         raise HTTPException(status_code=404, detail="Estación no encontrada")
     return estacion
 
 @app.delete("/estaciones/{id}")
-def eliminar_estacion(id: int, db: Session = Depends(get_db)):
-    resultado = crud.eliminar_estacion(db, id)
+def eliminar_estacion(id: int):
+    resultado = crud.eliminar_estacion(id)
     if resultado is None:
         raise HTTPException(status_code=404, detail="Estación no encontrada")
     return resultado
 
 @app.put("/estaciones/{id}/estado")
-def cambiar_estado_estacion(id: int, activo: bool, db: Session = Depends(get_db)):
-    estacion = crud.actualizar_estado_estacion(db, id, activo)
-    if not estacion:
+def cambiar_estado_estacion(id: int, activo: bool):
+    resultado = crud.actualizar_estado_estacion(id, activo)
+    if resultado is None:
         raise HTTPException(status_code=404, detail="Estación no encontrada")
-    return {"mensaje": f"Estado de estación actualizado a {'activo' if activo else 'inactivo'}"}
+    return resultado
 
 @app.put("/estaciones/{id}/id")
-def cambiar_id_estacion(id: int, nuevo_id: int, db: Session = Depends(get_db)):
-    estacion = crud.actualizar_id_estacion(db, id, nuevo_id)
-    if not estacion:
+def cambiar_id_estacion(id: int, nuevo_id: int):
+    resultado = crud.actualizar_id_estacion(id, nuevo_id)
+    if resultado is None:
         raise HTTPException(status_code=404, detail="Estación no encontrada")
-    return {"mensaje": f"ID de estación actualizado a {nuevo_id}"}
-
-from fastapi import APIRouter
+    return resultado
 
 @app.get("/localidades", response_model=list[str])
-def listar_localidades(db: Session = Depends(get_db)):
-    localidades = db.query(models.Estacion.localidad).distinct().all()
-    return [loc[0] for loc in localidades]
+def listar_localidades():
+    response = supabase.table("estaciones").select("localidad", count="exact", distinct=True).execute()
+    if response.error:
+        raise HTTPException(status_code=500, detail="Error fetching localidades")
+    return [loc["localidad"] for loc in response.data]
