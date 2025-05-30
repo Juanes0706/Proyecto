@@ -64,10 +64,77 @@ async def actualizar_bus(id: int, bus: dict = Body(...)):
     if "activo" in bus:
         update_data["activo"] = bus["activo"]
     # Remove image update from here to separate endpoint
-    response = supabase.table("buses").update(update_data).eq("id", id).execute()
-    if response.error:
+    updated_bus = crud.actualizar_bus(id, update_data)
+    if not updated_bus:
         raise HTTPException(status_code=500, detail="Error actualizando bus")
+    return updated_bus
+<<<<<<< REPLACE
+@app.put("/estaciones/{id}", response_model=dict)
+async def actualizar_estacion(id: int, estacion: dict = Body(...)):
+    existing_estacion = crud.obtener_estacion_por_id(id)
+    if not existing_estacion:
+        raise HTTPException(status_code=404, detail="Estación no encontrada")
+    update_data = {}
+    if "nombre_estacion" in estacion:
+        update_data["nombre_estacion"] = estacion["nombre_estacion"]
+    if "localidad" in estacion:
+        update_data["localidad"] = estacion["localidad"]
+    if "rutas_asociadas" in estacion:
+        update_data["rutas_asociadas"] = estacion["rutas_asociadas"]
+    if "activo" in estacion:
+        update_data["activo"] = estacion["activo"]
+    # Remove image update from here to separate endpoint
+    response = supabase.table("estaciones").update(update_data).eq("id", id).execute()
+    if response.error:
+        raise HTTPException(status_code=500, detail="Error actualizando estación")
     return response.data[0]
+=======
+@app.put("/estaciones/{id}", response_model=dict)
+async def actualizar_estacion(id: int, estacion: dict = Body(...)):
+    existing_estacion = crud.obtener_estacion_por_id(id)
+    if not existing_estacion:
+        raise HTTPException(status_code=404, detail="Estación no encontrada")
+    update_data = {}
+    if "nombre_estacion" in estacion:
+        update_data["nombre_estacion"] = estacion["nombre_estacion"]
+    if "localidad" in estacion:
+        update_data["localidad"] = estacion["localidad"]
+    if "rutas_asociadas" in estacion:
+        update_data["rutas_asociadas"] = estacion["rutas_asociadas"]
+    if "activo" in estacion:
+        update_data["activo"] = estacion["activo"]
+    # Remove image update from here to separate endpoint
+    updated_estacion = crud.actualizar_estacion(id, update_data)
+    if not updated_estacion:
+        raise HTTPException(status_code=500, detail="Error actualizando estación")
+    return updated_estacion
+<<<<<<< REPLACE
+@app.delete("/buses/{id}")
+def eliminar_bus(id: int):
+    resultado = crud.eliminar_bus(id)
+    if resultado is None or ("error" in resultado and resultado["error"]):
+        raise HTTPException(status_code=404, detail="Bus no encontrado")
+    return Response(status_code=204)
+=======
+@app.delete("/buses/{id}")
+def eliminar_bus(id: int):
+    resultado = crud.eliminar_bus(id)
+    if resultado is None or ("error" in resultado and resultado["error"]):
+        raise HTTPException(status_code=404, detail="Bus no encontrado")
+    return {"mensaje": resultado.get("mensaje", "Bus eliminado")}
+<<<<<<< REPLACE
+@app.delete("/estaciones/{id}")
+def eliminar_estacion(id: int):
+    resultado = crud.eliminar_estacion(id)
+    if resultado is None or ("error" in resultado and resultado["error"]):
+        raise HTTPException(status_code=404, detail="Estación no encontrada")
+    return Response(status_code=204)
+=======
+@app.delete("/estaciones/{id}")
+def eliminar_estacion(id: int):
+    resultado = crud.eliminar_estacion(id)
+    if resultado is None or ("error" in resultado and resultado["error"]):
+        raise HTTPException(status_code=404, detail="Estación no encontrada")
 
 @app.put("/estaciones/{id}", response_model=dict)
 async def actualizar_estacion(id: int, estacion: dict = Body(...)):

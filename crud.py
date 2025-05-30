@@ -161,3 +161,15 @@ def actualizar_imagen_estacion(estacion_id: int, imagen_url: str):
     if hasattr(response, "error") and response.error:
         return None
     return response.data[0] if response.data else None
+
+def actualizar_bus(bus_id: int, update_data: dict):
+    response = supabase.table("buses").update(update_data).eq("id", bus_id).execute()
+    if response.error:
+        return None
+    return response.data[0] if response.data else None
+
+def actualizar_estacion(estacion_id: int, update_data: dict):
+    response = supabase.table("estaciones").update(update_data).eq("id", estacion_id).execute()
+    if response.error:
+        return None
+    return response.data[0] if response.data else None
