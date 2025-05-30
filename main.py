@@ -148,12 +148,14 @@ def obtener_bus(id: int):
         raise HTTPException(status_code=404, detail="Bus no encontrado")
     return bus
 
+from fastapi import Response
+
 @app.delete("/buses/{id}")
 def eliminar_bus(id: int):
     resultado = crud.eliminar_bus(id)
     if resultado is None:
         raise HTTPException(status_code=404, detail="Bus no encontrado")
-    return resultado
+    return Response(status_code=204)
 
 @app.put("/buses/{id}/estado")
 def cambiar_estado_bus(id: int, activo: bool):
@@ -212,12 +214,14 @@ def obtener_estacion(id: int):
         raise HTTPException(status_code=404, detail="Estación no encontrada")
     return estacion
 
+from fastapi import Response
+
 @app.delete("/estaciones/{id}")
 def eliminar_estacion(id: int):
     resultado = crud.eliminar_estacion(id)
     if resultado is None:
         raise HTTPException(status_code=404, detail="Estación no encontrada")
-    return resultado
+    return Response(status_code=204)
 
 @app.put("/estaciones/{id}/estado")
 def cambiar_estado_estacion(id: int, activo: bool):
