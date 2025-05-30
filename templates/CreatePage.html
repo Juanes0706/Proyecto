@@ -18,7 +18,7 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-danger">
     <div class="container-fluid">
         <a class="navbar-brand" href="/">
-            <img src="/static/img/logo transmilenio.png" alt="Logo TransMilenio">
+<img src="/static/transmilenio.jpg" alt="Logo TransMilenio">
         </a>
         <div id="navbarNav">
             <ul class="navbar-nav">
@@ -34,7 +34,7 @@
 
 <div class="container mt-5">
     <h2 class="text-center mb-4">🚌 Crear Bus</h2>
-    <form id="crearBusForm">
+    <form id="crearBusForm" enctype="multipart/form-data">
         <div class="mb-3">
             <label for="nombreBus" class="form-label">Nombre del Bus</label>
             <input type="text" class="form-control" id="nombreBus" required />
@@ -42,6 +42,10 @@
         <div class="mb-3">
             <label for="tipoBus" class="form-label">Tipo</label>
             <input type="text" class="form-control" id="tipoBus" required />
+        </div>
+        <div class="mb-3">
+            <label for="imagenBus" class="form-label">Imagen (opcional)</label>
+            <input type="file" class="form-control" id="imagenBus" accept="image/*" />
         </div>
         <div class="mb-3 form-check">
             <input type="checkbox" class="form-check-input" id="activoBus" checked />
@@ -51,7 +55,7 @@
     </form>
 
     <h2 class="text-center mt-5 mb-4">🏙️ Crear Estación</h2>
-    <form id="crearEstacionForm">
+    <form id="crearEstacionForm" enctype="multipart/form-data">
         <div class="mb-3">
             <label for="nombreEstacion" class="form-label">Nombre de la Estación</label>
             <input type="text" class="form-control" id="nombreEstacion" required />
@@ -63,6 +67,10 @@
         <div class="mb-3">
             <label for="rutasAsociadas" class="form-label">Rutas Asociadas</label>
             <input type="text" class="form-control" id="rutasAsociadas" required />
+        </div>
+        <div class="mb-3">
+            <label for="imagenEstacion" class="form-label">Imagen (opcional)</label>
+            <input type="file" class="form-control" id="imagenEstacion" accept="image/*" />
         </div>
         <div class="mb-3 form-check">
             <input type="checkbox" class="form-check-input" id="activoEstacion" checked />
@@ -76,14 +84,18 @@
     // Crear Bus
     document.getElementById("crearBusForm").addEventListener("submit", async (e) => {
         e.preventDefault();
-        const nombre_bus = document.getElementById("nombreBus").value;
-        const tipo = document.getElementById("tipoBus").value;
-        const activo = document.getElementById("activoBus").checked;
+        const formData = new FormData();
+        formData.append("nombre_bus", document.getElementById("nombreBus").value);
+        formData.append("tipo", document.getElementById("tipoBus").value);
+        formData.append("activo", document.getElementById("activoBus").checked);
+        const imagenBus = document.getElementById("imagenBus").files[0];
+        if (imagenBus) {
+            formData.append("imagen", imagenBus);
+        }
 
         const response = await fetch("/buses/", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ nombre_bus, tipo, activo }),
+            body: formData,
         });
         if (response.ok) {
             alert("✅ Bus creado exitosamente");
@@ -96,15 +108,19 @@
     // Crear Estación
     document.getElementById("crearEstacionForm").addEventListener("submit", async (e) => {
         e.preventDefault();
-        const nombre_estacion = document.getElementById("nombreEstacion").value;
-        const localidad = document.getElementById("localidadEstacion").value;
-        const rutas_asociadas = document.getElementById("rutasAsociadas").value;
-        const activo = document.getElementById("activoEstacion").checked;
+        const formData = new FormData();
+        formData.append("nombre_estacion", document.getElementById("nombreEstacion").value);
+        formData.append("localidad", document.getElementById("localidadEstacion").value);
+        formData.append("rutas_asociadas", document.getElementById("rutasAsociadas").value);
+        formData.append("activo", document.getElementById("activoEstacion").checked);
+        const imagenEstacion = document.getElementById("imagenEstacion").files[0];
+        if (imagenEstacion) {
+            formData.append("imagen", imagenEstacion);
+        }
 
         const response = await fetch("/estaciones/", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ nombre_estacion, localidad, rutas_asociadas, activo }),
+            body: formData,
         });
         if (response.ok) {
             alert("✅ Estación creada exitosamente");

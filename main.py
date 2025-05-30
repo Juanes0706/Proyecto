@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, Request
+from fastapi import FastAPI, Depends, HTTPException, Request, Response
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from typing import Optional
 import models, schemas, crud
 from db import SessionLocal, engine
+from supabase_client import supabase
 
 # Crear tablas
 models.Base.metadata.create_all(bind=engine)
@@ -47,82 +48,196 @@ async def read_page(request: Request):
 async def update_page(request: Request):
     return templates.TemplateResponse("UpdatePage.html", {"request": request})
 
+from fastapi import Body
+
+@app.put("/buses/{id}", response_model=dict)
+async def actualizar_bus(id: int, bus: dict = Body(...)):
+    existing_bus = crud.obtener_bus_por_id(id)
+    if not existing_bus:
+        raise HTTPException(status_code=404, detail="Bus no encontrado")
+    update_data = {}
+    if "nombre_bus" in bus:
+        update_data["nombre_bus"] = bus["nombre_bus"]
+    if "tipo" in bus:
+        update_data["tipo"] = bus["tipo"].lower().strip()
+    if "activo" in bus:
+        update_data["activo"] = bus["activo"]
+    # Remove image update from here to separate endpoint
+    response = supabase.table("buses").update(update_data).eq("id", id).execute()
+    if response.error:
+        raise HTTPException(status_code=500, detail="Error actualizando bus")
+    return response.data[0]
+
+@app.put("/estaciones/{id}", response_model=dict)
+async def actualizar_estacion(id: int, estacion: dict = Body(...)):
+    existing_estacion = crud.obtener_estacion_por_id(id)
+    if not existing_estacion:
+        raise HTTPException(status_code=404, detail="Estación no encontrada")
+    update_data = {}
+    if "nombre_estacion" in estacion:
+        update_data["nombre_estacion"] = estacion["nombre_estacion"]
+    if "localidad" in estacion:
+        update_data["localidad"] = estacion["localidad"]
+    if "rutas_asociadas" in estacion:
+        update_data["rutas_asociadas"] = estacion["rutas_asociadas"]
+    if "activo" in estacion:
+        update_data["activo"] = estacion["activo"]
+    # Remove image update from here to separate endpoint
+    response = supabase.table("estaciones").update(update_data).eq("id", id).execute()
+    if response.error:
+        raise HTTPException(status_code=500, detail="Error actualizando estación")
+    return response.data[0]
+
 @app.get("/delete", response_class=HTMLResponse)
 async def delete_page(request: Request):
     return templates.TemplateResponse("DeletePage.html", {"request": request})
 
 # ---------------------- BUSES ----------------------
 
-@app.post("/buses/", response_model=schemas.Bus)
-def crear_bus(bus: schemas.BusCreate, db: Session = Depends(get_db)):
-    return crud.crear_bus(db, bus)
+from fastapi import File, UploadFile, Form
+from typing import Optional
+from fastapi import HTTPException
+import uuid
+import logging
 
-@app.get("/buses/", response_model=list[schemas.Bus])
-def listar_buses(tipo: Optional[str] = None, activo: Optional[bool] = None, db: Session = Depends(get_db)):
-    return crud.obtener_buses(db, tipo=tipo, activo=activo)
+@app.post("/buses/{id}/imagen", response_model=dict)
+async def subir_imagen_bus(id: int, imagen: UploadFile = File(...)):
+    try:
+        ext = imagen.filename.split('.')[-1]
+        unique_filename = f"{uuid.uuid4()}.{ext}"
+        content = await imagen.read()
+        bucket = "buses"
+        response = supabase.storage.from_(bucket).upload(unique_filename, content)
+        if response.error:
+            logging.error(f"Supabase upload error: {response.error.message}")
+            raise HTTPException(status_code=500, detail="Error uploading image")
+        imagen_url = f"{supabase.storage_url}/object/public/{bucket}/{unique_filename}"
+        updated = supabase.table("buses").update({"imagen": imagen_url}).eq("id", id).execute()
+        if updated.error:
+            raise HTTPException(status_code=500, detail="Error updating bus image URL")
+        return {"mensaje": "Imagen subida y asociada correctamente", "url": imagen_url}
+    except Exception as e:
+        logging.error(f"Exception during image upload: {e}")
+        raise HTTPException(status_code=500, detail="Error uploading image")
 
-@app.get("/buses/{id}", response_model=schemas.Bus)
-def obtener_bus(id: int, db: Session = Depends(get_db)):
-    bus = crud.obtener_bus_por_id(db, id)
+@app.post("/estaciones/{id}/imagen", response_model=dict)
+async def subir_imagen_estacion(id: int, imagen: UploadFile = File(...)):
+    try:
+        ext = imagen.filename.split('.')[-1]
+        unique_filename = f"{uuid.uuid4()}.{ext}"
+        content = await imagen.read()
+        bucket = "estaciones"
+        response = supabase.storage.from_(bucket).upload(unique_filename, content)
+        if response.error:
+            logging.error(f"Supabase upload error: {response.error.message}")
+            raise HTTPException(status_code=500, detail="Error uploading image")
+        imagen_url = f"{supabase.storage_url}/object/public/{bucket}/{unique_filename}"
+        updated = supabase.table("estaciones").update({"imagen": imagen_url}).eq("id", id).execute()
+        if updated.error:
+            raise HTTPException(status_code=500, detail="Error updating estacion image URL")
+        return {"mensaje": "Imagen subida y asociada correctamente", "url": imagen_url}
+    except Exception as e:
+        logging.error(f"Exception during image upload: {e}")
+        raise HTTPException(status_code=500, detail="Error uploading image")
+
+@app.post("/buses/", response_model=dict)
+async def crear_bus(
+    nombre_bus: str = Form(...),
+    tipo: str = Form(...),
+    activo: bool = Form(...)
+):
+    bus_data = {
+        "nombre_bus": nombre_bus,
+        "tipo": tipo.lower().strip(),
+        "activo": activo,
+        "imagen": None
+    }
+    created_bus = crud.crear_bus(bus_data)
+    if not created_bus:
+        raise HTTPException(status_code=500, detail="Error creating bus")
+    return created_bus
+
+@app.get("/buses/", response_model=list[dict])
+def listar_buses(tipo: Optional[str] = None, activo: Optional[bool] = None):
+    return crud.obtener_buses(tipo=tipo, activo=activo)
+
+@app.get("/buses/{id}", response_model=dict)
+def obtener_bus(id: int):
+    bus = crud.obtener_bus_por_id(id)
     if not bus:
         raise HTTPException(status_code=404, detail="Bus no encontrado")
     return bus
 
 @app.delete("/buses/{id}")
-def eliminar_bus(id: int, db: Session = Depends(get_db)):
-    resultado = crud.eliminar_bus(db, id)
+def eliminar_bus(id: int):
+    resultado = crud.eliminar_bus(id)
+    if resultado is None or ("error" in resultado and resultado["error"]):
+        raise HTTPException(status_code=404, detail="Bus no encontrado")
+    return Response(status_code=204)
+
+@app.put("/buses/{id}/estado")
+def cambiar_estado_bus(id: int, activo: bool):
+    resultado = crud.actualizar_estado_bus(id, activo)
     if resultado is None:
         raise HTTPException(status_code=404, detail="Bus no encontrado")
     return resultado
 
-@app.put("/buses/{id}/estado")
-def cambiar_estado_bus(id: int, activo: bool, db: Session = Depends(get_db)):
-    bus = crud.actualizar_estado_bus(db, id, activo)
-    if not bus:
-        raise HTTPException(status_code=404, detail="Bus no encontrado")
-    return {"mensaje": f"Estado de bus actualizado a {'activo' if activo else 'inactivo'}"}
-
 # ---------------------- ESTACIONES ----------------------
 
-@app.post("/estaciones/", response_model=schemas.Estacion)
-def crear_estacion(estacion: schemas.EstacionCreate, db: Session = Depends(get_db)):
-    return crud.crear_estacion(db, estacion)
+@app.post("/estaciones/", response_model=dict)
+async def crear_estacion(
+    nombre_estacion: str = Form(...),
+    localidad: str = Form(...),
+    rutas_asociadas: str = Form(...),
+    activo: bool = Form(...)
+):
+    estacion_data = {
+        "nombre_estacion": nombre_estacion,
+        "localidad": localidad,
+        "rutas_asociadas": rutas_asociadas,
+        "activo": activo,
+        "imagen": None
+    }
+    created_estacion = crud.crear_estacion(estacion_data)
+    if not created_estacion:
+        raise HTTPException(status_code=500, detail="Error creating estación")
+    return created_estacion
 
-@app.get("/estaciones/", response_model=list[schemas.Estacion])
-def listar_estaciones(sector: Optional[str] = None, activo: Optional[bool] = None, db: Session = Depends(get_db)):
-    return crud.obtener_estaciones(db, sector=sector, activo=activo)
+@app.get("/estaciones/", response_model=list[dict])
+def listar_estaciones(sector: Optional[str] = None, activo: Optional[bool] = None):
+    return crud.obtener_estaciones(sector=sector, activo=activo)
 
-@app.get("/estaciones/{id}", response_model=schemas.Estacion)
-def obtener_estacion(id: int, db: Session = Depends(get_db)):
-    estacion = crud.obtener_estacion_por_id(db, id)
+@app.get("/estaciones/{id}", response_model=dict)
+def obtener_estacion(id: int):
+    estacion = crud.obtener_estacion_por_id(id)
     if not estacion:
         raise HTTPException(status_code=404, detail="Estación no encontrada")
     return estacion
 
 @app.delete("/estaciones/{id}")
-def eliminar_estacion(id: int, db: Session = Depends(get_db)):
-    resultado = crud.eliminar_estacion(db, id)
+def eliminar_estacion(id: int):
+    resultado = crud.eliminar_estacion(id)
+    if resultado is None or ("error" in resultado and resultado["error"]):
+        raise HTTPException(status_code=404, detail="Estación no encontrada")
+    return Response(status_code=204)
+
+@app.put("/estaciones/{id}/estado")
+def cambiar_estado_estacion(id: int, activo: bool):
+    resultado = crud.actualizar_estado_estacion(id, activo)
     if resultado is None:
         raise HTTPException(status_code=404, detail="Estación no encontrada")
     return resultado
 
-@app.put("/estaciones/{id}/estado")
-def cambiar_estado_estacion(id: int, activo: bool, db: Session = Depends(get_db)):
-    estacion = crud.actualizar_estado_estacion(db, id, activo)
-    if not estacion:
-        raise HTTPException(status_code=404, detail="Estación no encontrada")
-    return {"mensaje": f"Estado de estación actualizado a {'activo' if activo else 'inactivo'}"}
-
 @app.put("/estaciones/{id}/id")
-def cambiar_id_estacion(id: int, nuevo_id: int, db: Session = Depends(get_db)):
-    estacion = crud.actualizar_id_estacion(db, id, nuevo_id)
-    if not estacion:
+def cambiar_id_estacion(id: int, nuevo_id: int):
+    resultado = crud.actualizar_id_estacion(id, nuevo_id)
+    if resultado is None:
         raise HTTPException(status_code=404, detail="Estación no encontrada")
-    return {"mensaje": f"ID de estación actualizado a {nuevo_id}"}
-
-from fastapi import APIRouter
+    return resultado
 
 @app.get("/localidades", response_model=list[str])
-def listar_localidades(db: Session = Depends(get_db)):
-    localidades = db.query(models.Estacion.localidad).distinct().all()
-    return [loc[0] for loc in localidades]
+def listar_localidades():
+    response = supabase.table("estaciones").select("localidad", count="exact", distinct=True).execute()
+    if response.error:
+        raise HTTPException(status_code=500, detail="Error fetching localidades")
+    return [loc["localidad"] for loc in response.data]

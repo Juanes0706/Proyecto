@@ -18,7 +18,7 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-danger">
   <div class="container-fluid">
     <a class="navbar-brand" href="/">
-      <img src="/static/img/logo transmilenio.png" alt="Logo TransMilenio" />
+<img src="/static/transmilenio.jpg" alt="Logo TransMilenio" />
     </a>
     <div id="navbarNav">
       <ul class="navbar-nav">
@@ -107,16 +107,25 @@
       const buses = await response.json();
       const listaBuses = document.getElementById("listaBuses");
       listaBuses.innerHTML = "";
-      if (buses.length === 0) {
-        listaBuses.innerHTML = "<li class='list-group-item'>No se encontraron buses.</li>";
-      } else {
-        buses.forEach((bus) => {
-          const li = document.createElement("li");
-          li.className = "list-group-item";
-          li.textContent = `ID: ${bus.id} - Nombre: ${bus.nombre_bus} - Tipo: ${bus.tipo} - Activo: ${bus.activo}`;
-          listaBuses.appendChild(li);
-        });
-      }
+          if (buses.length === 0) {
+            listaBuses.innerHTML = "<li class='list-group-item'>No se encontraron buses.</li>";
+          } else {
+            buses.forEach((bus) => {
+              const li = document.createElement("li");
+              li.className = "list-group-item d-flex align-items-center";
+              const img = document.createElement("img");
+              img.src = bus.imagen || "/static/transmilenio.jpg";
+              img.alt = bus.nombre_bus;
+              img.style.width = "60px";
+              img.style.height = "40px";
+              img.style.objectFit = "cover";
+              img.style.marginRight = "10px";
+              li.appendChild(img);
+              const text = document.createTextNode(`ID: ${bus.id} - Nombre: ${bus.nombre_bus} - Tipo: ${bus.tipo} - Activo: ${bus.activo}`);
+              li.appendChild(text);
+              listaBuses.appendChild(li);
+            });
+          }
     } catch (error) {
       alert(error.message);
     }
@@ -137,16 +146,25 @@
       const estaciones = await response.json();
       const listaEstaciones = document.getElementById("listaEstaciones");
       listaEstaciones.innerHTML = "";
-      if (estaciones.length === 0) {
-        listaEstaciones.innerHTML = "<li class='list-group-item'>No se encontraron estaciones.</li>";
-      } else {
-        estaciones.forEach((estacion) => {
-          const li = document.createElement("li");
-          li.className = "list-group-item";
-          li.textContent = `ID: ${estacion.id} - Nombre: ${estacion.nombre_estacion} - Localidad: ${estacion.localidad} - Rutas Asociadas: ${estacion.rutas_asociadas} - Activo: ${estacion.activo}`;
-          listaEstaciones.appendChild(li);
-        });
-      }
+          if (estaciones.length === 0) {
+            listaEstaciones.innerHTML = "<li class='list-group-item'>No se encontraron estaciones.</li>";
+          } else {
+            estaciones.forEach((estacion) => {
+              const li = document.createElement("li");
+              li.className = "list-group-item d-flex align-items-center";
+              const img = document.createElement("img");
+              img.src = estacion.imagen || "/static/transmilenio.jpg";
+              img.alt = estacion.nombre_estacion;
+              img.style.width = "60px";
+              img.style.height = "40px";
+              img.style.objectFit = "cover";
+              img.style.marginRight = "10px";
+              li.appendChild(img);
+              const text = document.createTextNode(`ID: ${estacion.id} - Nombre: ${estacion.nombre_estacion} - Localidad: ${estacion.localidad} - Rutas Asociadas: ${estacion.rutas_asociadas} - Activo: ${estacion.activo}`);
+              li.appendChild(text);
+              listaEstaciones.appendChild(li);
+            });
+          }
     } catch (error) {
       alert(error.message);
     }
