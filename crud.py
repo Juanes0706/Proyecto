@@ -112,3 +112,15 @@ def crear_estacion(estacion: dict, imagen_url: Optional[str] = None):
     }
     response = supabase.table("estaciones").insert(estacion_data).execute()
     return response.data[0] if response.data else None
+
+def actualizar_imagen_bus(bus_id: int, imagen_url: str):
+    response = supabase.table("buses").update({"imagen": imagen_url}).eq("id", bus_id).execute()
+    if response.error:
+        return None
+    return response.data[0] if response.data else None
+
+def actualizar_imagen_estacion(estacion_id: int, imagen_url: str):
+    response = supabase.table("estaciones").update({"imagen": imagen_url}).eq("id", estacion_id).execute()
+    if response.error:
+        return None
+    return response.data[0] if response.data else None

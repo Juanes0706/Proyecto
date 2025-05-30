@@ -62,8 +62,7 @@ async def actualizar_bus(id: int, bus: dict = Body(...)):
         update_data["tipo"] = bus["tipo"].lower().strip()
     if "activo" in bus:
         update_data["activo"] = bus["activo"]
-    if "imagen" in bus and bus["imagen"] is not None:
-        update_data["imagen"] = bus["imagen"]
+    # Remove image update from here to separate endpoint
     response = supabase.table("buses").update(update_data).eq("id", id).execute()
     if response.error:
         raise HTTPException(status_code=500, detail="Error actualizando bus")
@@ -83,8 +82,7 @@ async def actualizar_estacion(id: int, estacion: dict = Body(...)):
         update_data["rutas_asociadas"] = estacion["rutas_asociadas"]
     if "activo" in estacion:
         update_data["activo"] = estacion["activo"]
-    if "imagen" in estacion and estacion["imagen"] is not None:
-        update_data["imagen"] = estacion["imagen"]
+    # Remove image update from here to separate endpoint
     response = supabase.table("estaciones").update(update_data).eq("id", id).execute()
     if response.error:
         raise HTTPException(status_code=500, detail="Error actualizando estación")
@@ -102,35 +100,57 @@ from fastapi import HTTPException
 import uuid
 import logging
 
+@app.post("/buses/{id}/imagen", response_model=dict)
+async def subir_imagen_bus(id: int, imagen: UploadFile = File(...)):
+    try:
+        ext = imagen.filename.split('.')[-1]
+        unique_filename = f"{uuid.uuid4()}.{ext}"
+        content = await imagen.read()
+        bucket = "buses"
+        response = supabase.storage.from_(bucket).upload(unique_filename, content)
+        if response.error:
+            logging.error(f"Supabase upload error: {response.error.message}")
+            raise HTTPException(status_code=500, detail="Error uploading image")
+        imagen_url = f"{supabase.storage_url}/object/public/{bucket}/{unique_filename}"
+        updated = supabase.table("buses").update({"imagen": imagen_url}).eq("id", id).execute()
+        if updated.error:
+            raise HTTPException(status_code=500, detail="Error updating bus image URL")
+        return {"mensaje": "Imagen subida y asociada correctamente", "url": imagen_url}
+    except Exception as e:
+        logging.error(f"Exception during image upload: {e}")
+        raise HTTPException(status_code=500, detail="Error uploading image")
+
+@app.post("/estaciones/{id}/imagen", response_model=dict)
+async def subir_imagen_estacion(id: int, imagen: UploadFile = File(...)):
+    try:
+        ext = imagen.filename.split('.')[-1]
+        unique_filename = f"{uuid.uuid4()}.{ext}"
+        content = await imagen.read()
+        bucket = "estaciones"
+        response = supabase.storage.from_(bucket).upload(unique_filename, content)
+        if response.error:
+            logging.error(f"Supabase upload error: {response.error.message}")
+            raise HTTPException(status_code=500, detail="Error uploading image")
+        imagen_url = f"{supabase.storage_url}/object/public/{bucket}/{unique_filename}"
+        updated = supabase.table("estaciones").update({"imagen": imagen_url}).eq("id", id).execute()
+        if updated.error:
+            raise HTTPException(status_code=500, detail="Error updating estacion image URL")
+        return {"mensaje": "Imagen subida y asociada correctamente", "url": imagen_url}
+    except Exception as e:
+        logging.error(f"Exception during image upload: {e}")
+        raise HTTPException(status_code=500, detail="Error uploading image")
+
 @app.post("/buses/", response_model=dict)
 async def crear_bus(
     nombre_bus: str = Form(...),
     tipo: str = Form(...),
-    activo: bool = Form(...),
-    imagen: UploadFile = File(None)
+    activo: bool = Form(...)
 ):
-    imagen_url = None
-    if imagen:
-        try:
-            # Generate unique filename
-            ext = imagen.filename.split('.')[-1]
-            unique_filename = f"{uuid.uuid4()}.{ext}"
-            content = await imagen.read()
-            bucket = "buses"
-            # Upload image to Supabase Storage
-            response = supabase.storage.from_(bucket).upload(unique_filename, content)
-            if hasattr(response, "error") and response.error:
-                logging.error(f"Supabase upload error: {response.error.message}")
-                raise HTTPException(status_code=500, detail="Error uploading image")
-            imagen_url = f"{supabase.storage_url}/object/public/{bucket}/{unique_filename}"
-        except Exception as e:
-            logging.error(f"Exception during image upload: {e}")
-            raise HTTPException(status_code=500, detail="Error uploading image")
     bus_data = {
         "nombre_bus": nombre_bus,
         "tipo": tipo.lower().strip(),
         "activo": activo,
-        "imagen": imagen_url
+        "imagen": None
     }
     created_bus = crud.crear_bus(bus_data)
     if not created_bus:
@@ -169,32 +189,14 @@ async def crear_estacion(
     nombre_estacion: str = Form(...),
     localidad: str = Form(...),
     rutas_asociadas: str = Form(...),
-    activo: bool = Form(...),
-    imagen: UploadFile = File(None)
+    activo: bool = Form(...)
 ):
-    imagen_url = None
-    if imagen:
-        try:
-            # Generate unique filename
-            ext = imagen.filename.split('.')[-1]
-            unique_filename = f"{uuid.uuid4()}.{ext}"
-            content = await imagen.read()
-            bucket = "estaciones"
-            # Upload image to Supabase Storage
-            response = supabase.storage.from_(bucket).upload(unique_filename, content)
-            if response.error:
-                logging.error(f"Supabase upload error: {response.error.message}")
-                raise HTTPException(status_code=500, detail="Error uploading image")
-            imagen_url = f"{supabase.storage_url}/object/public/{bucket}/{unique_filename}"
-        except Exception as e:
-            logging.error(f"Exception during image upload: {e}")
-            raise HTTPException(status_code=500, detail="Error uploading image")
     estacion_data = {
         "nombre_estacion": nombre_estacion,
         "localidad": localidad,
         "rutas_asociadas": rutas_asociadas,
         "activo": activo,
-        "imagen": imagen_url
+        "imagen": None
     }
     created_estacion = crud.crear_estacion(estacion_data)
     if not created_estacion:
