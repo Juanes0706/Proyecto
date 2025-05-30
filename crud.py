@@ -1,6 +1,35 @@
 from supabase_client import supabase
 from typing import Optional
 import unicodedata
+import re
+import uuid
+
+def limpiar_nombre_archivo(nombre: str) -> str:
+    nombre = unicodedata.normalize('NFD', nombre)
+    nombre = nombre.encode('ascii', 'ignore').decode('utf-8')
+    nombre = re.sub(r'\s+', '_', nombre)
+    return nombre.lower()
+
+def subir_imagen(bucket_name: str, file_name: str, file_bytes: bytes, content_type: str = "image/jpeg") -> Optional[str]:
+    try:
+        file_name = limpiar_nombre_archivo(file_name)
+        # Opcional: evitar colisiones con UUID
+        # file_name = f"{uuid.uuid4().hex}_{file_name}"
+
+        response = supabase.storage.from_(bucket_name).upload(
+            file_name,
+            file_bytes,
+            {"content-type": content_type},
+            upsert=True
+        )
+        if response.get("error"):
+            print("Error subiendo imagen:", response["error"])
+            return None
+        url = f"https://{supabase.supabase_url.replace('https://', '')}/storage/v1/object/public/{bucket_name}/{file_name}"
+        return url
+    except Exception as e:
+        print("Excepción al subir imagen:", e)
+        return None
 
 # ---------------------- BUSES ----------------------
 
@@ -16,21 +45,6 @@ def obtener_buses(tipo: Optional[str] = None, activo: Optional[bool] = None):
         if bus.get("tipo"):
             bus["tipo"] = bus["tipo"].strip().lower()
     return buses
-
-# ---------------------- ESTACIONES ----------------------
-
-def normalize_string(s: str) -> str:
-    return ''.join(c for c in unicodedata.normalize('NFD', s.lower()) if unicodedata.category(c) != 'Mn').strip()
-
-def obtener_estaciones(sector: Optional[str] = None, activo: Optional[bool] = None):
-    query = supabase.table("estaciones")
-    if sector:
-        sector_norm = normalize_string(sector)
-        query = query.ilike("localidad", f"%{sector_norm}%")
-    if activo is not None:
-        query = query.eq("activo", activo)
-    response = query.select("*").execute()
-    return response.data
 
 def obtener_bus_por_id(bus_id: int):
     response = supabase.table("buses").select("*").eq("id", bus_id).single().execute()
@@ -59,7 +73,11 @@ def actualizar_estado_bus(bus_id: int, nuevo_estado: bool):
         return {"mensaje": f"Estado de bus actualizado a {'activo' if nuevo_estado else 'inactivo'}"}
     return None
 
-def crear_bus(bus: dict, imagen_url: Optional[str] = None):
+def crear_bus(bus: dict, imagen_bytes: Optional[bytes] = None, imagen_filename: Optional[str] = None):
+    imagen_url = None
+    if imagen_bytes and imagen_filename:
+        imagen_url = subir_imagen("buses", imagen_filename, imagen_bytes)
+
     bus_data = {
         "nombre_bus": bus.get("nombre_bus"),
         "tipo": bus.get("tipo").lower().strip() if bus.get("tipo") else None,
@@ -68,6 +86,27 @@ def crear_bus(bus: dict, imagen_url: Optional[str] = None):
     }
     response = supabase.table("buses").insert(bus_data).execute()
     return response.data[0] if response.data else None
+
+def actualizar_imagen_bus(bus_id: int, imagen_url: str):
+    response = supabase.table("buses").update({"imagen": imagen_url}).eq("id", bus_id).execute()
+    if hasattr(response, "error") and response.error:
+        return None
+    return response.data[0] if response.data else None
+
+# ---------------------- ESTACIONES ----------------------
+
+def normalize_string(s: str) -> str:
+    return ''.join(c for c in unicodedata.normalize('NFD', s.lower()) if unicodedata.category(c) != 'Mn').strip()
+
+def obtener_estaciones(sector: Optional[str] = None, activo: Optional[bool] = None):
+    query = supabase.table("estaciones")
+    if sector:
+        sector_norm = normalize_string(sector)
+        query = query.ilike("localidad", f"%{sector_norm}%")
+    if activo is not None:
+        query = query.eq("activo", activo)
+    response = query.select("*").execute()
+    return response.data
 
 def obtener_estacion_por_id(estacion_id: int):
     response = supabase.table("estaciones").select("*").eq("id", estacion_id).single().execute()
@@ -102,7 +141,11 @@ def actualizar_id_estacion(estacion_id: int, nuevo_id: int):
         return {"mensaje": f"ID de estación actualizado a {nuevo_id}"}
     return None
 
-def crear_estacion(estacion: dict, imagen_url: Optional[str] = None):
+def crear_estacion(estacion: dict, imagen_bytes: Optional[bytes] = None, imagen_filename: Optional[str] = None):
+    imagen_url = None
+    if imagen_bytes and imagen_filename:
+        imagen_url = subir_imagen("estaciones", imagen_filename, imagen_bytes)
+
     estacion_data = {
         "nombre_estacion": estacion.get("nombre_estacion"),
         "localidad": estacion.get("localidad"),
@@ -113,14 +156,8 @@ def crear_estacion(estacion: dict, imagen_url: Optional[str] = None):
     response = supabase.table("estaciones").insert(estacion_data).execute()
     return response.data[0] if response.data else None
 
-def actualizar_imagen_bus(bus_id: int, imagen_url: str):
-    response = supabase.table("buses").update({"imagen": imagen_url}).eq("id", bus_id).execute()
-    if response.error:
-        return None
-    return response.data[0] if response.data else None
-
 def actualizar_imagen_estacion(estacion_id: int, imagen_url: str):
     response = supabase.table("estaciones").update({"imagen": imagen_url}).eq("id", estacion_id).execute()
-    if response.error:
+    if hasattr(response, "error") and response.error:
         return None
     return response.data[0] if response.data else None
