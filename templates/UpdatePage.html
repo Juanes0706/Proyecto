@@ -34,13 +34,94 @@
     const supabaseUrl = "https://your-supabase-url.supabase.co"; // Replace with your Supabase URL
     const supabaseKey = "your-anon-key"; // Replace with your Supabase anon key
     const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+    async function uploadImage(bucket, file) {
+      const uniqueFilename = `${crypto.randomUUID()}.${file.name.split('.').pop()}`;
+      const content = await file.arrayBuffer();
+      const response = await supabase.storage.from(bucket).upload(uniqueFilename, new Uint8Array(content));
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+      return `${supabaseUrl}/storage/v1/object/public/${bucket}/${uniqueFilename}`;
+    }
+
+    document.getElementById('updateBusForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('busId').value;
+      const nombre = document.getElementById('busNombre').value;
+      const tipo = document.getElementById('busTipo').value;
+      const activo = document.getElementById('busActivo').value === 'true';
+      const imagenFile = document.getElementById('busImagen').files[0];
+
+      let imagenUrl = null;
+      if (imagenFile) {
+        try {
+          imagenUrl = await uploadImage('buses', imagenFile);
+        } catch (error) {
+          document.getElementById('busUpdateMessage').textContent = `Error al subir imagen: ${error.message}`;
+          return;
+        }
+      }
+
+      try {
+        const bodyData = { nombre_bus: nombre, tipo, activo };
+        if (imagenUrl !== null) {
+          bodyData.imagen = imagenUrl;
+        }
+        const response = await fetch(`/buses/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(bodyData),
+        });
+        if (!response.ok) throw new Error('Error al actualizar bus');
+        document.getElementById('busUpdateMessage').textContent = 'Bus actualizado correctamente';
+      } catch (error) {
+        document.getElementById('busUpdateMessage').textContent = error.message;
+      }
+    });
+
+    document.getElementById('updateEstacionForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('estacionId').value;
+      const nombre = document.getElementById('estacionNombre').value;
+      const localidad = document.getElementById('estacionLocalidad').value;
+      const rutas = document.getElementById('estacionRutas').value;
+      const activo = document.getElementById('estacionActivo').value === 'true';
+      const imagenFile = document.getElementById('estacionImagen').files[0];
+
+      let imagenUrl = null;
+      if (imagenFile) {
+        try {
+          imagenUrl = await uploadImage('estaciones', imagenFile);
+        } catch (error) {
+          document.getElementById('estacionUpdateMessage').textContent = `Error al subir imagen: ${error.message}`;
+          return;
+        }
+      }
+
+      try {
+        const bodyData = { nombre_estacion: nombre, localidad, rutas_asociadas: rutas, activo };
+        if (imagenUrl !== null) {
+          bodyData.imagen = imagenUrl;
+        }
+        const response = await fetch(`/estaciones/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(bodyData),
+        });
+        if (!response.ok) throw new Error('Error al actualizar estación');
+        document.getElementById('estacionUpdateMessage').textContent = 'Estación actualizada correctamente';
+      } catch (error) {
+        document.getElementById('estacionUpdateMessage').textContent = error.message;
+      }
+    });
   </script>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-danger">
   <div class="container-fluid">
     <a class="navbar-brand" href="/">
-      <img src="/static/img/logo transmilenio.png" alt="Logo TransMilenio" />
+<img src="/static/transmilenio.jpg" alt="Logo TransMilenio" />
     </a>
     <div id="navbarNav">
       <ul class="navbar-nav">
