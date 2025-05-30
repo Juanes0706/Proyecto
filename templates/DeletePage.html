@@ -61,7 +61,7 @@
         const response = await fetch(`/buses/${id}`, {
             method: "DELETE",
         });
-        if (response.ok) {
+        if (response.status === 204) {
             alert("✅ Bus eliminado exitosamente");
             e.target.reset();
         } else {
@@ -77,7 +77,7 @@
         const response = await fetch(`/estaciones/${id}`, {
             method: "DELETE",
         });
-        if (response.ok) {
+        if (response.status === 204) {
             alert("✅ Estación eliminada exitosamente");
             e.target.reset();
         } else {
