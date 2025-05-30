@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, Request
+from fastapi import FastAPI, Depends, HTTPException, Request, Response
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -148,12 +148,10 @@ def obtener_bus(id: int):
         raise HTTPException(status_code=404, detail="Bus no encontrado")
     return bus
 
-from fastapi import Response
-
 @app.delete("/buses/{id}")
 def eliminar_bus(id: int):
     resultado = crud.eliminar_bus(id)
-    if resultado is None:
+    if resultado is None or ("error" in resultado and resultado["error"]):
         raise HTTPException(status_code=404, detail="Bus no encontrado")
     return Response(status_code=204)
 
@@ -214,12 +212,10 @@ def obtener_estacion(id: int):
         raise HTTPException(status_code=404, detail="Estación no encontrada")
     return estacion
 
-from fastapi import Response
-
 @app.delete("/estaciones/{id}")
 def eliminar_estacion(id: int):
     resultado = crud.eliminar_estacion(id)
-    if resultado is None:
+    if resultado is None or ("error" in resultado and resultado["error"]):
         raise HTTPException(status_code=404, detail="Estación no encontrada")
     return Response(status_code=204)
 
