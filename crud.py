@@ -11,6 +11,7 @@ def limpiar_nombre_archivo(nombre: str) -> str:
     return nombre.lower()
 
 def subir_imagen(bucket_name: str, file_name: str, file_bytes: bytes, content_type: str = "image/jpeg") -> Optional[str]:
+    import logging
     try:
         file_name = limpiar_nombre_archivo(file_name)
         # Opcional: evitar colisiones con UUID
@@ -23,12 +24,13 @@ def subir_imagen(bucket_name: str, file_name: str, file_bytes: bytes, content_ty
             upsert=True
         )
         if response.get("error"):
-            print("Error subiendo imagen:", response["error"])
+            logging.error(f"Error subiendo imagen: {response['error']}")
             return None
         url = f"https://{supabase.supabase_url.replace('https://', '')}/storage/v1/object/public/{bucket_name}/{file_name}"
+        logging.info(f"Imagen subida correctamente: {url}")
         return url
     except Exception as e:
-        print("Excepción al subir imagen:", e)
+        logging.error(f"Excepción al subir imagen: {e}")
         return None
 
 # ---------------------- BUSES ----------------------
