@@ -100,21 +100,21 @@ def eliminar_bus(id: int):
     if resultado is None or ("error" in resultado and resultado["error"]):
         raise HTTPException(status_code=404, detail="Bus no encontrado")
     return {"mensaje": resultado.get("mensaje", "Bus eliminado")}
-<<<<<<< SEARCH
+
 @app.delete("/estaciones/{id}")
 def eliminar_estacion(id: int):
     resultado = crud.eliminar_estacion(id)
     if resultado is None or ("error" in resultado and resultado["error"]):
         raise HTTPException(status_code=404, detail="Estación no encontrada")
     return {"mensaje": resultado.get("mensaje", "Estación eliminada")}
-=======
+
 @app.delete("/estaciones/{id}")
 def eliminar_estacion(id: int):
     resultado = crud.eliminar_estacion(id)
     if resultado is None or ("error" in resultado and resultado["error"]):
         raise HTTPException(status_code=404, detail="Estación no encontrada")
     return {"mensaje": resultado.get("mensaje", "Estación eliminada")}
-=======
+
 @app.put("/estaciones/{id}", response_model=dict)
 async def actualizar_estacion(id: int, estacion: dict = Body(...)):
     existing_estacion = crud.obtener_estacion_por_id(id)
@@ -134,28 +134,28 @@ async def actualizar_estacion(id: int, estacion: dict = Body(...)):
     if not updated_estacion:
         raise HTTPException(status_code=500, detail="Error actualizando estación")
     return updated_estacion
-<<<<<<< REPLACE
+
 @app.delete("/buses/{id}")
 def eliminar_bus(id: int):
     resultado = crud.eliminar_bus(id)
     if resultado is None or ("error" in resultado and resultado["error"]):
         raise HTTPException(status_code=404, detail="Bus no encontrado")
     return Response(status_code=204)
-=======
+
 @app.delete("/buses/{id}")
 def eliminar_bus(id: int):
     resultado = crud.eliminar_bus(id)
     if resultado is None or ("error" in resultado and resultado["error"]):
         raise HTTPException(status_code=404, detail="Bus no encontrado")
     return {"mensaje": resultado.get("mensaje", "Bus eliminado")}
-<<<<<<< REPLACE
+
 @app.delete("/estaciones/{id}")
 def eliminar_estacion(id: int):
     resultado = crud.eliminar_estacion(id)
     if resultado is None or ("error" in resultado and resultado["error"]):
         raise HTTPException(status_code=404, detail="Estación no encontrada")
     return Response(status_code=204)
-=======
+
 @app.delete("/estaciones/{id}")
 def eliminar_estacion(id: int):
     resultado = crud.eliminar_estacion(id)
