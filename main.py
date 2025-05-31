@@ -68,7 +68,6 @@ async def actualizar_bus(id: int, bus: dict = Body(...)):
     if not updated_bus:
         raise HTTPException(status_code=500, detail="Error actualizando bus")
     return updated_bus
-<<<<<<< REPLACE
 @app.put("/estaciones/{id}", response_model=dict)
 async def actualizar_estacion(id: int, estacion: dict = Body(...)):
     existing_estacion = crud.obtener_estacion_por_id(id)
@@ -84,10 +83,10 @@ async def actualizar_estacion(id: int, estacion: dict = Body(...)):
     if "activo" in estacion:
         update_data["activo"] = estacion["activo"]
     # Remove image update from here to separate endpoint
-    response = supabase.table("estaciones").update(update_data).eq("id", id).execute()
-    if response.error:
+    updated_estacion = crud.actualizar_estacion(id, update_data)
+    if not updated_estacion:
         raise HTTPException(status_code=500, detail="Error actualizando estación")
-    return response.data[0]
+    return updated_estacion
 =======
 @app.put("/estaciones/{id}", response_model=dict)
 async def actualizar_estacion(id: int, estacion: dict = Body(...)):
