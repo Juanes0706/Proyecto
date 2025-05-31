@@ -240,4 +240,3 @@ def actualizar_estacion(estacion_id: int, update_data: dict):
     db.refresh(estacion)
     db.close()
     return estacion
-<create_file>
