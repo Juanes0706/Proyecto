@@ -93,7 +93,7 @@ def eliminar_bus(id: int):
     if resultado is None or ("error" in resultado and resultado["error"]):
         raise HTTPException(status_code=404, detail="Bus no encontrado")
     return {"mensaje": resultado.get("mensaje", "Bus eliminado")}
-=======
+
 @app.delete("/buses/{id}")
 def eliminar_bus(id: int):
     resultado = crud.eliminar_bus(id)
