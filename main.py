@@ -195,8 +195,6 @@ from fastapi import HTTPException
 import uuid
 import logging
 
-from schemas import Bus as BusSchema, Estacion as EstacionSchema
-
 @app.post("/buses", response_model=dict)
 async def crear_bus_con_imagen(
     nombre_bus: str = Form(...),
@@ -219,7 +217,7 @@ async def crear_bus_con_imagen(
         if not nuevo_bus:
             raise HTTPException(status_code=500, detail="No se pudo crear el bus.")
 
-        return {"mensaje": "Bus creado exitosamente", "bus": BusSchema.from_orm(nuevo_bus)}
+        return {"mensaje": "Bus creado exitosamente", "bus": nuevo_bus}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al crear el bus: {str(e)}")
@@ -248,7 +246,7 @@ async def crear_estacion_con_imagen(
         if not nueva_estacion:
             raise HTTPException(status_code=500, detail="No se pudo crear la estación.")
 
-        return {"mensaje": "Estación creada exitosamente", "estacion": EstacionSchema.from_orm(nueva_estacion)}
+        return {"mensaje": "Estación creada exitosamente", "estacion": nueva_estacion}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al crear la estación: {str(e)}")
@@ -320,12 +318,12 @@ async def crear_estacion(
 def listar_estaciones(sector: Optional[str] = None, activo: Optional[bool] = None):
     return crud.obtener_estaciones(sector=sector, activo=activo)
 
-@app.get("/estaciones/{id}", response_model=EstacionSchema)
+@app.get("/estaciones/{id}", response_model=EstacionResponse)
 def obtener_estacion(id: int):
     estacion = crud.obtener_estacion_por_id(id)
     if not estacion:
         raise HTTPException(status_code=404, detail="Estación no encontrada")
-    return EstacionSchema.from_orm(estacion)
+    return estacion
 
 @app.delete("/estaciones/{id}")
 def eliminar_estacion(id: int):

@@ -1,8 +1,27 @@
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import Optional
 from enum import Enum
 
 # ---------------------- BUSES ----------------------
+
+class BusType(str, Enum):
+    troncal = "troncal"
+    zonal = "zonal"
+
+class BusBase(BaseModel):
+    nombre_bus: str
+    tipo: str
+    activo: bool = True
+    imagen: Optional[str] = None
+
+class BusCreate(BusBase):
+    pass
+
+class Bus(BusBase):
+    id: int
+
+    class Config:
+        orm_mode = True
 
 class BusResponse(BaseModel):
     id: int
@@ -14,23 +33,6 @@ class BusResponse(BaseModel):
     class Config:
         orm_mode = True
 
-class BusType(str, Enum):
-    troncal = "troncal"
-    zonal = "zonal"
-
-class BusBase(BaseModel):
-    nombre_bus: str
-    tipo: BusType  
-    activo: bool = True
-
-class BusCreate(BusBase):
-    pass
-
-class Bus(BusBase):
-    id: int
-    class Config:
-        orm_mode = True
-
 # ---------------------- ESTACIONES ----------------------
 
 class EstacionBase(BaseModel):
@@ -38,11 +40,24 @@ class EstacionBase(BaseModel):
     localidad: str
     rutas_asociadas: str
     activo: bool = True
+    imagen: Optional[str] = None
 
 class EstacionCreate(EstacionBase):
     pass
 
 class Estacion(EstacionBase):
     id: int
+
+    class Config:
+        orm_mode = True
+
+class EstacionResponse(BaseModel):
+    id: int
+    nombre_estacion: str
+    localidad: str
+    rutas_asociadas: str
+    activo: bool
+    imagen: Optional[str] = None
+
     class Config:
         orm_mode = True
