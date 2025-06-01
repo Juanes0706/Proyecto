@@ -194,6 +194,8 @@ from fastapi import HTTPException
 import uuid
 import logging
 
+from schemas import Bus as BusSchema, Estacion as EstacionSchema
+
 @app.post("/buses", response_model=dict)
 async def crear_bus_con_imagen(
     nombre_bus: str = Form(...),
@@ -216,7 +218,7 @@ async def crear_bus_con_imagen(
         if not nuevo_bus:
             raise HTTPException(status_code=500, detail="No se pudo crear el bus.")
 
-        return {"mensaje": "Bus creado exitosamente", "bus": nuevo_bus}
+        return {"mensaje": "Bus creado exitosamente", "bus": BusSchema.from_orm(nuevo_bus)}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al crear el bus: {str(e)}")
@@ -245,7 +247,7 @@ async def crear_estacion_con_imagen(
         if not nueva_estacion:
             raise HTTPException(status_code=500, detail="No se pudo crear la estación.")
 
-        return {"mensaje": "Estación creada exitosamente", "estacion": nueva_estacion}
+        return {"mensaje": "Estación creada exitosamente", "estacion": EstacionSchema.from_orm(nueva_estacion)}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al crear la estación: {str(e)}")
