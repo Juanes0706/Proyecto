@@ -17,9 +17,9 @@ app = FastAPI()
 
 # Configuración para plantillas HTML
 templates = Jinja2Templates(directory="templates")
-app.mount("/static/css", StaticFiles(directory="css"), name="css")
-app.mount("/static/js", StaticFiles(directory="js"), name="js")
-app.mount("/static/img", StaticFiles(directory="img"), name="img")
+app.mount("/static/css", StaticFiles(directory="static/css"), name="css")
+app.mount("/static/js", StaticFiles(directory="static/js"), name="js")
+app.mount("/static/img", StaticFiles(directory="static/img"), name="img")
 
 # Base de datos
 def get_db():
