@@ -21,7 +21,7 @@ class Bus(BusBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class BusResponse(BaseModel):
     id: int
@@ -31,7 +31,7 @@ class BusResponse(BaseModel):
     imagen: Optional[str] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # ---------------------- ESTACIONES ----------------------
 
@@ -49,7 +49,7 @@ class Estacion(EstacionBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class EstacionResponse(BaseModel):
     id: int
@@ -60,4 +60,4 @@ class EstacionResponse(BaseModel):
     imagen: Optional[str] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
