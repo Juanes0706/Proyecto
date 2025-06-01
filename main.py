@@ -4,7 +4,8 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from typing import Optional
-import models, schemas, crud
+import models, crud
+from schemas import Bus as BusSchema, Estacion as EstacionSchema, BusResponse
 from db import SessionLocal, engine
 from supabase_client import supabase
 from fastapi import UploadFile, File, Form
@@ -272,8 +273,6 @@ async def crear_bus(
 @app.get("/buses/", response_model=list[dict])
 def listar_buses(tipo: Optional[str] = None, activo: Optional[bool] = None):
     return crud.obtener_buses(tipo=tipo, activo=activo)
-
-from schemas import Bus as BusSchema, Estacion as EstacionSchema
 
 @app.get("/buses/{id}", response_model=BusResponse)
 def obtener_bus(id: int):
