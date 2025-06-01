@@ -4,9 +4,15 @@ import unicodedata
 import re
 import uuid
 from sqlalchemy.orm import Session
-from db import SessionLocal
+from db import SessionLocal, engine
 import models
 import logging
+
+# Apply database schema update to add 'imagen' column to 'buses' table if it does not exist
+with engine.connect() as connection:
+    connection.execute(
+        "ALTER TABLE buses ADD COLUMN IF NOT EXISTS imagen VARCHAR;"
+    )
 
 def limpiar_nombre_archivo(nombre: str) -> str:
     nombre = unicodedata.normalize('NFD', nombre)
