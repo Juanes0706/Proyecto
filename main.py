@@ -275,12 +275,12 @@ def listar_buses(tipo: Optional[str] = None, activo: Optional[bool] = None):
 
 from schemas import Bus as BusSchema, Estacion as EstacionSchema
 
-@app.get("/buses/{id}", response_model=BusSchema)
+@app.get("/buses/{id}", response_model=BusResponse)
 def obtener_bus(id: int):
     bus = crud.obtener_bus_por_id(id)
     if not bus:
         raise HTTPException(status_code=404, detail="Bus no encontrado")
-    return BusSchema.from_orm(bus)
+    return bus
 
 @app.delete("/buses/{id}")
 def eliminar_bus(id: int):
