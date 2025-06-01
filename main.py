@@ -88,6 +88,15 @@ async def crear_bus_con_imagen(
         raise HTTPException(status_code=500, detail="No se pudo crear el bus.")
     return BusResponse.from_orm(nuevo_bus)
 
+@app.post("/buses/")
+async def crear_bus_con_imagen_trailing_slash(
+    nombre_bus: str = Form(...),
+    tipo: str = Form(...),
+    activo: bool = Form(...),
+    imagen: UploadFile = File(...)
+):
+    return await crear_bus_con_imagen(nombre_bus, tipo, activo, imagen)
+
 @app.delete("/buses/{id}")
 def eliminar_bus(id: int):
     bus = crud.obtener_bus_por_id(id)
