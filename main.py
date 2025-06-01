@@ -271,12 +271,14 @@ async def crear_bus(
 def listar_buses(tipo: Optional[str] = None, activo: Optional[bool] = None):
     return crud.obtener_buses(tipo=tipo, activo=activo)
 
-@app.get("/buses/{id}", response_model=dict)
+from schemas import Bus as BusSchema, Estacion as EstacionSchema
+
+@app.get("/buses/{id}", response_model=BusSchema)
 def obtener_bus(id: int):
     bus = crud.obtener_bus_por_id(id)
     if not bus:
         raise HTTPException(status_code=404, detail="Bus no encontrado")
-    return bus
+    return BusSchema.from_orm(bus)
 
 @app.delete("/buses/{id}")
 def eliminar_bus(id: int):
@@ -317,12 +319,12 @@ async def crear_estacion(
 def listar_estaciones(sector: Optional[str] = None, activo: Optional[bool] = None):
     return crud.obtener_estaciones(sector=sector, activo=activo)
 
-@app.get("/estaciones/{id}", response_model=dict)
+@app.get("/estaciones/{id}", response_model=EstacionSchema)
 def obtener_estacion(id: int):
     estacion = crud.obtener_estacion_por_id(id)
     if not estacion:
         raise HTTPException(status_code=404, detail="Estación no encontrada")
-    return estacion
+    return EstacionSchema.from_orm(estacion)
 
 @app.delete("/estaciones/{id}")
 def eliminar_estacion(id: int):
