@@ -99,6 +99,41 @@ def get_project_objective():
     return {
         "objective": "Build a web app to manage buses and stations with image storage using Supabase"
     }
+# ---------------------- NEW INFO ENDPOINTS ----------------------
+
+@app.get("/developer")
+def get_developer_info():
+    return {
+        "name": "Your Name",
+        "email": "your.email@example.com",
+        "role": "Developer",
+        "contact": "your.email@example.com"
+    }
+
+@app.get("/planning")
+def get_planning_info():
+    return {
+        "requirements": [
+            "Create endpoints for developer info, planning, design, and objective",
+            "Create an HTML page with navbar to display this info"
+        ],
+        "timeline": "Define project phases and milestones",
+        "resources": ["FastAPI", "Supabase", "HTML, CSS, JS"]
+    }
+
+@app.get("/design")
+def get_design_info():
+    return {
+        "architecture": "FastAPI backend with Supabase storage",
+        "frontend": "HTML page with dynamic content loading",
+        "database": "PostgreSQL with SQLAlchemy ORM"
+    }
+
+@app.get("/objective")
+def get_project_objective():
+    return {
+        "objective": "Build a web app to manage buses and stations with image storage using Supabase"
+    }
 
 @app.get("/developer-info", response_class=HTMLResponse)
 async def developer_info_page(request: Request):
