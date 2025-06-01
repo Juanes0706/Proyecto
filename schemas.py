@@ -4,6 +4,16 @@ from enum import Enum
 
 # ---------------------- BUSES ----------------------
 
+class BusResponse(BaseModel):
+    id: int
+    nombre_bus: str
+    tipo: str
+    activo: bool
+    imagen: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+
 class BusType(str, Enum):
     troncal = "troncal"
     zonal = "zonal"
