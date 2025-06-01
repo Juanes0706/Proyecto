@@ -3,12 +3,13 @@ from typing import Optional
 import unicodedata
 import re
 import uuid
+import os
 from sqlalchemy.orm import Session
 from db import SessionLocal, engine
 import models
 import logging
 
-# Apply database schema update to add 'imagen' column to 'buses' table if it does not exist
+# Asegurar que la columna 'imagen' exista en la tabla 'buses'
 with engine.connect() as connection:
     connection.execute(
         "ALTER TABLE buses ADD COLUMN IF NOT EXISTS imagen VARCHAR;"
@@ -23,19 +24,20 @@ def limpiar_nombre_archivo(nombre: str) -> str:
 def subir_imagen(bucket_name: str, file_name: str, file_bytes: bytes, content_type: str = "image/jpeg") -> Optional[str]:
     try:
         file_name = limpiar_nombre_archivo(file_name)
-        # Opcional: evitar colisiones con UUID
-        # file_name = f"{uuid.uuid4().hex}_{file_name}"
+        extension = os.path.splitext(file_name)[1]
+        unique_name = f"{uuid.uuid4()}{extension}"
 
         response = supabase.storage.from_(bucket_name).upload(
-            file_name,
+            unique_name,
             file_bytes,
-            {"content-type": content_type},
-            upsert=True
+            {"content-type": content_type}
         )
-        if response.get("error"):
+
+        if isinstance(response, dict) and response.get("error"):
             logging.error(f"Error subiendo imagen: {response['error']}")
             return None
-        url = f"https://{supabase.supabase_url.replace('https://', '')}/storage/v1/object/public/{bucket_name}/{file_name}"
+
+        url = f"https://{supabase.supabase_url.replace('https://', '')}/storage/v1/object/public/{bucket_name}/{unique_name}"
         logging.info(f"Imagen subida correctamente: {url}")
         return url
     except Exception as e:
@@ -120,6 +122,19 @@ def actualizar_imagen_bus(bus_id: int, imagen_url: str):
         db.close()
         return None
     bus.imagen = imagen_url
+    db.commit()
+    db.refresh(bus)
+    db.close()
+    return bus
+
+def actualizar_bus(bus_id: int, update_data: dict):
+    db: Session = SessionLocal()
+    bus = db.query(models.Bus).filter(models.Bus.id == bus_id).first()
+    if not bus:
+        db.close()
+        return None
+    for key, value in update_data.items():
+        setattr(bus, key, value)
     db.commit()
     db.refresh(bus)
     db.close()
@@ -220,19 +235,6 @@ def actualizar_imagen_estacion(estacion_id: int, imagen_url: str):
     db.refresh(estacion)
     db.close()
     return estacion
-
-def actualizar_bus(bus_id: int, update_data: dict):
-    db: Session = SessionLocal()
-    bus = db.query(models.Bus).filter(models.Bus.id == bus_id).first()
-    if not bus:
-        db.close()
-        return None
-    for key, value in update_data.items():
-        setattr(bus, key, value)
-    db.commit()
-    db.refresh(bus)
-    db.close()
-    return bus
 
 def actualizar_estacion(estacion_id: int, update_data: dict):
     db: Session = SessionLocal()
