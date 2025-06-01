@@ -277,6 +277,12 @@ def obtener_bus(id: int):
     bus = crud.obtener_bus_por_id(id)
     if not bus:
         raise HTTPException(status_code=404, detail="Bus no encontrado")
+    # Convertir el objeto SQLAlchemy a diccionario
+    if hasattr(bus, "__dict__"):
+        # Eliminar atributos SQLAlchemy que empiezan con '_'
+        bus_dict = {k: v for k, v in bus.__dict__.items() if not k.startswith('_')}
+        return bus_dict
+    # Si ya es un diccionario, devolverlo directamente
     return bus
 
 @app.delete("/buses/{id}")
@@ -323,6 +329,12 @@ def obtener_estacion(id: int):
     estacion = crud.obtener_estacion_por_id(id)
     if not estacion:
         raise HTTPException(status_code=404, detail="Estación no encontrada")
+    # Convertir el objeto SQLAlchemy a diccionario
+    if hasattr(estacion, "__dict__"):
+        # Eliminar atributos SQLAlchemy que empiezan con '_'
+        estacion_dict = {k: v for k, v in estacion.__dict__.items() if not k.startswith('_')}
+        return estacion_dict
+    # Si ya es un diccionario, devolverlo directamente
     return estacion
 
 @app.delete("/estaciones/{id}")
