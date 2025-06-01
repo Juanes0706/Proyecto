@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Developer Info</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        nav {
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            gap: 20px;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        section {
+            padding: 20px;
+        }
+        h2 {
+            border-bottom: 2px solid #333;
+            padding-bottom: 5px;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="#" onclick="showSection('developer')">Developer</a>
+        <a href="#" onclick="showSection('planning')">Planning</a>
+        <a href="#" onclick="showSection('design')">Design</a>
+        <a href="#" onclick="showSection('objective')">Objective</a>
+    </nav>
+
+    <section id="developer" style="display:none;">
+        <h2>Developer Information</h2>
+        <pre id="developerContent">Loading...</pre>
+    </section>
+
+    <section id="planning" style="display:none;">
+        <h2>Planning Phase</h2>
+        <pre id="planningContent">Loading...</pre>
+    </section>
+
+    <section id="design" style="display:none;">
+        <h2>Design Phase</h2>
+        <pre id="designContent">Loading...</pre>
+    </section>
+
+    <section id="objective" style="display:none;">
+        <h2>Project Objective</h2>
+        <pre id="objectiveContent">Loading...</pre>
+    </section>
+
+    <script>
+        async function fetchData(endpoint, elementId) {
+            try {
+                const response = await fetch(endpoint);
+                if (!response.ok) {
+                    document.getElementById(elementId).textContent = 'Error loading data';
+                    return;
+                }
+                const data = await response.json();
+                document.getElementById(elementId).textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById(elementId).textContent = 'Error loading data';
+            }
+        }
+
+        function showSection(sectionId) {
+            const sections = ['developer', 'planning', 'design', 'objective'];
+            sections.forEach(id => {
+                document.getElementById(id).style.display = (id === sectionId) ? 'block' : 'none';
+            });
+            fetchData(`/${sectionId}`, sectionId + 'Content');
+        }
+
+        // Show developer section by default
+        showSection('developer');
+    </script>
+</body>
+</html>
