@@ -16,33 +16,23 @@
       margin-bottom: 2rem;
     }
   </style>
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Actualizar Bus y Estación</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <style>
-    body {
-      background-color: #f4f4f4;
-    }
-    .navbar-brand img {
-      height: 40px;
-    }
-  </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
   <script>
-    const supabaseUrl = "https://yotmkfccxktsupzdtbvb.supabase.co"; // Replace with your Supabase URL
-    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlvdG1rZmNjeGt0c3VwemR0YnZiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0ODU0NzkwNCwiZXhwIjoyMDY0MTIzOTA0fQ.ymMmRbO9plx0DLXjNJDvrKt2_aWdi4_h1bczP18qntU"; // Replace with your Supabase anon key
-    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+    // Supabase client initialization moved outside to avoid redeclaration errors
+    if (!window.supabase) {
+      const supabaseUrl = "https://your-supabase-url.supabase.co"; // Replace with your Supabase URL
+      const supabaseKey = "your-anon-key"; // Replace with your Supabase anon key
+      window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
+    }
 
     async function uploadImage(bucket, file) {
       const uniqueFilename = `${crypto.randomUUID()}.${file.name.split('.').pop()}`;
       const content = await file.arrayBuffer();
-      const response = await supabase.storage.from(bucket).upload(uniqueFilename, new Uint8Array(content));
+      const response = await window.supabase.storage.from(bucket).upload(uniqueFilename, new Uint8Array(content));
       if (response.error) {
         throw new Error(response.error.message);
       }
-      return `${supabaseUrl}/storage/v1/object/public/${bucket}/${uniqueFilename}`;
+      return `${window.supabase.supabaseUrl}/storage/v1/object/public/${bucket}/${uniqueFilename}`;
     }
 
     document.getElementById('updateBusForm').addEventListener('submit', async (e) => {
@@ -258,10 +248,14 @@
       }
 
       try {
+        const bodyData = { nombre_bus: nombre, tipo, activo };
+        if (imagenUrl !== null) {
+          bodyData.imagen = imagenUrl;
+        }
         const response = await fetch(`/buses/${id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ nombre_bus: nombre, tipo, activo, imagen: imagenUrl }),
+          body: JSON.stringify(bodyData),
         });
         if (!response.ok) throw new Error('Error al actualizar bus');
         document.getElementById('busUpdateMessage').textContent = 'Bus actualizado correctamente';
@@ -290,10 +284,14 @@
       }
 
       try {
+        const bodyData = { nombre_estacion: nombre, localidad, rutas_asociadas: rutas, activo };
+        if (imagenUrl !== null) {
+          bodyData.imagen = imagenUrl;
+        }
         const response = await fetch(`/estaciones/${id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ nombre_estacion: nombre, localidad, rutas_asociadas: rutas, activo, imagen: imagenUrl }),
+          body: JSON.stringify(bodyData),
         });
         if (!response.ok) throw new Error('Error al actualizar estación');
         document.getElementById('estacionUpdateMessage').textContent = 'Estación actualizada correctamente';
