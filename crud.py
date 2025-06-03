@@ -115,6 +115,33 @@ def crear_bus(bus: dict, imagen_bytes: Optional[bytes] = None, imagen_filename: 
     db.close()
     return nuevo_bus
 
+import asyncio
+from supabase_client import save_file
+from fastapi import UploadFile
+
+async def crear_bus_async(bus: dict, imagen: UploadFile):
+    imagen_url = None
+    if imagen:
+        result = await save_file(imagen, to_supabase=True)
+        if "url" in result:
+            imagen_url = result["url"]["publicUrl"] if isinstance(result["url"], dict) else result["url"]
+        elif "error" in result:
+            # Log or handle error as needed
+            imagen_url = None
+
+    db: Session = SessionLocal()
+    nuevo_bus = models.Bus(
+        nombre_bus=bus.get("nombre_bus"),
+        tipo=bus.get("tipo").lower().strip() if bus.get("tipo") else None,
+        activo=bus.get("activo"),
+        imagen=imagen_url
+    )
+    db.add(nuevo_bus)
+    db.commit()
+    db.refresh(nuevo_bus)
+    db.close()
+    return nuevo_bus
+
 def actualizar_imagen_bus(bus_id: int, imagen_url: str):
     db: Session = SessionLocal()
     bus = db.query(models.Bus).filter(models.Bus.id == bus_id).first()

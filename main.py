@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, Request, Response, UploadFile, File, Form, Body
+from fastapi import FastAPI, Depends, HTTPException, Request, Response, UploadFile, File, Form, Body, status
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -7,6 +7,7 @@ from typing import Optional, List
 import models, crud
 from schemas import Bus as BusSchema, Estacion as EstacionSchema, BusResponse, EstacionResponse
 from db import SessionLocal, engine
+from supabase_client import supabase
 import uuid
 import logging
 
@@ -17,11 +18,12 @@ app = FastAPI()
 
 # Configuración para plantillas HTML
 templates = Jinja2Templates(directory="templates")
-app.mount("/static/css", StaticFiles(directory="static/css"), name="css")
-app.mount("/static/js", StaticFiles(directory="static/js"), name="js")
-app.mount("/static/img", StaticFiles(directory="static/img"), name="img")
+app.mount("/static/css", StaticFiles(directory="css"), name="css")
+app.mount("/static/js", StaticFiles(directory="js"), name="js")
+app.mount("/static/img", StaticFiles(directory="img"), name="img")
 
 # Base de datos
+
 def get_db():
     db = SessionLocal()
     try:
@@ -29,7 +31,8 @@ def get_db():
     finally:
         db.close()
 
-# Historial de eliminados
+# ---------------------- HISTORIAL DE ELIMINADOS ----------------------
+
 historial_eliminados = []
 
 # ---------------------- RUTAS HTML ----------------------
@@ -58,176 +61,29 @@ async def update_page(request: Request):
 async def delete_page(request: Request):
     return templates.TemplateResponse("DeletePage.html", {"request": request})
 
-@app.get("/planning-page", response_class=HTMLResponse)
-async def planning_page(request: Request):
-    return templates.TemplateResponse("PlanningPage.html", {"request": request})
-
-@app.get("/design-page", response_class=HTMLResponse)
-async def design_page(request: Request):
-    return templates.TemplateResponse("DesignPage.html", {"request": request})
-
-# ---------------------- HISTORIAL ----------------------
+# ---------------------- ENDPOINT HISTORIAL ----------------------
 
 @app.get("/historial", response_model=List[dict])
 def obtener_historial():
     return historial_eliminados
 
-# ---------------------- NEW INFO ENDPOINTS ----------------------
-
-@app.get("/developer")
-def get_developer_info():
-    return {
-        "name": "Your Name",
-        "email": "your.email@example.com",
-        "role": "Developer",
-        "contact": "your.email@example.com"
-    }
-
-@app.get("/planning")
-def get_planning_info():
-    return {
-        "requirements": [
-            "Create endpoints for developer info, planning, design, and objective",
-            "Create an HTML page with navbar to display this info"
-        ],
-        "timeline": "Define project phases and milestones",
-        "resources": ["FastAPI", "Supabase", "HTML, CSS, JS"]
-    }
-
-@app.get("/design")
-def get_design_info():
-    return {
-        "architecture": "FastAPI backend with Supabase storage",
-        "frontend": "HTML page with dynamic content loading",
-        "database": "PostgreSQL with SQLAlchemy ORM"
-    }
-
-@app.get("/objective")
-def get_project_objective():
-    return {
-        "objective": "Build a web app to manage buses and stations with image storage using Supabase"
-    }
-
-@app.get("/developer-info", response_class=HTMLResponse)
-async def developer_info_page(request: Request):
-    return templates.TemplateResponse("DeveloperInfoPage.html", {"request": request})
-
 # ---------------------- BUSES ----------------------
 
-@app.post("/buses", response_model=BusResponse)
+@app.post("/buses", response_model=BusResponse, status_code=status.HTTP_201_CREATED)
 async def crear_bus_con_imagen(
     nombre_bus: str = Form(...),
     tipo: str = Form(...),
     activo: bool = Form(...),
     imagen: UploadFile = File(...)
 ):
-    if not imagen.content_type.startswith("image/"):
-        raise HTTPException(status_code=400, detail="El archivo debe ser una imagen.")
-    
-    imagen_bytes = await imagen.read()
-    imagen_filename = imagen.filename
-    bus_data = {
-        "nombre_bus": nombre_bus,
-        "tipo": tipo.lower().strip(),
-        "activo": activo
-    }
-    nuevo_bus = crud.crear_bus(bus_data, imagen_bytes=imagen_bytes, imagen_filename=imagen_filename)
+    nuevo_bus = await crud.crear_bus_async(
+        {
+            "nombre_bus": nombre_bus,
+            "tipo": tipo.lower().strip(),
+            "activo": activo
+        },
+        imagen
+    )
     if not nuevo_bus:
         raise HTTPException(status_code=500, detail="No se pudo crear el bus.")
     return BusResponse.from_orm(nuevo_bus)
-
-@app.get("/buses/", response_model=List[dict])
-def listar_buses(tipo: Optional[str] = None, activo: Optional[bool] = None):
-    return crud.obtener_buses(tipo=tipo, activo=activo)
-
-@app.get("/buses/{id}", response_model=dict)
-def obtener_bus(id: int):
-    bus = crud.obtener_bus_por_id(id)
-    if not bus:
-        raise HTTPException(status_code=404, detail="Bus no encontrado")
-    return {k: v for k, v in bus.__dict__.items() if not k.startswith('_')}
-
-@app.delete("/buses/{id}")
-def eliminar_bus(id: int):
-    bus = crud.obtener_bus_por_id(id)
-    if not bus:
-        raise HTTPException(status_code=404, detail="Bus no encontrado")
-    historial_eliminados.append({"tipo": "bus", "datos": bus.__dict__})
-    crud.eliminar_bus(id)
-    return {"mensaje": "Bus eliminado con éxito"}
-
-@app.put("/buses/{id}/estado")
-def actualizar_estado_bus(id: int, activo: bool = Body(...)):
-    return crud.actualizar_estado_bus(id, activo)
-
-@app.put("/buses/{id}/imagen")
-async def actualizar_imagen_bus(id: int, imagen: UploadFile = File(...)):
-    if not imagen.content_type.startswith("image/"):
-        raise HTTPException(status_code=400, detail="El archivo debe ser una imagen.")
-    imagen_bytes = await imagen.read()
-    imagen_filename = imagen.filename
-    imagen_url = crud.subir_imagen("buses", imagen_filename, imagen_bytes)
-    if not imagen_url:
-        raise HTTPException(status_code=500, detail="No se pudo subir la imagen.")
-    return crud.actualizar_imagen_bus(id, imagen_url)
-
-# ---------------------- ESTACIONES ----------------------
-
-@app.post("/estaciones", response_model=EstacionResponse)
-async def crear_estacion_con_imagen(
-    nombre_estacion: str = Form(...),
-    localidad: str = Form(...),
-    rutas_asociadas: str = Form(...),
-    activo: bool = Form(...),
-    imagen: UploadFile = File(...)
-):
-    if not imagen.content_type.startswith("image/"):
-        raise HTTPException(status_code=400, detail="El archivo debe ser una imagen.")
-    
-    imagen_bytes = await imagen.read()
-    imagen_filename = imagen.filename
-    estacion_data = {
-        "nombre_estacion": nombre_estacion,
-        "localidad": localidad,
-        "rutas_asociadas": rutas_asociadas,
-        "activo": activo
-    }
-    nueva_estacion = crud.crear_estacion(estacion_data, imagen_bytes=imagen_bytes, imagen_filename=imagen_filename)
-    if not nueva_estacion:
-        raise HTTPException(status_code=500, detail="No se pudo crear la estación.")
-    return EstacionResponse.from_orm(nueva_estacion)
-
-@app.get("/estaciones/", response_model=List[dict])
-def listar_estaciones(sector: Optional[str] = None, activo: Optional[bool] = None):
-    return crud.obtener_estaciones(sector=sector, activo=activo)
-
-@app.get("/estaciones/{id}", response_model=dict)
-def obtener_estacion(id: int):
-    estacion = crud.obtener_estacion_por_id(id)
-    if not estacion:
-        raise HTTPException(status_code=404, detail="Estación no encontrada")
-    return {k: v for k, v in estacion.__dict__.items() if not k.startswith('_')}
-
-@app.delete("/estaciones/{id}")
-def eliminar_estacion(id: int):
-    estacion = crud.obtener_estacion_por_id(id)
-    if not estacion:
-        raise HTTPException(status_code=404, detail="Estación no encontrada")
-    historial_eliminados.append({"tipo": "estacion", "datos": estacion.__dict__})
-    crud.eliminar_estacion(id)
-    return {"mensaje": "Estación eliminada con éxito"}
-
-@app.put("/estaciones/{id}/estado")
-def actualizar_estado_estacion(id: int, activo: bool = Body(...)):
-    return crud.actualizar_estado_estacion(id, activo)
-
-@app.put("/estaciones/{id}/imagen")
-async def actualizar_imagen_estacion(id: int, imagen: UploadFile = File(...)):
-    if not imagen.content_type.startswith("image/"):
-        raise HTTPException(status_code=400, detail="El archivo debe ser una imagen.")
-    imagen_bytes = await imagen.read()
-    imagen_filename = imagen.filename
-    imagen_url = crud.subir_imagen("estaciones", imagen_filename, imagen_bytes)
-    if not imagen_url:
-        raise HTTPException(status_code=500, detail="No se pudo subir la imagen.")
-    return crud.actualizar_imagen_estacion(id, imagen_url)
