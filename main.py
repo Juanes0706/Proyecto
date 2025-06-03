@@ -61,6 +61,22 @@ async def update_page(request: Request):
 async def delete_page(request: Request):
     return templates.TemplateResponse("DeletePage.html", {"request": request})
 
+@app.get("/historial", response_class=HTMLResponse)
+async def historial_page(request: Request):
+    return templates.TemplateResponse("HistorialPage.html", {"request": request})
+
+@app.get("/developer-info", response_class=HTMLResponse)
+async def developer_info_page(request: Request):
+    return templates.TemplateResponse("DeveloperInfoPage.html", {"request": request})
+
+@app.get("/planning", response_class=HTMLResponse)
+async def planning_page(request: Request):
+    return templates.TemplateResponse("PlanningPage.html", {"request": request})
+
+@app.get("/design", response_class=HTMLResponse)
+async def design_page(request: Request):
+    return templates.TemplateResponse("DesignPage.html", {"request": request})
+
 # ---------------------- ENDPOINT HISTORIAL ----------------------
 
 @app.get("/historial", response_model=List[dict])
