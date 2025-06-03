@@ -31,8 +31,8 @@
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
   <script>
-    const supabaseUrl = "https://your-supabase-url.supabase.co"; // Replace with your Supabase URL
-    const supabaseKey = "your-anon-key"; // Replace with your Supabase anon key
+    const supabaseUrl = "https://yotmkfccxktsupzdtbvb.supabase.co"; // Replace with your Supabase URL
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlvdG1rZmNjeGt0c3VwemR0YnZiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0ODU0NzkwNCwiZXhwIjoyMDY0MTIzOTA0fQ.ymMmRbO9plx0DLXjNJDvrKt2_aWdi4_h1bczP18qntU"; // Replace with your Supabase anon key
     const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
     async function uploadImage(bucket, file) {
@@ -130,7 +130,7 @@
         <li class="nav-item"><a class="nav-link" href="/read">📖 Leer</a></li>
         <li class="nav-item"><a class="nav-link active" href="/update">✏️ Actualizar</a></li>
         <li class="nav-item"><a class="nav-link" href="/delete">❌ Eliminar</a></li>
-<li class="nav-item"><a class="nav-link" href="/historial">🕒 Historial</a></li>
+        <li class="nav-item"><a class="nav-link" href="/historial">🕒 Historial</a></li>
         <li class="nav-item"><a class="nav-link" href="/developer-info">👨‍💻 Info Desarrollador</a></li>
         <li class="nav-item"><a class="nav-link" href="/planning">🗓️ Planeación</a></li>
         <li class="nav-item"><a class="nav-link" href="/design">🎨 Diseño</a></li>
@@ -223,84 +223,84 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
-<script>
-  const supabaseUrl = "https://your-supabase-url.supabase.co"; // Replace with your Supabase URL
-  const supabaseKey = "your-anon-key"; // Replace with your Supabase anon key
-  const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
+  <script>
+    const supabaseUrl = "https://your-supabase-url.supabase.co"; // Replace with your Supabase URL
+    const supabaseKey = "your-anon-key"; // Replace with your Supabase anon key
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-  async function uploadImage(bucket, file) {
-    const uniqueFilename = `${crypto.randomUUID()}.${file.name.split('.').pop()}`;
-    const content = await file.arrayBuffer();
-    const response = await supabase.storage.from(bucket).upload(uniqueFilename, new Uint8Array(content));
-    if (response.error) {
-      throw new Error(response.error.message);
-    }
-    return `${supabaseUrl}/storage/v1/object/public/${bucket}/${uniqueFilename}`;
-  }
-
-  document.getElementById('updateBusForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const id = document.getElementById('busId').value;
-    const nombre = document.getElementById('busNombre').value;
-    const tipo = document.getElementById('busTipo').value;
-    const activo = document.getElementById('busActivo').value === 'true';
-    const imagenFile = document.getElementById('busImagen').files[0];
-
-    let imagenUrl = null;
-    if (imagenFile) {
-      try {
-        imagenUrl = await uploadImage('buses', imagenFile);
-      } catch (error) {
-        document.getElementById('busUpdateMessage').textContent = `Error al subir imagen: ${error.message}`;
-        return;
+    async function uploadImage(bucket, file) {
+      const uniqueFilename = `${crypto.randomUUID()}.${file.name.split('.').pop()}`;
+      const content = await file.arrayBuffer();
+      const response = await supabase.storage.from(bucket).upload(uniqueFilename, new Uint8Array(content));
+      if (response.error) {
+        throw new Error(response.error.message);
       }
+      return `${supabaseUrl}/storage/v1/object/public/${bucket}/${uniqueFilename}`;
     }
 
-    try {
-      const response = await fetch(`/buses/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre_bus: nombre, tipo, activo, imagen: imagenUrl }),
-      });
-      if (!response.ok) throw new Error('Error al actualizar bus');
-      document.getElementById('busUpdateMessage').textContent = 'Bus actualizado correctamente';
-    } catch (error) {
-      document.getElementById('busUpdateMessage').textContent = error.message;
-    }
-  });
+    document.getElementById('updateBusForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('busId').value;
+      const nombre = document.getElementById('busNombre').value;
+      const tipo = document.getElementById('busTipo').value;
+      const activo = document.getElementById('busActivo').value === 'true';
+      const imagenFile = document.getElementById('busImagen').files[0];
 
-  document.getElementById('updateEstacionForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const id = document.getElementById('estacionId').value;
-    const nombre = document.getElementById('estacionNombre').value;
-    const localidad = document.getElementById('estacionLocalidad').value;
-    const rutas = document.getElementById('estacionRutas').value;
-    const activo = document.getElementById('estacionActivo').value === 'true';
-    const imagenFile = document.getElementById('estacionImagen').files[0];
-
-    let imagenUrl = null;
-    if (imagenFile) {
-      try {
-        imagenUrl = await uploadImage('estaciones', imagenFile);
-      } catch (error) {
-        document.getElementById('estacionUpdateMessage').textContent = `Error al subir imagen: ${error.message}`;
-        return;
+      let imagenUrl = null;
+      if (imagenFile) {
+        try {
+          imagenUrl = await uploadImage('buses', imagenFile);
+        } catch (error) {
+          document.getElementById('busUpdateMessage').textContent = `Error al subir imagen: ${error.message}`;
+          return;
+        }
       }
-    }
 
-    try {
-      const response = await fetch(`/estaciones/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre_estacion: nombre, localidad, rutas_asociadas: rutas, activo, imagen: imagenUrl }),
-      });
-      if (!response.ok) throw new Error('Error al actualizar estación');
-      document.getElementById('estacionUpdateMessage').textContent = 'Estación actualizada correctamente';
-    } catch (error) {
-      document.getElementById('estacionUpdateMessage').textContent = error.message;
-    }
-  });
-</script>
+      try {
+        const response = await fetch(`/buses/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nombre_bus: nombre, tipo, activo, imagen: imagenUrl }),
+        });
+        if (!response.ok) throw new Error('Error al actualizar bus');
+        document.getElementById('busUpdateMessage').textContent = 'Bus actualizado correctamente';
+      } catch (error) {
+        document.getElementById('busUpdateMessage').textContent = error.message;
+      }
+    });
+
+    document.getElementById('updateEstacionForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('estacionId').value;
+      const nombre = document.getElementById('estacionNombre').value;
+      const localidad = document.getElementById('estacionLocalidad').value;
+      const rutas = document.getElementById('estacionRutas').value;
+      const activo = document.getElementById('estacionActivo').value === 'true';
+      const imagenFile = document.getElementById('estacionImagen').files[0];
+
+      let imagenUrl = null;
+      if (imagenFile) {
+        try {
+          imagenUrl = await uploadImage('estaciones', imagenFile);
+        } catch (error) {
+          document.getElementById('estacionUpdateMessage').textContent = `Error al subir imagen: ${error.message}`;
+          return;
+        }
+      }
+
+      try {
+        const response = await fetch(`/estaciones/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nombre_estacion: nombre, localidad, rutas_asociadas: rutas, activo, imagen: imagenUrl }),
+        });
+        if (!response.ok) throw new Error('Error al actualizar estación');
+        document.getElementById('estacionUpdateMessage').textContent = 'Estación actualizada correctamente';
+      } catch (error) {
+        document.getElementById('estacionUpdateMessage').textContent = error.message;
+      }
+    });
+  </script>
 </body>
 </html>
