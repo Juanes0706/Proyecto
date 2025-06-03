@@ -166,11 +166,19 @@ def actualizar_estado_estacion_endpoint(estacion_id: int, activo: bool):
         raise HTTPException(status_code=404, detail="Estación no encontrada")
     return resultado
 
+from datetime import datetime
+
 @app.delete("/buses/{bus_id}")
 def eliminar_bus_endpoint(bus_id: int):
     resultado = crud.eliminar_bus(bus_id)
     if not resultado:
         raise HTTPException(status_code=404, detail="Bus no encontrado")
+    # Add to historial_eliminados
+    historial_eliminados.append({
+        "tipo": "bus",
+        "detalles": resultado,
+        "fecha_hora": datetime.now().isoformat()
+    })
     return resultado
 
 @app.delete("/estaciones/{estacion_id}")
@@ -178,6 +186,12 @@ def eliminar_estacion_endpoint(estacion_id: int):
     resultado = crud.eliminar_estacion(estacion_id)
     if not resultado:
         raise HTTPException(status_code=404, detail="Estación no encontrada")
+    # Add to historial_eliminados
+    historial_eliminados.append({
+        "tipo": "estacion",
+        "detalles": resultado,
+        "fecha_hora": datetime.now().isoformat()
+    })
     return resultado
 
 @app.put("/buses/{bus_id}", response_model=BusResponse)
