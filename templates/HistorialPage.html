@@ -46,7 +46,7 @@
             <thead class="table-danger">
                 <tr>
                     <th>Tipo</th>
-                    <th>Detalles</th>
+                    <th>ID</th>
                 </tr>
             </thead>
             <tbody id="historialTableBody">
@@ -59,7 +59,7 @@
 <script>
     async function fetchHistorial() {
         try {
-            const response = await fetch('/historial');
+            const response = await fetch('/api/historial');
             if (!response.ok) {
                 throw new Error('Error al obtener el historial');
             }
@@ -74,10 +74,10 @@
                 const tr = document.createElement('tr');
                 const tipoTd = document.createElement('td');
                 tipoTd.textContent = item.tipo || 'N/A';
-                const detallesTd = document.createElement('td');
-                detallesTd.textContent = JSON.stringify(item.detalles) || 'N/A';
+                const idTd = document.createElement('td');
+                idTd.textContent = item.id || 'N/A';
                 tr.appendChild(tipoTd);
-                tr.appendChild(detallesTd);
+                tr.appendChild(idTd);
                 tbody.appendChild(tr);
             });
         } catch (error) {

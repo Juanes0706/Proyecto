@@ -116,7 +116,6 @@
         const li = document.createElement("li");
         li.className = "list-group-item d-flex align-items-center";
         const img = document.createElement("img");
-        img.src = bus.imagen || "/static/transmilenio.jpg";
         img.alt = bus.nombre_bus;
         img.style.width = "60px";
         img.style.height = "40px";
@@ -152,7 +151,7 @@
             const li = document.createElement("li");
             li.className = "list-group-item d-flex align-items-center";
             const img = document.createElement("img");
-            img.src = bus.imagen || "/static/transmilenio.jpg";
+            img.src = bus.imagen || "/static/img/transmilenio.jpg";
             img.alt = bus.nombre_bus;
             img.style.width = "60px";
             img.style.height = "40px";
@@ -184,7 +183,7 @@
         const li = document.createElement("li");
         li.className = "list-group-item d-flex align-items-center";
         const img = document.createElement("img");
-        img.src = estacion.imagen || "/static/transmilenio.jpg";
+        img.src = estacion.imagen || "/static/img/transmilenio.jpg";
         img.alt = estacion.nombre_estacion;
         img.style.width = "60px";
         img.style.height = "40px";
@@ -220,8 +219,7 @@
             const li = document.createElement("li");
             li.className = "list-group-item d-flex align-items-center";
             const img = document.createElement("img");
-            img.src = estacion.imagen || "/static/transmilenio.jpg";
-            img.alt = estacion.nombre_estacion;
+            img.src = estacion.imagen || "/static/img/transmilenio.jpg";
             img.style.width = "60px";
             img.style.height = "40px";
             img.style.objectFit = "cover";

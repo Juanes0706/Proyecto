@@ -95,9 +95,15 @@ async def design_page(request: Request):
 
 # ---------------------- ENDPOINT HISTORIAL ----------------------
 
-@app.get("/historial", response_model=List[dict])
+@app.get("/api/historial", response_model=List[dict])
 def obtener_historial():
-    return historial_eliminados
+    filtered_historial = []
+    for item in historial_eliminados:
+        if item["tipo"] == "bus":
+            filtered_historial.append({"tipo": "bus", "id": item["detalles"].get("id")})
+        elif item["tipo"] == "estacion":
+            filtered_historial.append({"tipo": "estacion", "id": item["detalles"].get("id")})
+    return filtered_historial
 
 # ---------------------- BUSES ----------------------
 
