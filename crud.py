@@ -119,6 +119,8 @@ import asyncio
 from supabase_client import save_file
 from fastapi import UploadFile
 
+import asyncio
+
 async def crear_bus_async(bus: dict, imagen: UploadFile):
     imagen_url = None
     if imagen:
@@ -129,17 +131,26 @@ async def crear_bus_async(bus: dict, imagen: UploadFile):
             # Log or handle error as needed
             imagen_url = None
 
-    db: Session = SessionLocal()
-    nuevo_bus = models.Bus(
-        nombre_bus=bus.get("nombre_bus"),
-        tipo=bus.get("tipo").lower().strip() if bus.get("tipo") else None,
-        activo=bus.get("activo"),
-        imagen=imagen_url
-    )
-    db.add(nuevo_bus)
-    db.commit()
-    db.refresh(nuevo_bus)
-    db.close()
+    def db_task():
+        db: Session = SessionLocal()
+        try:
+            nuevo_bus = models.Bus(
+                nombre_bus=bus.get("nombre_bus"),
+                tipo=bus.get("tipo").lower().strip() if bus.get("tipo") else None,
+                activo=bus.get("activo"),
+                imagen=imagen_url
+            )
+            db.add(nuevo_bus)
+            db.commit()
+            db.refresh(nuevo_bus)
+            return nuevo_bus
+        except Exception as e:
+            logging.error(f"Error creando bus en la base de datos: {e}")
+            return None
+        finally:
+            db.close()
+
+    nuevo_bus = await asyncio.to_thread(db_task)
     return nuevo_bus
 
 def actualizar_imagen_bus(bus_id: int, imagen_url: str):
