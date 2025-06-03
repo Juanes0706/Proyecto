@@ -9,11 +9,8 @@ from db import SessionLocal, engine
 import models
 import logging
 
-# Asegurar que la columna 'imagen' exista en la tabla 'buses'
-with engine.connect() as connection:
-    connection.execute(
-        "ALTER TABLE buses ADD COLUMN IF NOT EXISTS imagen VARCHAR;"
-    )
+# The ALTER TABLE command to add 'imagen' column to 'buses' table is removed to avoid errors.
+# Ensure the 'imagen' column is defined in the models.Bus class and tables are created properly.
 
 def limpiar_nombre_archivo(nombre: str) -> str:
     nombre = unicodedata.normalize('NFD', nombre)
