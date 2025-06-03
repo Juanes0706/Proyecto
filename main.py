@@ -119,6 +119,34 @@ def listar_estaciones(sector: Optional[str] = None, activo: Optional[bool] = Non
     estaciones = crud.obtener_estaciones(sector=sector, activo=activo)
     return estaciones
 
+@app.put("/buses/{bus_id}/estado")
+def actualizar_estado_bus_endpoint(bus_id: int, activo: bool):
+    resultado = crud.actualizar_estado_bus(bus_id, activo)
+    if not resultado:
+        raise HTTPException(status_code=404, detail="Bus no encontrado")
+    return resultado
+
+@app.put("/estaciones/{estacion_id}/estado")
+def actualizar_estado_estacion_endpoint(estacion_id: int, activo: bool):
+    resultado = crud.actualizar_estado_estacion(estacion_id, activo)
+    if not resultado:
+        raise HTTPException(status_code=404, detail="Estación no encontrada")
+    return resultado
+
+@app.delete("/buses/{bus_id}")
+def eliminar_bus_endpoint(bus_id: int):
+    resultado = crud.eliminar_bus(bus_id)
+    if not resultado:
+        raise HTTPException(status_code=404, detail="Bus no encontrado")
+    return resultado
+
+@app.delete("/estaciones/{estacion_id}")
+def eliminar_estacion_endpoint(estacion_id: int):
+    resultado = crud.eliminar_estacion(estacion_id)
+    if not resultado:
+        raise HTTPException(status_code=404, detail="Estación no encontrada")
+    return resultado
+
 @app.put("/buses/{bus_id}", response_model=BusResponse)
 async def actualizar_bus_endpoint(
     bus_id: int,
