@@ -122,7 +122,7 @@
             formData.append("imagen", imagenEstacion);
         }
 
-        const response = await fetch("/estaciones/", {
+        const response = await fetch("/estaciones", {
             method: "POST",
             body: formData,
         });
