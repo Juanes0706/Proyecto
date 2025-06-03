@@ -87,3 +87,91 @@ async def crear_bus_con_imagen(
     if not nuevo_bus:
         raise HTTPException(status_code=500, detail="No se pudo crear el bus.")
     return BusResponse.from_orm(nuevo_bus)
+
+@app.post("/estaciones", response_model=EstacionResponse, status_code=status.HTTP_201_CREATED)
+async def crear_estacion_con_imagen(
+    nombre_estacion: str = Form(...),
+    localidad: str = Form(...),
+    rutas_asociadas: str = Form(...),
+    activo: bool = Form(...),
+    imagen: UploadFile = File(...)
+):
+    nueva_estacion = await crud.crear_estacion_async(
+        {
+            "nombre_estacion": nombre_estacion,
+            "localidad": localidad,
+            "rutas_asociadas": rutas_asociadas,
+            "activo": activo
+        },
+        imagen
+    )
+    if not nueva_estacion:
+        raise HTTPException(status_code=500, detail="No se pudo crear la estación.")
+    return EstacionResponse.from_orm(nueva_estacion)
+
+@app.get("/buses/", response_model=List[BusSchema])
+def listar_buses(tipo: Optional[str] = None, activo: Optional[bool] = None):
+    buses = crud.obtener_buses(tipo=tipo, activo=activo)
+    return buses
+
+@app.get("/estaciones/", response_model=List[EstacionSchema])
+def listar_estaciones(sector: Optional[str] = None, activo: Optional[bool] = None):
+    estaciones = crud.obtener_estaciones(sector=sector, activo=activo)
+    return estaciones
+
+@app.put("/buses/{bus_id}", response_model=BusResponse)
+async def actualizar_bus_endpoint(
+    bus_id: int,
+    nombre_bus: Optional[str] = Form(None),
+    tipo: Optional[str] = Form(None),
+    activo: Optional[bool] = Form(None),
+    imagen: Optional[UploadFile] = File(None)
+):
+    update_data = {}
+    if nombre_bus is not None:
+        update_data["nombre_bus"] = nombre_bus
+    if tipo is not None:
+        update_data["tipo"] = tipo.lower().strip()
+    if activo is not None:
+        update_data["activo"] = activo
+
+    if imagen:
+        result = await crud.save_file(imagen, to_supabase=True)
+        if "url" in result:
+            imagen_url = result["url"]["publicUrl"] if isinstance(result["url"], dict) else result["url"]
+            update_data["imagen"] = imagen_url
+
+    updated_bus = crud.actualizar_bus(bus_id, update_data)
+    if not updated_bus:
+        raise HTTPException(status_code=404, detail="Bus no encontrado")
+    return BusResponse.from_orm(updated_bus)
+
+@app.put("/estaciones/{estacion_id}", response_model=EstacionResponse)
+async def actualizar_estacion_endpoint(
+    estacion_id: int,
+    nombre_estacion: Optional[str] = Form(None),
+    localidad: Optional[str] = Form(None),
+    rutas_asociadas: Optional[str] = Form(None),
+    activo: Optional[bool] = Form(None),
+    imagen: Optional[UploadFile] = File(None)
+):
+    update_data = {}
+    if nombre_estacion is not None:
+        update_data["nombre_estacion"] = nombre_estacion
+    if localidad is not None:
+        update_data["localidad"] = localidad
+    if rutas_asociadas is not None:
+        update_data["rutas_asociadas"] = rutas_asociadas
+    if activo is not None:
+        update_data["activo"] = activo
+
+    if imagen:
+        result = await crud.save_file(imagen, to_supabase=True)
+        if "url" in result:
+            imagen_url = result["url"]["publicUrl"] if isinstance(result["url"], dict) else result["url"]
+            update_data["imagen"] = imagen_url
+
+    updated_estacion = crud.actualizar_estacion(estacion_id, update_data)
+    if not updated_estacion:
+        raise HTTPException(status_code=404, detail="Estación no encontrada")
+    return EstacionResponse.from_orm(updated_estacion)
