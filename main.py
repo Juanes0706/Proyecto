@@ -158,8 +158,18 @@ def obtener_bus_por_id_endpoint(bus_id: int):
     return BusResponse.from_orm(bus)
 
 @app.get("/buses/", response_model=List[BusSchema])
-def listar_buses(tipo: Optional[str] = None, activo: Optional[bool] = None):
-    buses = crud.obtener_buses(tipo=tipo, activo=activo)
+def listar_buses(bus_id: Optional[int] = None, tipo: Optional[str] = None, activo: Optional[str] = None):
+    # Convert activo from string to bool if needed
+    if activo is not None:
+        if activo.lower() == "true":
+            activo_bool = True
+        elif activo.lower() == "false":
+            activo_bool = False
+        else:
+            activo_bool = None
+    else:
+        activo_bool = None
+    buses = crud.obtener_buses(bus_id=bus_id, tipo=tipo, activo=activo_bool)
     return buses
 
 @app.get("/estaciones/{estacion_id}", response_model=EstacionResponse)
@@ -170,8 +180,18 @@ def obtener_estacion_por_id_endpoint(estacion_id: int):
     return EstacionResponse.from_orm(estacion)
 
 @app.get("/estaciones/", response_model=List[EstacionSchema])
-def listar_estaciones(sector: Optional[str] = None, activo: Optional[bool] = None):
-    estaciones = crud.obtener_estaciones(sector=sector, activo=activo)
+def listar_estaciones(sector: Optional[str] = None, activo: Optional[str] = None):
+    # Convert activo from string to bool if needed
+    if activo is not None:
+        if activo.lower() == "true":
+            activo_bool = True
+        elif activo.lower() == "false":
+            activo_bool = False
+        else:
+            activo_bool = None
+    else:
+        activo_bool = None
+    estaciones = crud.obtener_estaciones(sector=sector, activo=activo_bool)
     return estaciones
 
 @app.put("/buses/{bus_id}/estado")

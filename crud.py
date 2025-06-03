@@ -5,9 +5,11 @@ from db import SessionLocal
 import models
 from typing import Optional
 
-def obtener_buses(tipo: Optional[str] = None, activo: Optional[bool] = None):
+def obtener_buses(bus_id: Optional[int] = None, tipo: Optional[str] = None, activo: Optional[bool] = None):
     db: Session = SessionLocal()
     query = db.query(models.Bus)
+    if bus_id is not None:
+        query = query.filter(models.Bus.id == bus_id)
     if tipo:
         query = query.filter(models.Bus.tipo.ilike(f"%{tipo}%"))
     if activo is not None:
