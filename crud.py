@@ -115,6 +115,26 @@ def actualizar_estado_bus(bus_id: int, nuevo_estado: bool):
     db.close()
     return {"mensaje": f"Estado de bus actualizado a {'activo' if nuevo_estado else 'inactivo'}"}
 
+def eliminar_bus(bus_id: int):
+    db: Session = SessionLocal()
+    bus = db.query(models.Bus).filter(models.Bus.id == bus_id).first()
+    if not bus:
+        db.close()
+        return None
+    imagen_url = bus.imagen
+    if imagen_url:
+        try:
+            bucket = "buses"
+            filename = imagen_url.split(f"/{bucket}/")[-1]
+            supabase.storage.from_(bucket).remove([filename])
+            logging.info(f"Imagen de bus eliminada: {filename}")
+        except Exception as e:
+            logging.error(f"Error eliminando imagen de bus: {e}")
+    db.delete(bus)
+    db.commit()
+    db.close()
+    return {"mensaje": "Bus eliminado"}
+
 def crear_bus(bus: dict, imagen_bytes: Optional[bytes] = None, imagen_filename: Optional[str] = None):
     imagen_url = None
     if imagen_bytes and imagen_filename:

@@ -218,10 +218,10 @@ def eliminar_bus_endpoint(bus_id: int):
     # Add to historial_eliminados
     historial_eliminados.append({
         "tipo": "bus",
-        "detalles": resultado,
+        "detalles": {"id": bus_id},
         "fecha_hora": datetime.now().isoformat()
     })
-    return resultado
+    return {"mensaje": "Bus eliminado"}
 
 @app.delete("/estaciones/{estacion_id}")
 def eliminar_estacion_endpoint(estacion_id: int):
@@ -231,10 +231,10 @@ def eliminar_estacion_endpoint(estacion_id: int):
     # Add to historial_eliminados
     historial_eliminados.append({
         "tipo": "estacion",
-        "detalles": resultado,
+        "detalles": {"id": estacion_id},
         "fecha_hora": datetime.now().isoformat()
     })
-    return resultado
+    return {"mensaje": "Estación eliminada"}
 
 @app.put("/buses/{bus_id}", response_model=BusResponse)
 async def actualizar_bus_endpoint(
