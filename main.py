@@ -112,10 +112,24 @@ async def crear_estacion_con_imagen(
         raise HTTPException(status_code=500, detail="No se pudo crear la estación.")
     return EstacionResponse.from_orm(nueva_estacion)
 
+@app.get("/buses/{bus_id}", response_model=BusResponse)
+def obtener_bus_por_id_endpoint(bus_id: int):
+    bus = crud.obtener_bus_por_id(bus_id)
+    if not bus:
+        raise HTTPException(status_code=404, detail="Bus no encontrado")
+    return BusResponse.from_orm(bus)
+
 @app.get("/buses/", response_model=List[BusSchema])
 def listar_buses(tipo: Optional[str] = None, activo: Optional[bool] = None):
     buses = crud.obtener_buses(tipo=tipo, activo=activo)
     return buses
+
+@app.get("/estaciones/{estacion_id}", response_model=EstacionResponse)
+def obtener_estacion_por_id_endpoint(estacion_id: int):
+    estacion = crud.obtener_estacion_por_id(estacion_id)
+    if not estacion:
+        raise HTTPException(status_code=404, detail="Estación no encontrada")
+    return EstacionResponse.from_orm(estacion)
 
 @app.get("/estaciones/", response_model=List[EstacionSchema])
 def listar_estaciones(sector: Optional[str] = None, activo: Optional[bool] = None):
