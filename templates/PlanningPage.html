@@ -36,6 +36,18 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(178, 34, 34, 0.3);
         }
+        table {
+            width: 100%;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 8px 12px;
+            border: 1px solid #b22222;
+        }
+        th {
+            background-color: #b22222;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -88,6 +100,46 @@
             Se incluyó un Procfile y configuración para plataformas de despliegue como Render o Railway, facilitando la publicación del proyecto en un entorno productivo.
         </li>
     </ol>
+    <div class="mt-5">
+        <img src="/static/img/png.png" alt="PNG Image" class="img-fluid mb-4" style="max-width: 200px;" />
+        <h2>Casos de uso</h2>
+        <table class="table table-bordered">
+            <thead class="table-danger">
+                <tr>
+                    <th>Caso</th>
+                    <th>Actor</th>
+                    <th>Descripción</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>CU01</td>
+                    <td>Admin</td>
+                    <td>Registrar una nueva ruta</td>
+                </tr>
+                <tr>
+                    <td>CU02</td>
+                    <td>Admin</td>
+                    <td>Crear nuevo bus con imagen</td>
+                </tr>
+                <tr>
+                    <td>CU03</td>
+                    <td>Admin</td>
+                    <td>Registrar estación y asignar imagen</td>
+                </tr>
+                <tr>
+                    <td>CU04</td>
+                    <td>Admin</td>
+                    <td>Actualizar o eliminar entidades</td>
+                </tr>
+                <tr>
+                    <td>CU05</td>
+                    <td>Admin</td>
+                    <td>Consultar rutas, estaciones, buses</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 </body>
 </html>
