@@ -21,7 +21,7 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-danger">
   <div class="container-fluid">
     <a class="navbar-brand" href="/">
-      <img src="/static/transmilenio.jpg" alt="Logo TransMilenio" />
+      <img src="/static/img/transmilenio.jpg" alt="Logo TransMilenio" />
     </a>
     <div id="navbarNav">
       <ul class="navbar-nav">
@@ -30,7 +30,7 @@
         <li class="nav-item"><a class="nav-link" href="/read">📖 Leer</a></li>
         <li class="nav-item"><a class="nav-link" href="/update">✏️ Actualizar</a></li>
         <li class="nav-item"><a class="nav-link" href="/delete">❌ Eliminar</a></li>
-<li class="nav-item"><a class="nav-link active" href="/historial-page">🕒 Historial</a></li>
+        <li class="nav-item"><a class="nav-link active" href="/historial-page">🕒 Historial</a></li>
         <li class="nav-item"><a class="nav-link" href="/developer-info">👨‍💻 Info Desarrollador</a></li>
         <li class="nav-item"><a class="nav-link" href="/planning">🗓️ Planeación</a></li>
         <li class="nav-item"><a class="nav-link" href="/design">🎨 Diseño</a></li>
@@ -47,7 +47,6 @@
                 <tr>
                     <th>Tipo</th>
                     <th>Detalles</th>
-                    <th>Fecha y Hora</th>
                 </tr>
             </thead>
             <tbody id="historialTableBody">
@@ -68,7 +67,7 @@
             const tbody = document.getElementById('historialTableBody');
             tbody.innerHTML = '';
             if (data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" class="text-center">No hay registros en el historial.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="2" class="text-center">No hay registros en el historial.</td></tr>';
                 return;
             }
             data.forEach(item => {
@@ -77,11 +76,8 @@
                 tipoTd.textContent = item.tipo || 'N/A';
                 const detallesTd = document.createElement('td');
                 detallesTd.textContent = JSON.stringify(item.detalles) || 'N/A';
-                const fechaTd = document.createElement('td');
-                fechaTd.textContent = item.fecha_hora || 'N/A';
                 tr.appendChild(tipoTd);
                 tr.appendChild(detallesTd);
-                tr.appendChild(fechaTd);
                 tbody.appendChild(tr);
             });
         } catch (error) {
