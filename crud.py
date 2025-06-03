@@ -160,16 +160,25 @@ def actualizar_imagen_bus(bus_id: int, imagen_url: str):
     return bus
 
 def actualizar_bus(bus_id: int, update_data: dict):
+    import logging
+    logging.info(f"Actualizar bus {bus_id} con datos: {update_data}")
     db: Session = SessionLocal()
     bus = db.query(models.Bus).filter(models.Bus.id == bus_id).first()
     if not bus:
         db.close()
+        logging.warning(f"Bus {bus_id} no encontrado para actualizar")
         return None
-    for key, value in update_data.items():
-        setattr(bus, key, value)
-    db.commit()
-    db.refresh(bus)
-    db.close()
+    try:
+        for key, value in update_data.items():
+            setattr(bus, key, value)
+        db.commit()
+        db.refresh(bus)
+    except Exception as e:
+        logging.error(f"Error actualizando bus {bus_id}: {e}")
+        db.rollback()
+        bus = None
+    finally:
+        db.close()
     return bus
 
 # ---------------------- ESTACIONES ----------------------
