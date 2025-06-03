@@ -5,6 +5,20 @@ from db import SessionLocal
 import models
 from typing import Optional
 
+def obtener_buses(tipo: Optional[str] = None, activo: Optional[bool] = None):
+    db: Session = SessionLocal()
+    query = db.query(models.Bus)
+    if tipo:
+        query = query.filter(models.Bus.tipo.ilike(f"%{tipo}%"))
+    if activo is not None:
+        query = query.filter(models.Bus.activo == activo)
+    buses = query.all()
+    for bus in buses:
+        if bus.tipo:
+            bus.tipo = bus.tipo.strip().lower()
+    db.close()
+    return buses
+
 def actualizar_bus(bus_id: int, update_data: dict):
     logging.info(f"Actualizar bus {bus_id} con datos: {update_data}")
     db: Session = SessionLocal()
