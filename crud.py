@@ -258,6 +258,8 @@ from fastapi import UploadFile
 from fastapi import UploadFile
 from typing import Optional
 
+import asyncio
+
 async def crear_estacion_async(estacion: dict, imagen: Optional[UploadFile]) -> Optional[models.Estacion]:
     """
     Crea una nueva estación de forma asíncrona, subiendo la imagen a Supabase si se proporciona.
@@ -279,23 +281,27 @@ async def crear_estacion_async(estacion: dict, imagen: Optional[UploadFile]) -> 
             logging.error(f"Excepción al subir imagen de estación: {e}")
             imagen_url = None
 
-    db: Session = SessionLocal()
-    try:
-        nueva_estacion = models.Estacion(
-            nombre_estacion=estacion.get("nombre_estacion"),
-            localidad=estacion.get("localidad"),
-            rutas_asociadas=estacion.get("rutas_asociadas"),
-            activo=estacion.get("activo"),
-            imagen=imagen_url
-        )
-        db.add(nueva_estacion)
-        db.commit()
-        db.refresh(nueva_estacion)
-    except Exception as e:
-        logging.error(f"Error creando estación en la base de datos: {e}")
-        nueva_estacion = None
-    finally:
-        db.close()
+    def db_task():
+        db: Session = SessionLocal()
+        try:
+            nueva_estacion = models.Estacion(
+                nombre_estacion=estacion.get("nombre_estacion"),
+                localidad=estacion.get("localidad"),
+                rutas_asociadas=estacion.get("rutas_asociadas"),
+                activo=estacion.get("activo"),
+                imagen=imagen_url
+            )
+            db.add(nueva_estacion)
+            db.commit()
+            db.refresh(nueva_estacion)
+            return nueva_estacion
+        except Exception as e:
+            logging.error(f"Error creando estación en la base de datos: {e}")
+            return None
+        finally:
+            db.close()
+
+    nueva_estacion = await asyncio.to_thread(db_task)
     return nueva_estacion
 
 def actualizar_imagen_estacion(estacion_id: int, imagen_url: str):
