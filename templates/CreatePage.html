@@ -96,7 +96,7 @@
             formData.append("imagen", imagenBus);
         }
 
-        const response = await fetch("/buses/", {
+        const response = await fetch("/buses", {
             method: "POST",
             body: formData,
         });

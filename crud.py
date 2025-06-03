@@ -9,9 +9,6 @@ from db import SessionLocal, engine
 import models
 import logging
 
-# The ALTER TABLE command to add 'imagen' column to 'buses' table is removed to avoid errors.
-# Ensure the 'imagen' column is defined in the models.Bus class and tables are created properly.
-
 def limpiar_nombre_archivo(nombre: str) -> str:
     nombre = unicodedata.normalize('NFD', nombre)
     nombre = nombre.encode('ascii', 'ignore').decode('utf-8')
