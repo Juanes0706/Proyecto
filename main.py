@@ -180,7 +180,7 @@ def obtener_estacion_por_id_endpoint(estacion_id: int):
     return EstacionResponse.from_orm(estacion)
 
 @app.get("/estaciones/", response_model=List[EstacionSchema])
-def listar_estaciones(sector: Optional[str] = None, activo: Optional[str] = None):
+def listar_estaciones(estacion_id: Optional[int] = None, sector: Optional[str] = None, activo: Optional[str] = None):
     # Convert activo from string to bool if needed
     if activo is not None:
         if activo.lower() == "true":
@@ -191,7 +191,7 @@ def listar_estaciones(sector: Optional[str] = None, activo: Optional[str] = None
             activo_bool = None
     else:
         activo_bool = None
-    estaciones = crud.obtener_estaciones(sector=sector, activo=activo_bool)
+    estaciones = crud.obtener_estaciones(estacion_id=estacion_id, sector=sector, activo=activo_bool)
     return estaciones
 
 @app.put("/buses/{bus_id}/estado")

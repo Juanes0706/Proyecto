@@ -1,4 +1,5 @@
 import logging
+import unicodedata
 from supabase_client import supabase
 from sqlalchemy.orm import Session
 from db import SessionLocal
@@ -209,9 +210,11 @@ def actualizar_bus(bus_id: int, update_data: dict):
 def normalize_string(s: str) -> str:
     return ''.join(c for c in unicodedata.normalize('NFD', s.lower()) if unicodedata.category(c) != 'Mn').strip()
 
-def obtener_estaciones(sector: Optional[str] = None, activo: Optional[bool] = None):
+def obtener_estaciones(estacion_id: Optional[int] = None, sector: Optional[str] = None, activo: Optional[bool] = None):
     db: Session = SessionLocal()
     query = db.query(models.Estacion)
+    if estacion_id is not None:
+        query = query.filter(models.Estacion.id == estacion_id)
     if sector:
         sector_norm = normalize_string(sector)
         query = query.filter(models.Estacion.localidad.ilike(f"%{sector_norm}%"))
