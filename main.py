@@ -96,6 +96,9 @@ async def crear_estacion_con_imagen(
     activo: bool = Form(...),
     imagen: UploadFile = File(...)
 ):
+    """
+    Endpoint para crear una estación con imagen de forma asíncrona.
+    """
     nueva_estacion = await crud.crear_estacion_async(
         {
             "nombre_estacion": nombre_estacion,
