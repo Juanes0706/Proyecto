@@ -331,15 +331,40 @@ def actualizar_imagen_estacion(estacion_id: int, imagen_url: str):
     db.close()
     return estacion
 
+import logging
+from supabase_client import supabase
+from sqlalchemy.orm import Session
+from db import SessionLocal
+import models
+from typing import Optional
+
 def actualizar_estacion(estacion_id: int, update_data: dict):
+    logging.info(f"Actualizar estación {estacion_id} con datos: {update_data}")
     db: Session = SessionLocal()
     estacion = db.query(models.Estacion).filter(models.Estacion.id == estacion_id).first()
     if not estacion:
         db.close()
+        logging.warning(f"Estación {estacion_id} no encontrada para actualizar")
         return None
-    for key, value in update_data.items():
-        setattr(estacion, key, value)
-    db.commit()
-    db.refresh(estacion)
-    db.close()
+    try:
+        # Delete old image if updating image
+        if "imagen" in update_data and estacion.imagen:
+            try:
+                bucket = "estaciones"
+                filename = estacion.imagen.split(f"/{bucket}/")[-1]
+                supabase.storage.from_(bucket).remove([filename])
+                logging.info(f"Imagen antigua de estación eliminada: {filename}")
+            except Exception as e:
+                logging.error(f"Error eliminando imagen antigua de estación: {e}")
+
+        for key, value in update_data.items():
+            setattr(estacion, key, value)
+        db.commit()
+        db.refresh(estacion)
+    except Exception as e:
+        logging.error(f"Error actualizando estación {estacion_id}: {e}")
+        db.rollback()
+        estacion = None
+    finally:
+        db.close()
     return estacion
