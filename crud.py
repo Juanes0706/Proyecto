@@ -3,6 +3,7 @@ from supabase_client import supabase
 from sqlalchemy.orm import Session
 from db import SessionLocal
 import models
+from typing import Optional
 
 def actualizar_bus(bus_id: int, update_data: dict):
     logging.info(f"Actualizar bus {bus_id} con datos: {update_data}")
