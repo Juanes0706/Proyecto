@@ -19,6 +19,12 @@ def obtener_buses(tipo: Optional[str] = None, activo: Optional[bool] = None):
     db.close()
     return buses
 
+def obtener_bus_por_id(bus_id: int):
+    db: Session = SessionLocal()
+    bus = db.query(models.Bus).filter(models.Bus.id == bus_id).first()
+    db.close()
+    return bus
+
 def actualizar_bus(bus_id: int, update_data: dict):
     logging.info(f"Actualizar bus {bus_id} con datos: {update_data}")
     db: Session = SessionLocal()

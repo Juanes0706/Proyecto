@@ -16,6 +16,22 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
+# Endpoint to get bus by ID
+@app.get("/buses/{bus_id}", response_model=BusSchema)
+def get_bus_by_id(bus_id: int):
+    bus = crud.obtener_bus_por_id(bus_id)
+    if not bus:
+        raise HTTPException(status_code=404, detail="Bus no encontrado")
+    return bus
+
+# Endpoint to get estacion by ID
+@app.get("/estaciones/{estacion_id}", response_model=EstacionSchema)
+def get_estacion_by_id(estacion_id: int):
+    estacion = crud.obtener_estacion_por_id(estacion_id)
+    if not estacion:
+        raise HTTPException(status_code=404, detail="Estación no encontrada")
+    return estacion
+
 # Configuración para plantillas HTML
 templates = Jinja2Templates(directory="templates")
 app.mount("/static/css", StaticFiles(directory="css"), name="css")
