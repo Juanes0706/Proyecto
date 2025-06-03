@@ -36,6 +36,17 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(178, 34, 34, 0.3);
         }
+        /* Zoom effect for images */
+        .img-thumbnail {
+            transition: transform 0.3s ease;
+            cursor: zoom-in;
+        }
+        .img-thumbnail:hover {
+            transform: scale(1.5);
+            cursor: zoom-out;
+            z-index: 10;
+            position: relative;
+        }
     </style>
 </head>
 <body>
