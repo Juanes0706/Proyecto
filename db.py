@@ -1,6 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from dotenv import load_dotenv
 import os
 
@@ -12,5 +13,13 @@ if not DATABASE_URL:
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# Async database URL, assuming the same as DATABASE_URL but with asyncpg driver
+DATABASE_URL_ASYNC = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://")
+
+async_engine = create_async_engine(DATABASE_URL_ASYNC, echo=True)
+async_session = sessionmaker(
+    async_engine, expire_on_commit=False, class_=AsyncSession
+)
 
 Base = declarative_base()
