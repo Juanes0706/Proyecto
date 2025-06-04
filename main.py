@@ -54,9 +54,18 @@ async def update_page(request: Request):
 @app.post("/buses/update/{bus_id}", tags=["Buses"])
 async def actualizar_bus_post(
     bus_id: int,
-    bus_update: crud.BusUpdateForm = Depends(),
+    nombre_bus: Optional[str] = Form(None),
+    tipo: Optional[str] = Form(None),
+    activo: Optional[str] = Form(None),
+    imagen: Optional[UploadFile] = File(None),
     session: AsyncSession = Depends(async_session)
 ):
+    bus_update = crud.BusUpdateForm(
+        nombre_bus=nombre_bus,
+        tipo=tipo,
+        activo=activo,
+        imagen=imagen
+    )
     bus = await crud.actualizar_bus_db_form(bus_id, bus_update, session)
     if not bus:
         raise HTTPException(status_code=500, detail="No se pudo actualizar el bus.")
@@ -66,9 +75,20 @@ async def actualizar_bus_post(
 @app.put("/estaciones/update/{estacion_id}", tags=["Estaciones"])
 async def actualizar_estacion_post(
     estacion_id: int,
-    estacion_update: crud.EstacionUpdateForm = Depends(),
+    nombre_estacion: Optional[str] = Form(None),
+    localidad: Optional[str] = Form(None),
+    rutas_asociadas: Optional[str] = Form(None),
+    activo: Optional[str] = Form(None),
+    imagen: Optional[UploadFile] = File(None),
     session: AsyncSession = Depends(async_session)
 ):
+    estacion_update = crud.EstacionUpdateForm(
+        nombre_estacion=nombre_estacion,
+        localidad=localidad,
+        rutas_asociadas=rutas_asociadas,
+        activo=activo,
+        imagen=imagen
+    )
     estacion = await crud.actualizar_estacion_db_form(estacion_id, estacion_update, session)
     if not estacion:
         raise HTTPException(status_code=500, detail="No se pudo actualizar la estación.")
