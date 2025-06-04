@@ -36,7 +36,7 @@
 
                 try {
                     const response = await fetch(`/buses/update/${id}`, {
-                        method: 'PUT',
+                        method: 'POST',
                         body: formData,
                     });
 
@@ -76,7 +76,7 @@
 
                 try {
                     const response = await fetch(`/estaciones/update/${id}`, {
-                        method: 'POST',  // Cambia a PUT si también cambias el endpoint en el backend
+                        method: 'PUT',
                         body: formData,
                     });
 

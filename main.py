@@ -51,7 +51,7 @@ async def update_page(request: Request):
     return templates.TemplateResponse("UpdatePage.html", {"request": request})
 
 # Endpoint para actualizar bus (POST)
-@app.post("/buses/update/{bus_id}", tags=["Buses"])
+@app.put("/buses/update/{bus_id}", tags=["Buses"])
 async def actualizar_bus_post(
     bus_id: int,
     nombre_bus: Optional[str] = Form(None),
