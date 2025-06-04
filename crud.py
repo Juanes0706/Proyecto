@@ -402,6 +402,12 @@ def actualizar_estacion(estacion_id: int, update_data: dict):
             except Exception as e:
                 logging.error(f"Error eliminando imagen antigua de estación: {e}")
 
+        # Remove duplicate keys that do not exist in model
+        valid_keys = set(c.name for c in models.Estacion.__table__.columns)
+        for key in list(update_data.keys()):
+            if key not in valid_keys:
+                update_data.pop(key)
+
         for key, value in update_data.items():
             setattr(estacion, key, value)
         db.commit()

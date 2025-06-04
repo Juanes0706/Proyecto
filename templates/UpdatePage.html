@@ -94,7 +94,12 @@
       }
 
       try {
-        const bodyData = { nombre_estacion: nombre, localidad, rutas_asociadas: rutas, activo };
+        // Only include fields that have values to avoid overwriting with empty strings
+        const bodyData = {};
+        if (nombre.trim() !== '') bodyData.nombre_estacion = nombre;
+        if (localidad.trim() !== '') bodyData.localidad = localidad;
+        if (rutas.trim() !== '') bodyData.rutas_asociadas = rutas;
+        bodyData.activo = activo;
         if (imagenUrl !== null) {
           bodyData.imagen = imagenUrl;
         }
@@ -252,7 +257,11 @@
       }
 
       try {
-        const bodyData = { nombre_bus: nombre, tipo, activo };
+        // Only include fields that have values to avoid overwriting with empty strings
+        const bodyData = {};
+        if (nombre.trim() !== '') bodyData.nombre_bus = nombre;
+        if (tipo.trim() !== '') bodyData.tipo = tipo;
+        bodyData.activo = activo;
         if (imagenUrl !== null) {
           bodyData.imagen = imagenUrl;
         }
