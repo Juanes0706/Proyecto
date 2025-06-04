@@ -10,6 +10,7 @@ from db import SessionLocal, engine
 from supabase_client import supabase
 import uuid
 import logging
+from datetime import datetime
 
 # Crear tablas
 models.Base.metadata.create_all(bind=engine)
@@ -22,7 +23,7 @@ def get_bus_by_id(bus_id: int):
     bus = crud.obtener_bus_por_id(bus_id)
     if not bus:
         raise HTTPException(status_code=404, detail="Bus no encontrado")
-    return bus
+    return BusResponse.from_orm(bus)
 
 # Endpoint to get estacion by ID
 @app.get("/estaciones/{estacion_id}", response_model=EstacionSchema)
@@ -30,7 +31,7 @@ def get_estacion_by_id(estacion_id: int):
     estacion = crud.obtener_estacion_por_id(estacion_id)
     if not estacion:
         raise HTTPException(status_code=404, detail="Estación no encontrada")
-    return estacion
+    return EstacionResponse.from_orm(estacion)
 
 # Configuración para plantillas HTML
 templates = Jinja2Templates(directory="templates")
@@ -208,34 +209,6 @@ def actualizar_estado_estacion_endpoint(estacion_id: int, activo: bool):
         raise HTTPException(status_code=404, detail="Estación no encontrada")
     return resultado
 
-from datetime import datetime
-
-@app.delete("/buses/{bus_id}")
-def eliminar_bus_endpoint(bus_id: int):
-    resultado = crud.eliminar_bus(bus_id)
-    if not resultado:
-        raise HTTPException(status_code=404, detail="Bus no encontrado")
-    # Add to historial_eliminados
-    historial_eliminados.append({
-        "tipo": "bus",
-        "detalles": {"id": bus_id},
-        "fecha_hora": datetime.now().isoformat()
-    })
-    return {"mensaje": "Bus eliminado"}
-
-@app.delete("/estaciones/{estacion_id}")
-def eliminar_estacion_endpoint(estacion_id: int):
-    resultado = crud.eliminar_estacion(estacion_id)
-    if not resultado:
-        raise HTTPException(status_code=404, detail="Estación no encontrada")
-    # Add to historial_eliminados
-    historial_eliminados.append({
-        "tipo": "estacion",
-        "detalles": {"id": estacion_id},
-        "fecha_hora": datetime.now().isoformat()
-    })
-    return {"mensaje": "Estación eliminada"}
-
 from fastapi import Body
 
 @app.put("/buses/{bus_id}", response_model=BusResponse)
@@ -270,3 +243,35 @@ async def actualizar_estacion_endpoint(
     if not updated_estacion:
         raise HTTPException(status_code=404, detail="Estación no encontrada")
     return EstacionResponse.from_orm(updated_estacion)
+
+@app.delete("/buses/{bus_id}")
+def eliminar_bus_endpoint(bus_id: int):
+    resultado = crud.eliminar_bus(bus_id)
+    if not resultado:
+        raise HTTPException(status_code=404, detail="Bus no encontrado")
+    # Add to historial_eliminados with selected details only (id, nombre_bus, tipo)
+    historial_eliminados.append({
+        "tipo": "bus",
+        "detalles": {
+            "id": resultado.get("id"),
+            "nombre_bus": resultado.get("nombre_bus"),
+            "tipo": resultado.get("tipo")
+        }
+    })
+    return {"mensaje": "Bus eliminado"}
+
+@app.delete("/estaciones/{estacion_id}")
+def eliminar_estacion_endpoint(estacion_id: int):
+    resultado = crud.eliminar_estacion(estacion_id)
+    if not resultado:
+        raise HTTPException(status_code=404, detail="Estación no encontrada")
+    # Add to historial_eliminados with selected details only (id, nombre_estacion, localidad)
+    historial_eliminados.append({
+        "tipo": "estacion",
+        "detalles": {
+            "id": resultado.get("id"),
+            "nombre_estacion": resultado.get("nombre_estacion"),
+            "localidad": resultado.get("localidad")
+        }
+    })
+    return {"mensaje": "Estación eliminada"}
