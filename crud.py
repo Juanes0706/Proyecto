@@ -1,10 +1,31 @@
 import logging
 import unicodedata
-from supabase_client import supabase
+import asyncio
+from typing import Optional
+from fastapi import UploadFile
 from sqlalchemy.orm import Session
+
+from supabase_client import supabase, save_file
 from db import SessionLocal
 import models
-from typing import Optional
+
+# ---------------------- Funciones Auxiliares ----------------------
+
+def normalize_string(s: str) -> str:
+    return ''.join(c for c in unicodedata.normalize('NFD', s.lower()) if unicodedata.category(c) != 'Mn').strip()
+
+def subir_imagen(bucket: str, filename: str, imagen_bytes: bytes) -> Optional[str]:
+    try:
+        response = supabase.storage.from_(bucket).upload(filename, imagen_bytes, {"content-type": "image/jpeg"})
+        if response.get("error"):
+            logging.error(f"Error al subir imagen: {response['error']}")
+            return None
+        return supabase.storage.from_(bucket).get_public_url(filename)
+    except Exception as e:
+        logging.error(f"Excepción al subir imagen: {e}")
+        return None
+
+# ---------------------- CRUD Buses ----------------------
 
 def obtener_buses(bus_id: Optional[int] = None, tipo: Optional[str] = None, activo: Optional[bool] = None):
     db: Session = SessionLocal()
@@ -12,13 +33,10 @@ def obtener_buses(bus_id: Optional[int] = None, tipo: Optional[str] = None, acti
     if bus_id is not None:
         query = query.filter(models.Bus.id == bus_id)
     if tipo:
-        query = query.filter(models.Bus.tipo.ilike(f"%{tipo}%"))
+        query = query.filter(models.Bus.tipo.ilike(f"%{tipo.strip().lower()}%"))
     if activo is not None:
         query = query.filter(models.Bus.activo == activo)
     buses = query.all()
-    for bus in buses:
-        if bus.tipo:
-            bus.tipo = bus.tipo.strip().lower()
     db.close()
     return buses
 
@@ -28,122 +46,12 @@ def obtener_bus_por_id(bus_id: int):
     db.close()
     return bus
 
-def actualizar_bus(bus_id: int, update_data: dict):
-    logging.info(f"Actualizar bus {bus_id} con datos: {update_data}")
-    db: Session = SessionLocal()
-    bus = db.query(models.Bus).filter(models.Bus.id == bus_id).first()
-    if not bus:
-        db.close()
-        logging.warning(f"Bus {bus_id} no encontrado para actualizar")
-        return None
-    try:
-        # Delete old image if updating image
-        if "imagen" in update_data and bus.imagen:
-            try:
-                bucket = "buses"
-                filename = bus.imagen.split(f"/{bucket}/")[-1]
-                supabase.storage.from_(bucket).remove([filename])
-                logging.info(f"Imagen antigua de bus eliminada: {filename}")
-            except Exception as e:
-                logging.error(f"Error eliminando imagen antigua de bus: {e}")
-
-        for key, value in update_data.items():
-            setattr(bus, key, value)
-        db.commit()
-        db.refresh(bus)
-    except Exception as e:
-        logging.error(f"Error actualizando bus {bus_id}: {e}")
-        db.rollback()
-        bus = None
-    finally:
-        db.close()
-    return bus
-
-def actualizar_estacion(estacion_id: int, update_data: dict):
-    logging.info(f"Actualizar estación {estacion_id} con datos: {update_data}")
-    db: Session = SessionLocal()
-    estacion = db.query(models.Estacion).filter(models.Estacion.id == estacion_id).first()
-    if not estacion:
-        db.close()
-        logging.warning(f"Estación {estacion_id} no encontrada para actualizar")
-        return None
-    try:
-        # Delete old image if updating image
-        if "imagen" in update_data and estacion.imagen:
-            try:
-                bucket = "estaciones"
-                filename = estacion.imagen.split(f"/{bucket}/")[-1]
-                supabase.storage.from_(bucket).remove([filename])
-                logging.info(f"Imagen antigua de estación eliminada: {filename}")
-            except Exception as e:
-                logging.error(f"Error eliminando imagen antigua de estación: {e}")
-
-        for key, value in update_data.items():
-            setattr(estacion, key, value)
-        db.commit()
-        db.refresh(estacion)
-    except Exception as e:
-        logging.error(f"Error actualizando estación {estacion_id}: {e}")
-        db.rollback()
-        estacion = None
-    finally:
-        db.close()
-        db.close()
-        return None
-    imagen_url = bus.imagen
-    if imagen_url:
-        try:
-            bucket = "buses"
-            filename = imagen_url.split(f"/{bucket}/")[-1]
-            supabase.storage.from_(bucket).remove([filename])
-            logging.info(f"Imagen de bus eliminada: {filename}")
-        except Exception as e:
-            logging.error(f"Error deleting bus image: {e}")
-    db.delete(bus)
-    db.commit()
-    db.close()
-    return {"mensaje": "Bus eliminado"}
-
-def actualizar_estado_bus(bus_id: int, nuevo_estado: bool):
-    db: Session = SessionLocal()
-    bus = db.query(models.Bus).filter(models.Bus.id == bus_id).first()
-    if not bus:
-        db.close()
-        return None
-    bus.activo = nuevo_estado
-    db.commit()
-    db.close()
-    return {"mensaje": f"Estado de bus actualizado a {'activo' if nuevo_estado else 'inactivo'}"}
-
-def eliminar_bus(bus_id: int):
-    db: Session = SessionLocal()
-    bus = db.query(models.Bus).filter(models.Bus.id == bus_id).first()
-    if not bus:
-        db.close()
-        return None
-    imagen_url = bus.imagen
-    if imagen_url:
-        try:
-            bucket = "buses"
-            filename = imagen_url.split(f"/{bucket}/")[-1]
-            supabase.storage.from_(bucket).remove([filename])
-            logging.info(f"Imagen de bus eliminada: {filename}")
-        except Exception as e:
-            logging.error(f"Error eliminando imagen de bus: {e}")
-    db.delete(bus)
-    db.commit()
-    db.close()
-    return {"mensaje": "Bus eliminado"}
-
 def crear_bus(bus: dict, imagen_bytes: Optional[bytes] = None, imagen_filename: Optional[str] = None):
-    imagen_url = None
-    if imagen_bytes and imagen_filename:
-        imagen_url = subir_imagen("buses", imagen_filename, imagen_bytes)
-
+    imagen_url = subir_imagen("buses", imagen_filename, imagen_bytes) if imagen_bytes and imagen_filename else None
     db: Session = SessionLocal()
     nuevo_bus = models.Bus(
         nombre_bus=bus.get("nombre_bus"),
-        tipo=bus.get("tipo").lower().strip() if bus.get("tipo") else None,
+        tipo=bus.get("tipo", "").strip().lower(),
         activo=bus.get("activo"),
         imagen=imagen_url
     )
@@ -153,91 +61,78 @@ def crear_bus(bus: dict, imagen_bytes: Optional[bytes] = None, imagen_filename: 
     db.close()
     return nuevo_bus
 
-import asyncio
-from supabase_client import save_file
-from fastapi import UploadFile
-
-import asyncio
-
 async def crear_bus_async(bus: dict, imagen: UploadFile):
     imagen_url = None
     if imagen:
         result = await save_file(imagen, to_supabase=True)
-        if "url" in result:
-            imagen_url = result["url"]["publicUrl"] if isinstance(result["url"], dict) else result["url"]
-        elif "error" in result:
-            # Log or handle error as needed
-            imagen_url = None
+        imagen_url = result.get("url", {}).get("publicUrl") if isinstance(result.get("url"), dict) else result.get("url")
 
     def db_task():
         db: Session = SessionLocal()
-        try:
-            nuevo_bus = models.Bus(
-                nombre_bus=bus.get("nombre_bus"),
-                tipo=bus.get("tipo").lower().strip() if bus.get("tipo") else None,
-                activo=bus.get("activo"),
-                imagen=imagen_url
-            )
-            db.add(nuevo_bus)
-            db.commit()
-            db.refresh(nuevo_bus)
-            return nuevo_bus
-        except Exception as e:
-            logging.error(f"Error creando bus en la base de datos: {e}")
-            return None
-        finally:
-            db.close()
+        nuevo_bus = models.Bus(
+            nombre_bus=bus.get("nombre_bus"),
+            tipo=bus.get("tipo", "").strip().lower(),
+            activo=bus.get("activo"),
+            imagen=imagen_url
+        )
+        db.add(nuevo_bus)
+        db.commit()
+        db.refresh(nuevo_bus)
+        db.close()
+        return nuevo_bus
 
-    nuevo_bus = await asyncio.to_thread(db_task)
-    return nuevo_bus
+    return await asyncio.to_thread(db_task)
 
-def actualizar_imagen_bus(bus_id: int, imagen_url: str):
+def actualizar_bus(bus_id: int, update_data: dict):
     db: Session = SessionLocal()
     bus = db.query(models.Bus).filter(models.Bus.id == bus_id).first()
     if not bus:
         db.close()
         return None
-    bus.imagen = imagen_url
+
+    if "imagen" in update_data and update_data["imagen"] and bus.imagen:
+        try:
+            filename = bus.imagen.split("/buses/")[-1]
+            supabase.storage.from_("buses").remove([filename])
+        except Exception as e:
+            logging.error(f"Error eliminando imagen anterior: {e}")
+
+    for key, value in update_data.items():
+        setattr(bus, key, value)
+
     db.commit()
     db.refresh(bus)
     db.close()
     return bus
 
-def actualizar_bus(bus_id: int, update_data: dict):
-    import logging
-    logging.info(f"Actualizar bus {bus_id} con datos: {update_data}")
+def eliminar_bus(bus_id: int):
     db: Session = SessionLocal()
     bus = db.query(models.Bus).filter(models.Bus.id == bus_id).first()
     if not bus:
         db.close()
-        logging.warning(f"Bus {bus_id} no encontrado para actualizar")
         return None
-    try:
-        for key, value in update_data.items():
-            setattr(bus, key, value)
-        db.commit()
-        db.refresh(bus)
-    except Exception as e:
-        logging.error(f"Error actualizando bus {bus_id}: {e}")
-        db.rollback()
-        bus = None
-    finally:
-        db.close()
-    return bus
 
-# ---------------------- ESTACIONES ----------------------
+    if bus.imagen:
+        try:
+            filename = bus.imagen.split("/buses/")[-1]
+            supabase.storage.from_("buses").remove([filename])
+        except Exception as e:
+            logging.error(f"Error eliminando imagen de bus: {e}")
 
-def normalize_string(s: str) -> str:
-    return ''.join(c for c in unicodedata.normalize('NFD', s.lower()) if unicodedata.category(c) != 'Mn').strip()
+    db.delete(bus)
+    db.commit()
+    db.close()
+    return {"mensaje": "Bus eliminado"}
+
+# ---------------------- CRUD Estaciones ----------------------
 
 def obtener_estaciones(estacion_id: Optional[int] = None, sector: Optional[str] = None, activo: Optional[bool] = None):
     db: Session = SessionLocal()
     query = db.query(models.Estacion)
-    if estacion_id is not None:
+    if estacion_id:
         query = query.filter(models.Estacion.id == estacion_id)
     if sector:
-        sector_norm = normalize_string(sector)
-        query = query.filter(models.Estacion.localidad.ilike(f"%{sector_norm}%"))
+        query = query.filter(models.Estacion.localidad.ilike(f"%{normalize_string(sector)}%"))
     if activo is not None:
         query = query.filter(models.Estacion.activo == activo)
     estaciones = query.all()
@@ -250,53 +145,8 @@ def obtener_estacion_por_id(estacion_id: int):
     db.close()
     return estacion
 
-def eliminar_estacion(estacion_id: int):
-    db: Session = SessionLocal()
-    estacion = db.query(models.Estacion).filter(models.Estacion.id == estacion_id).first()
-    if not estacion:
-        db.close()
-        return None
-    imagen_url = estacion.imagen
-    if imagen_url:
-        try:
-            bucket = "estaciones"
-            filename = imagen_url.split(f"/{bucket}/")[-1]
-            supabase.storage.from_(bucket).remove([filename])
-            logging.info(f"Imagen de estación eliminada: {filename}")
-        except Exception as e:
-            logging.error(f"Error deleting estacion image: {e}")
-    db.delete(estacion)
-    db.commit()
-    db.close()
-    return {"mensaje": "Estación eliminada"}
-
-def actualizar_estado_estacion(estacion_id: int, nuevo_estado: bool):
-    db: Session = SessionLocal()
-    estacion = db.query(models.Estacion).filter(models.Estacion.id == estacion_id).first()
-    if not estacion:
-        db.close()
-        return None
-    estacion.activo = nuevo_estado
-    db.commit()
-    db.close()
-    return {"mensaje": f"Estado de estación actualizado a {'activo' if nuevo_estado else 'inactivo'}"}
-
-def actualizar_id_estacion(estacion_id: int, nuevo_id: int):
-    db: Session = SessionLocal()
-    estacion = db.query(models.Estacion).filter(models.Estacion.id == estacion_id).first()
-    if not estacion:
-        db.close()
-        return None
-    estacion.id = nuevo_id
-    db.commit()
-    db.close()
-    return {"mensaje": f"ID de estación actualizado a {nuevo_id}"}
-
 def crear_estacion(estacion: dict, imagen_bytes: Optional[bytes] = None, imagen_filename: Optional[str] = None):
-    imagen_url = None
-    if imagen_bytes and imagen_filename:
-        imagen_url = subir_imagen("estaciones", imagen_filename, imagen_bytes)
-
+    imagen_url = subir_imagen("estaciones", imagen_filename, imagen_bytes) if imagen_bytes and imagen_filename else None
     db: Session = SessionLocal()
     nueva_estacion = models.Estacion(
         nombre_estacion=estacion.get("nombre_estacion"),
@@ -311,105 +161,69 @@ def crear_estacion(estacion: dict, imagen_bytes: Optional[bytes] = None, imagen_
     db.close()
     return nueva_estacion
 
-import asyncio
-from supabase_client import save_file
-from fastapi import UploadFile
-
-from fastapi import UploadFile
-from typing import Optional
-
-import asyncio
-
 async def crear_estacion_async(estacion: dict, imagen: Optional[UploadFile]) -> Optional[models.Estacion]:
-    """
-    Crea una nueva estación de forma asíncrona, subiendo la imagen a Supabase si se proporciona.
-
-    :param estacion: Diccionario con los datos de la estación.
-    :param imagen: Archivo de imagen para subir (opcional).
-    :return: Instancia de models.Estacion creada o None si falla la creación.
-    """
     imagen_url = None
     if imagen:
         try:
             result = await save_file(imagen, to_supabase=True)
-            if "url" in result:
-                imagen_url = result["url"]["publicUrl"] if isinstance(result["url"], dict) else result["url"]
-            elif "error" in result:
-                logging.error(f"Error al subir imagen de estación: {result['error']}")
-                imagen_url = None
+            imagen_url = result.get("url", {}).get("publicUrl") if isinstance(result.get("url"), dict) else result.get("url")
         except Exception as e:
-            logging.error(f"Excepción al subir imagen de estación: {e}")
-            imagen_url = None
+            logging.error(f"Error subiendo imagen estación: {e}")
 
     def db_task():
         db: Session = SessionLocal()
-        try:
-            nueva_estacion = models.Estacion(
-                nombre_estacion=estacion.get("nombre_estacion"),
-                localidad=estacion.get("localidad"),
-                rutas_asociadas=estacion.get("rutas_asociadas"),
-                activo=estacion.get("activo"),
-                imagen=imagen_url
-            )
-            db.add(nueva_estacion)
-            db.commit()
-            db.refresh(nueva_estacion)
-            return nueva_estacion
-        except Exception as e:
-            logging.error(f"Error creando estación en la base de datos: {e}")
-            return None
-        finally:
-            db.close()
+        nueva_estacion = models.Estacion(
+            nombre_estacion=estacion.get("nombre_estacion"),
+            localidad=estacion.get("localidad"),
+            rutas_asociadas=estacion.get("rutas_asociadas"),
+            activo=estacion.get("activo"),
+            imagen=imagen_url
+        )
+        db.add(nueva_estacion)
+        db.commit()
+        db.refresh(nueva_estacion)
+        db.close()
+        return nueva_estacion
 
-    nueva_estacion = await asyncio.to_thread(db_task)
-    return nueva_estacion
+    return await asyncio.to_thread(db_task)
 
-def actualizar_imagen_estacion(estacion_id: int, imagen_url: str):
+def actualizar_estacion(estacion_id: int, update_data: dict):
     db: Session = SessionLocal()
     estacion = db.query(models.Estacion).filter(models.Estacion.id == estacion_id).first()
     if not estacion:
         db.close()
         return None
-    estacion.imagen = imagen_url
+
+    if "imagen" in update_data and update_data["imagen"] and estacion.imagen:
+        try:
+            filename = estacion.imagen.split("/estaciones/")[-1]
+            supabase.storage.from_("estaciones").remove([filename])
+        except Exception as e:
+            logging.error(f"Error eliminando imagen anterior: {e}")
+
+    for key, value in update_data.items():
+        setattr(estacion, key, value)
+
     db.commit()
     db.refresh(estacion)
     db.close()
     return estacion
 
-import logging
-from supabase_client import supabase
-from sqlalchemy.orm import Session
-from db import SessionLocal
-import models
-from typing import Optional
-
-def actualizar_estacion(estacion_id: int, update_data: dict):
-    logging.info(f"Actualizar estación {estacion_id} con datos: {update_data}")
+def eliminar_estacion(estacion_id: int):
     db: Session = SessionLocal()
     estacion = db.query(models.Estacion).filter(models.Estacion.id == estacion_id).first()
     if not estacion:
         db.close()
-        logging.warning(f"Estación {estacion_id} no encontrada para actualizar")
         return None
-    try:
-        # Delete old image if updating image
-        if "imagen" in update_data and estacion.imagen:
-            try:
-                bucket = "estaciones"
-                filename = estacion.imagen.split(f"/{bucket}/")[-1]
-                supabase.storage.from_(bucket).remove([filename])
-                logging.info(f"Imagen antigua de estación eliminada: {filename}")
-            except Exception as e:
-                logging.error(f"Error eliminando imagen antigua de estación: {e}")
 
-        for key, value in update_data.items():
-            setattr(estacion, key, value)
-        db.commit()
-        db.refresh(estacion)
-    except Exception as e:
-        logging.error(f"Error actualizando estación {estacion_id}: {e}")
-        db.rollback()
-        estacion = None
-    finally:
-        db.close()
-    return estacion
+    if estacion.imagen:
+        try:
+            filename = estacion.imagen.split("/estaciones/")[-1]
+            supabase.storage.from_("estaciones").remove([filename])
+        except Exception as e:
+            logging.error(f"Error eliminando imagen estación: {e}")
+
+    db.delete(estacion)
+    db.commit()
+    db.close()
+    return {"mensaje": "Estación eliminada"}
