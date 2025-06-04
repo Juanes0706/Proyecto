@@ -248,37 +248,27 @@ def eliminar_estacion_endpoint(estacion_id: int):
     })
     return {"mensaje": "Estación eliminada"}
 
-from fastapi import Body
+from fastapi import Body, Depends, status
+from fastapi.responses import RedirectResponse
+from sqlalchemy.ext.asyncio import AsyncSession
+from db import async_session
+from schemas import BusUpdateForm, EstacionUpdateForm
+import crud
 
-@app.put("/buses/{bus_id}", response_model=BusResponse)
-async def actualizar_bus_endpoint(
+@app.post("/buses/update/{bus_id}", tags=["Buses"])
+async def actualizar_bus_post(
     bus_id: int,
-    update_data: dict = Body(...)
+    bus_update: BusUpdateForm = Depends(),
+    session: AsyncSession = Depends(async_session)
 ):
-    # Process update_data keys and values
-    if "nombre_bus" in update_data and update_data["nombre_bus"] is not None:
-        update_data["nombre_bus"] = update_data["nombre_bus"].strip()
-    if "tipo" in update_data and update_data["tipo"] is not None:
-        update_data["tipo"] = update_data["tipo"].lower().strip()
+    bus = await crud.actualizar_bus_async(bus_id, bus_update.__dict__, session)
+    return RedirectResponse(url="/update", status_code=status.HTTP_303_SEE_OTHER)
 
-    updated_bus = crud.actualizar_bus(bus_id, update_data)
-    if not updated_bus:
-        raise HTTPException(status_code=404, detail="Bus no encontrado")
-    return BusResponse.from_orm(updated_bus)
-
-@app.put("/estaciones/{estacion_id}", response_model=EstacionResponse)
-async def actualizar_estacion_endpoint(
+@app.post("/estaciones/update/{estacion_id}", tags=["Estaciones"])
+async def actualizar_estacion_post(
     estacion_id: int,
-    update_data: dict = Body(...)
+    estacion_update: EstacionUpdateForm = Depends(),
+    session: AsyncSession = Depends(async_session)
 ):
-    if "nombre_estacion" in update_data and update_data["nombre_estacion"] is not None:
-        update_data["nombre_estacion"] = update_data["nombre_estacion"].strip()
-    if "localidad" in update_data and update_data["localidad"] is not None:
-        update_data["localidad"] = update_data["localidad"].strip()
-    if "rutas_asociadas" in update_data and update_data["rutas_asociadas"] is not None:
-        update_data["rutas_asociadas"] = update_data["rutas_asociadas"].strip()
-
-    updated_estacion = crud.actualizar_estacion(estacion_id, update_data)
-    if not updated_estacion:
-        raise HTTPException(status_code=404, detail="Estación no encontrada")
-    return EstacionResponse.from_orm(updated_estacion)
+    estacion = await crud.actualizar_estacion_async(estacion_id, estacion_update.__dict__, session)
+    return RedirectResponse(url="/update", status_code=status.HTTP_303_SEE_OTHER)

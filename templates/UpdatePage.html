@@ -55,17 +55,17 @@
 
       try {
         // Only include fields that have values to avoid overwriting with empty strings
-        const bodyData = {};
-        if (nombre.trim() !== '') bodyData.nombre_bus = nombre;
-        if (tipo.trim() !== '') bodyData.tipo = tipo;
-        bodyData.activo = activo;
+        const formData = new FormData();
+        if (nombre.trim() !== '') formData.append('nombre_bus', nombre);
+        if (tipo.trim() !== '') formData.append('tipo', tipo);
+        formData.append('activo', activo);
         if (imagenUrl !== null) {
-          bodyData.imagen = imagenUrl;
+          // Since imagenUrl is a URL string, we cannot append it as a file, so we skip it here
+          // The image file is already uploaded separately
         }
-        const response = await fetch(`/buses/${id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(bodyData),
+        const response = await fetch(`/buses/update/${id}`, {
+          method: 'POST',
+          body: formData,
         });
         if (!response.ok) throw new Error('Error al actualizar bus');
         document.getElementById('busUpdateMessage').textContent = 'Bus actualizado correctamente';
@@ -95,18 +95,18 @@
 
       try {
         // Only include fields that have values to avoid overwriting with empty strings
-        const bodyData = {};
-        if (nombre.trim() !== '') bodyData.nombre_estacion = nombre;
-        if (localidad.trim() !== '') bodyData.localidad = localidad;
-        if (rutas.trim() !== '') bodyData.rutas_asociadas = rutas;
-        bodyData.activo = activo;
+        const formData = new FormData();
+        if (nombre.trim() !== '') formData.append('nombre_estacion', nombre);
+        if (localidad.trim() !== '') formData.append('localidad', localidad);
+        if (rutas.trim() !== '') formData.append('rutas_asociadas', rutas);
+        formData.append('activo', activo);
         if (imagenUrl !== null) {
-          bodyData.imagen = imagenUrl;
+          // Since imagenUrl is a URL string, we cannot append it as a file, so we skip it here
+          // The image file is already uploaded separately
         }
-        const response = await fetch(`/estaciones/${id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(bodyData),
+        const response = await fetch(`/estaciones/update/${id}`, {
+          method: 'POST',
+          body: formData,
         });
         if (!response.ok) throw new Error('Error al actualizar estación');
         document.getElementById('estacionUpdateMessage').textContent = 'Estación actualizada correctamente';
