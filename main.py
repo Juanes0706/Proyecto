@@ -20,7 +20,7 @@ from sqlalchemy.orm import Session
 from typing import Optional
 from db import get_db
 from models import Estacion  
-from schemas import EstacionOut  
+from schemas import EstacionResponse
 from supabase_client import supabase, save_file, get_supabase_path_from_url
 
 
@@ -296,7 +296,7 @@ async def actualizar_estacion_post(
         raise HTTPException(status_code=500, detail="No se pudo actualizar la estación.")
     return RedirectResponse(url="/update", status_code=status.HTTP_303_SEE_OTHER)
 
-@app.put("/estaciones/{estacion_id}", response_model=EstacionOut)
+@app.put("/estaciones/{estacion_id}", response_model=EstacionResponse)
 def actualizar_estacion_db_form(
     estacion_id: int,
     nombre: str = Form(...),
