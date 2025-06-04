@@ -251,8 +251,8 @@ def eliminar_estacion_endpoint(estacion_id: int):
 from fastapi import Body, Depends, status
 from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-from db import async_session, get_session
-from schemas import BusUpdateForm, EstacionUpdateForm, BusResponse, EstacionResponse
+from db import async_session
+from schemas import BusUpdateForm, EstacionUpdateForm
 import crud
 
 @app.post("/buses/update/{bus_id}", tags=["Buses"])
@@ -261,7 +261,7 @@ async def actualizar_bus_post(
     bus_update: BusUpdateForm = Depends(),
     session: AsyncSession = Depends(async_session)
 ):
-    bus = await crud.actualizar_bus_async(bus_id, bus_update, session)
+    bus = await crud.actualizar_bus_async(bus_id, bus_update.__dict__, session)
     return RedirectResponse(url="/update", status_code=status.HTTP_303_SEE_OTHER)
 
 @app.post("/estaciones/update/{estacion_id}", tags=["Estaciones"])
@@ -270,23 +270,5 @@ async def actualizar_estacion_post(
     estacion_update: EstacionUpdateForm = Depends(),
     session: AsyncSession = Depends(async_session)
 ):
-    estacion = await crud.actualizar_estacion_async(estacion_id, estacion_update, session)
+    estacion = await crud.actualizar_estacion_async(estacion_id, estacion_update.__dict__, session)
     return RedirectResponse(url="/update", status_code=status.HTTP_303_SEE_OTHER)
-
-@app.put("/buses/{bus_id}", response_model=BusResponse, tags=["Buses"])
-async def actualizar_bus(
-    bus_id: int,
-    bus_update: BusUpdateForm = Depends(),
-    session: AsyncSession = Depends(get_session)
-):
-    bus = await crud.actualizar_bus_async(bus_id, bus_update, session)
-    return BusResponse.from_orm(bus)
-
-@app.put("/estaciones/{estacion_id}", response_model=EstacionResponse, tags=["Estaciones"])
-async def actualizar_estacion(
-    estacion_id: int,
-    estacion_update: EstacionUpdateForm = Depends(),
-    session: AsyncSession = Depends(get_session)
-):
-    estacion = await crud.actualizar_estacion_async(estacion_id, estacion_update, session)
-    return EstacionResponse.from_orm(estacion)

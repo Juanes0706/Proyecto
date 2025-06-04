@@ -8,6 +8,7 @@ from db import SessionLocal, async_session
 import models
 from typing import Optional
 from fastapi import HTTPException
+from schemas import BusUpdateForm, EstacionUpdateForm
 
 async def actualizar_bus_db_form(bus_id: int, bus_update: BusUpdateForm, session: AsyncSession):
     result = await session.execute(select(Bus).where(Bus.id == bus_id))
