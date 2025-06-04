@@ -19,8 +19,8 @@ from fastapi import FastAPI, Depends, HTTPException, Form, UploadFile, File
 from sqlalchemy.orm import Session
 from typing import Optional
 from db import get_db
-from models import EstacionDB  # Asegúrate que este modelo exista en models.py
-from schemas import EstacionOut  # Igual aquí
+from models import Estacion  
+from schemas import EstacionOut  
 from supabase_client import supabase, save_file, get_supabase_path_from_url
 
 
@@ -305,7 +305,7 @@ def actualizar_estacion_db_form(
     imagen: Optional[UploadFile] = File(None),
     db: Session = Depends(get_db)
 ):
-    estacion = db.query(EstacionDB).filter(EstacionDB.id == estacion_id).first()
+    estacion = db.query(Estacion).filter(Estacion.id == estacion_id).first()
     if not estacion:
         raise HTTPException(status_code=404, detail="Estación no encontrada")
 
