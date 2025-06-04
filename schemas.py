@@ -1,13 +1,15 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from typing import Optional
 from enum import Enum
 from fastapi import Form, UploadFile, File
 
-# ---------------------- BUSES ----------------------
+# ---------------------- ENUM ----------------------
 
 class BusType(str, Enum):
     troncal = "troncal"
     zonal = "zonal"
+
+# ---------------------- MODELOS Pydantic ----------------------
 
 class BusBase(BaseModel):
     nombre_bus: str
@@ -34,12 +36,26 @@ class BusResponse(BaseModel):
     class Config:
         from_attributes = True
 
+# ---------------------- FORMULARIO PARA UPDATE ----------------------
+class BusCreateForm:
+    def __init__(
+        self,
+        nombre_bus: Optional[str] = Form(None),
+        tipo: Optional[str] = Form(None),
+        activo: Optional[bool] = Form(None),  # CAMBIADO A bool
+        imagen: Optional[UploadFile] = File(None)
+    ):
+        self.nombre_bus = nombre_bus
+        self.tipo = tipo
+        self.activo = activo
+        self.imagen = imagen
+
 class BusUpdateForm:
     def __init__(
         self,
         nombre_bus: Optional[str] = Form(None),
         tipo: Optional[str] = Form(None),
-        activo: Optional[str] = Form(None), 
+        activo: Optional[bool] = Form(None),  # CAMBIADO A bool
         imagen: Optional[UploadFile] = File(None)
     ):
         self.nombre_bus = nombre_bus
@@ -76,13 +92,28 @@ class EstacionResponse(BaseModel):
     class Config:
         from_attributes = True
 
+class EstacionCreateForm:
+    def __init__(
+        self,
+        nombre_estacion: Optional[str] = Form(None),
+        localidad: Optional[str] = Form(None),
+        rutas_asociadas: Optional[str] = Form(None),
+        activo: Optional[bool] = Form(None),  # CAMBIADO A bool
+        imagen: Optional[UploadFile] = File(None)
+    ):
+        self.nombre_estacion = nombre_estacion
+        self.localidad = localidad
+        self.rutas_asociadas = rutas_asociadas
+        self.activo = activo
+        self.imagen = imagen
+
 class EstacionUpdateForm:
     def __init__(
         self,
         nombre_estacion: Optional[str] = Form(None),
         localidad: Optional[str] = Form(None),
         rutas_asociadas: Optional[str] = Form(None),
-        activo: Optional[str] = Form(None), 
+        activo: Optional[bool] = Form(None),  # CAMBIADO A bool
         imagen: Optional[UploadFile] = File(None)
     ):
         self.nombre_estacion = nombre_estacion
