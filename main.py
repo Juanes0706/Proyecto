@@ -5,11 +5,11 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional, List
-import models, crud
+import models
 from schemas import Bus as BusSchema, Estacion as EstacionSchema, BusResponse, EstacionResponse
 from db import SessionLocal, engine, async_session, get_db
 from supabase_client import supabase, save_file
-from crud import get_supabase_path_from_url
+from update_functions import actualizar_bus_db_form, actualizar_estacion_db_form, get_supabase_path_from_url
 import uuid
 import logging
 from datetime import datetime
@@ -60,13 +60,13 @@ async def actualizar_bus_post(
     imagen: Optional[UploadFile] = File(None),
     session: AsyncSession = Depends(async_session)
 ):
-    bus_update = crud.BusUpdateForm(
+    bus_update = BusUpdateForm(
         nombre_bus=nombre_bus,
         tipo=tipo,
         activo=activo,
         imagen=imagen
     )
-    bus = await crud.actualizar_bus_db_form(bus_id, bus_update, session)
+    bus = await actualizar_bus_db_form(bus_id, bus_update, session)
     if not bus:
         raise HTTPException(status_code=500, detail="No se pudo actualizar el bus.")
     return RedirectResponse(url="/update", status_code=status.HTTP_303_SEE_OTHER)
@@ -82,14 +82,14 @@ async def actualizar_estacion_post(
     imagen: Optional[UploadFile] = File(None),
     session: AsyncSession = Depends(async_session)
 ):
-    estacion_update = crud.EstacionUpdateForm(
+    estacion_update = EstacionUpdateForm(
         nombre_estacion=nombre_estacion,
         localidad=localidad,
         rutas_asociadas=rutas_asociadas,
         activo=activo,
         imagen=imagen
     )
-    estacion = await crud.actualizar_estacion_db_form(estacion_id, estacion_update, session)
+    estacion = await actualizar_estacion_db_form(estacion_id, estacion_update, session)
     if not estacion:
         raise HTTPException(status_code=500, detail="No se pudo actualizar la estación.")
     return RedirectResponse(url="/update", status_code=status.HTTP_303_SEE_OTHER)
