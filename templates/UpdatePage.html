@@ -23,35 +23,29 @@
                 const id = document.getElementById('busId').value;
                 const nombre = document.getElementById('busNombre').value;
                 const tipo = document.getElementById('busTipo').value;
-                const activo = document.getElementById('busActivo').value; // 'true' o 'false' como string
+                const activo = document.getElementById('busActivo').value;
                 const imagenFile = document.getElementById('busImagen').files[0];
 
                 const formData = new FormData();
                 formData.append('nombre_bus', nombre);
                 formData.append('tipo', tipo);
-                formData.append('activo', activo); // Enviar como string, FastAPI lo convertirá a bool
+                formData.append('activo', activo);
                 if (imagenFile) {
-                    formData.append('imagen', imagenFile); // Añadir el archivo directamente
+                    formData.append('imagen', imagenFile);
                 }
 
                 try {
-                    // El endpoint en main.py es POST, no PUT para esta operación
                     const response = await fetch(`/buses/update/${id}`, {
-                        method: 'POST', // ¡Importante: usar POST para multipart/form-data!
-                        // No necesitas 'Content-Type' header con FormData, el navegador lo configura automáticamente
+                        method: 'PUT',
                         body: formData,
                     });
 
-                    if (response.ok) { // Check for 2xx status codes
-                        // If it's a redirect, the browser will handle it.
-                        // You can also check if response.redirected is true
+                    if (response.ok) {
                         if (response.redirected) {
-                            window.location.href = response.url; // Follow the redirect manually if needed, or just let the browser handle it.
+                            window.location.href = response.url;
                         } else {
-                            // If it's not a redirect, handle the response as JSON or text
-                            const result = await response.json(); // Or response.text()
+                            const result = await response.json();
                             document.getElementById('busUpdateMessage').textContent = 'Bus actualizado correctamente';
-                            // Clear the form or provide further feedback
                         }
                     } else {
                         const errorData = await response.json();
@@ -68,27 +62,25 @@
                 const nombre = document.getElementById('estacionNombre').value;
                 const localidad = document.getElementById('estacionLocalidad').value;
                 const rutas = document.getElementById('estacionRutas').value;
-                const activo = document.getElementById('estacionActivo').value; // 'true' o 'false' como string
+                const activo = document.getElementById('estacionActivo').value;
                 const imagenFile = document.getElementById('estacionImagen').files[0];
 
                 const formData = new FormData();
                 formData.append('nombre_estacion', nombre);
                 formData.append('localidad', localidad);
                 formData.append('rutas_asociadas', rutas);
-                formData.append('activo', activo); // Enviar como string, FastAPI lo convertirá a bool
+                formData.append('activo', activo);
                 if (imagenFile) {
-                    formData.append('imagen', imagenFile); // Añadir el archivo directamente
+                    formData.append('imagen', imagenFile);
                 }
 
                 try {
-                    // El endpoint en main.py es POST, no PUT para esta operación
                     const response = await fetch(`/estaciones/update/${id}`, {
-                        method: 'POST', // ¡Importante: usar POST para multipart/form-data!
-                        // No necesitas 'Content-Type' header con FormData, el navegador lo configura automáticamente
+                        method: 'POST',  // Cambia a PUT si también cambias el endpoint en el backend
                         body: formData,
                     });
 
-                    if (response.ok) { // Check for 2xx status codes
+                    if (response.ok) {
                         if (response.redirected) {
                             window.location.href = response.url;
                         } else {

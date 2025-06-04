@@ -15,6 +15,13 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from db import async_session
 from schemas import BusUpdateForm, EstacionUpdateForm
+from fastapi import FastAPI, Depends, HTTPException, Form, UploadFile, File
+from sqlalchemy.orm import Session
+from typing import Optional
+from db import get_db
+from models import EstacionDB  # Asegúrate que este modelo exista en models.py
+from schemas import EstacionOut  # Igual aquí
+from supabase_client import supabase, save_file, get_supabase_path_from_url
 
 
 # Crear tablas
@@ -288,3 +295,77 @@ async def actualizar_estacion_post(
     if not estacion:
         raise HTTPException(status_code=500, detail="No se pudo actualizar la estación.")
     return RedirectResponse(url="/update", status_code=status.HTTP_303_SEE_OTHER)
+
+@app.put("/estaciones/{estacion_id}", response_model=EstacionOut)
+def actualizar_estacion_db_form(
+    estacion_id: int,
+    nombre: str = Form(...),
+    ubicacion: str = Form(...),
+    descripcion: Optional[str] = Form(None),
+    imagen: Optional[UploadFile] = File(None),
+    db: Session = Depends(get_db)
+):
+    estacion = db.query(EstacionDB).filter(EstacionDB.id == estacion_id).first()
+    if not estacion:
+        raise HTTPException(status_code=404, detail="Estación no encontrada")
+
+    estacion.nombre = nombre
+    estacion.ubicacion = ubicacion
+    estacion.descripcion = descripcion
+
+    if imagen:
+        # Elimina imagen anterior si existe
+        if estacion.imagen_url:
+            try:
+                supabase_path = get_supabase_path_from_url(estacion.imagen_url)
+                supabase.storage.from_("transmilenio").remove([supabase_path])
+            except Exception as e:
+                print("Error eliminando imagen anterior:", e)
+
+        estacion.imagen_url = save_file(imagen, "transmilenio")
+
+    db.commit()
+    db.refresh(estacion)
+    return estacion
+
+@router.put("/update/{id}", response_model=BusOut)
+async def actualizar_bus_db_form(
+    id: int,
+    nombre_bus: str = Form(...),
+    tipo: str = Form(...),
+    activo: bool = Form(...),
+    imagen: Optional[UploadFile] = File(None),
+    db: Session = Depends(get_db),
+):
+    bus_db = db.query(BusDB).filter(BusDB.id == id).first()
+    if not bus_db:
+        raise HTTPException(status_code=404, detail="Bus no encontrado")
+
+    imagen_actual = bus_db.imagen
+    url_imagen = None
+
+    if imagen:
+        try:
+            resultado = await save_file(imagen, to_supabase=True)
+            url_imagen = resultado["url"]
+        except Exception as e:
+            logging.error(f"Error subiendo nueva imagen: {e}")
+            raise HTTPException(status_code=500, detail="Error subiendo nueva imagen")
+
+    if imagen_actual and url_imagen:
+        try:
+            path_antiguo = get_supabase_path_from_url(imagen_actual, SUPABASE_BUCKET_BUSES)
+            if path_antiguo:
+                supabase.storage.from_(SUPABASE_BUCKET_BUSES).remove([path_antiguo])
+        except Exception as e:
+            logging.error(f"Error eliminando imagen anterior: {e}")
+
+    bus_db.nombre_bus = nombre_bus
+    bus_db.tipo = tipo
+    bus_db.activo = activo
+    if url_imagen:
+        bus_db.imagen = url_imagen
+
+    db.commit()
+    db.refresh(bus_db)
+    return bus_db

@@ -156,10 +156,9 @@ def actualizar_bus(bus_id: int, update_data: dict):
         logging.warning(f"Bus {bus_id} no encontrado para actualizar")
         return None
     try:
-        if "imagen" in update_data and bus.imagen:
+        if "imagen" in update_data and update_data["imagen"] and bus.imagen:
             try:
                 bucket = "buses"
-                # Asegurarse de que filename sea la ruta correcta dentro del bucket
                 filename = get_supabase_path_from_url(bus.imagen, bucket)
                 if filename:
                     supabase.storage.from_(bucket).remove([filename])
@@ -179,8 +178,6 @@ def actualizar_bus(bus_id: int, update_data: dict):
         db.close()
     return bus
 
-# **NOTA: Considera eliminar esta función si la versión asíncrona 'actualizar_estacion_db_form'
-# maneja todas tus necesidades de actualización de estaciones.**
 def actualizar_estacion(estacion_id: int, update_data: dict):
     logging.info(f"Actualizar estación {estacion_id} con datos: {update_data}")
     db: Session = SessionLocal()
@@ -242,7 +239,6 @@ def eliminar_bus(bus_id: int):
     if imagen_url:
         try:
             bucket = "buses"
-            # Asegurarse de que filename_in_bucket sea la ruta correcta dentro del bucket
             filename_in_bucket = get_supabase_path_from_url(imagen_url, bucket)
             if filename_in_bucket:
                 supabase.storage.from_(bucket).remove([filename_in_bucket])
@@ -255,8 +251,6 @@ def eliminar_bus(bus_id: int):
     return {"mensaje": "Bus eliminado"}
 
 def crear_bus(bus: dict, imagen_bytes: Optional[bytes] = None, imagen_filename: Optional[str] = None):
-    # ¡Esta función depende de 'subir_imagen' que no está definida!
-    # Es mejor usar la versión asíncrona 'crear_bus_async'.
     raise NotImplementedError("Usa 'crear_bus_async' para crear buses con imagen.")
 
 async def crear_bus_async(bus: dict, imagen: UploadFile):
@@ -373,18 +367,10 @@ def actualizar_id_estacion(estacion_id: int, nuevo_id: int):
     return {"mensaje": f"ID de estación actualizado a {nuevo_id}"}
 
 def crear_estacion(estacion: dict, imagen_bytes: Optional[bytes] = None, imagen_filename: Optional[str] = None):
-    # ¡Esta función depende de 'subir_imagen' que no está definida!
-    # Es mejor usar la versión asíncrona 'crear_estacion_async'.
-    raise NotImplementedError("Usa 'crear_estacion_async' para crear estaciones con imagen.")
+        raise NotImplementedError("Usa 'crear_estacion_async' para crear estaciones con imagen.")
 
 async def crear_estacion_async(estacion: dict, imagen: Optional[UploadFile]) -> Optional[models.Estacion]:
-    """
-    Crea una nueva estación de forma asíncrona, subiendo la imagen a Supabase si se proporciona.
 
-    :param estacion: Diccionario con los datos de la estación.
-    :param imagen: Archivo de imagen para subir (opcional).
-    :return: Instancia de models.Estacion creada o None si falla la creación.
-    """
     imagen_url = None
     if imagen:
         try:
