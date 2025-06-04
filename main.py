@@ -10,13 +10,19 @@ from db import SessionLocal, engine
 from supabase_client import supabase
 import uuid
 import logging
+from datetime import datetime
+from fastapi.responses import RedirectResponse
+from sqlalchemy.ext.asyncio import AsyncSession
+from db import async_session
+from schemas import BusUpdateForm, EstacionUpdateForm
+
 
 # Crear tablas
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-# Endpoint to get bus by ID
+# Endpoint para obtener bus por ID
 @app.get("/buses/{bus_id}", response_model=BusSchema)
 def get_bus_by_id(bus_id: int):
     bus = crud.obtener_bus_por_id(bus_id)
@@ -24,7 +30,7 @@ def get_bus_by_id(bus_id: int):
         raise HTTPException(status_code=404, detail="Bus no encontrado")
     return bus
 
-# Endpoint to get estacion by ID
+# Endpoint para obtener estación por ID
 @app.get("/estaciones/{estacion_id}", response_model=EstacionSchema)
 def get_estacion_by_id(estacion_id: int):
     estacion = crud.obtener_estacion_por_id(estacion_id)
@@ -171,7 +177,7 @@ def obtener_bus_por_id_endpoint(bus_id: int):
 
 @app.get("/buses/", response_model=List[BusSchema])
 def listar_buses(bus_id: Optional[int] = None, tipo: Optional[str] = None, activo: Optional[str] = None):
-    # Convert activo from string to bool if needed
+    # Convertir activo de string a bool si es necesario
     if activo is not None:
         if activo.lower() == "true":
             activo_bool = True
@@ -193,7 +199,7 @@ def obtener_estacion_por_id_endpoint(estacion_id: int):
 
 @app.get("/estaciones/", response_model=List[EstacionSchema])
 def listar_estaciones(estacion_id: Optional[int] = None, sector: Optional[str] = None, activo: Optional[str] = None):
-    # Convert activo from string to bool if needed
+    # Convertir activo de string a bool si es necesario
     if activo is not None:
         if activo.lower() == "true":
             activo_bool = True
@@ -220,55 +226,63 @@ def actualizar_estado_estacion_endpoint(estacion_id: int, activo: bool):
         raise HTTPException(status_code=404, detail="Estación no encontrada")
     return resultado
 
-from datetime import datetime
 
 @app.delete("/buses/{bus_id}")
 def eliminar_bus_endpoint(bus_id: int):
+    # Recuperar los detalles del bus antes de eliminar para el registro histórico
+    bus_to_delete = crud.obtener_bus_por_id(bus_id)
+    if not bus_to_delete:
+        raise HTTPException(status_code=404, detail="Bus no encontrado")
+
     resultado = crud.eliminar_bus(bus_id)
     if not resultado:
-        raise HTTPException(status_code=404, detail="Bus no encontrado")
-    # Add to historial_eliminados
+        raise HTTPException(status_code=404, detail="Error al eliminar el bus")
+    # Agregar al historial_eliminados
     historial_eliminados.append({
         "tipo": "bus",
-        "detalles": {"id": bus_id},
+        "detalles": {"id": bus_to_delete.id, "nombre_bus": bus_to_delete.nombre_bus, "tipo": bus_to_delete.tipo},
         "fecha_hora": datetime.now().isoformat()
     })
     return {"mensaje": "Bus eliminado"}
 
 @app.delete("/estaciones/{estacion_id}")
 def eliminar_estacion_endpoint(estacion_id: int):
+    # Recuperar los detalles de la estación antes de eliminar para el registro histórico
+    estacion_to_delete = crud.obtener_estacion_por_id(estacion_id)
+    if not estacion_to_delete:
+        raise HTTPException(status_code=404, detail="Estación no encontrada")
+
     resultado = crud.eliminar_estacion(estacion_id)
     if not resultado:
-        raise HTTPException(status_code=404, detail="Estación no encontrada")
-    # Add to historial_eliminados
+        raise HTTPException(status_code=404, detail="Error al eliminar la estación")
+    # Agregar al historial_eliminados
     historial_eliminados.append({
         "tipo": "estacion",
-        "detalles": {"id": estacion_id},
+        "detalles": {"id": estacion_to_delete.id, "nombre_estacion": estacion_to_delete.nombre_estacion, "localidad": estacion_to_delete.localidad},
         "fecha_hora": datetime.now().isoformat()
     })
     return {"mensaje": "Estación eliminada"}
 
-from fastapi import Body, Depends, status
-from fastapi.responses import RedirectResponse
-from sqlalchemy.ext.asyncio import AsyncSession
-from db import async_session
-from schemas import BusUpdateForm, EstacionUpdateForm
-import crud
-
 @app.post("/buses/update/{bus_id}", tags=["Buses"])
 async def actualizar_bus_post(
     bus_id: int,
-    bus_update: BusUpdateForm = Depends(),
+    bus_update: BusUpdateForm = Depends(), # Pasa el objeto directamente
     session: AsyncSession = Depends(async_session)
 ):
-    bus = await crud.actualizar_bus_async(bus_id, bus_update.__dict__, session)
+    # Llama a la función asíncrona correcta y pasa el objeto directamente
+    bus = await crud.actualizar_bus_db_form(bus_id, bus_update, session)
+    if not bus:
+        raise HTTPException(status_code=500, detail="No se pudo actualizar el bus.")
     return RedirectResponse(url="/update", status_code=status.HTTP_303_SEE_OTHER)
 
 @app.post("/estaciones/update/{estacion_id}", tags=["Estaciones"])
 async def actualizar_estacion_post(
     estacion_id: int,
-    estacion_update: EstacionUpdateForm = Depends(),
+    estacion_update: EstacionUpdateForm = Depends(), # Pasa el objeto directamente
     session: AsyncSession = Depends(async_session)
 ):
-    estacion = await crud.actualizar_estacion_async(estacion_id, estacion_update.__dict__, session)
+    # Llama a la función asíncrona correcta y pasa el objeto directamente
+    estacion = await crud.actualizar_estacion_db_form(estacion_id, estacion_update, session)
+    if not estacion:
+        raise HTTPException(status_code=500, detail="No se pudo actualizar la estación.")
     return RedirectResponse(url="/update", status_code=status.HTTP_303_SEE_OTHER)
