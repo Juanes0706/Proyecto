@@ -11,25 +11,6 @@ from sqlalchemy.orm import Session
 import unicodedata
 import uuid
 
-
-
-async def save_file(file: UploadFile, to_supabase: bool):
-    if not file.content_type.startswith("image/"):
-        return {"error": "Solo se permiten imágenes"}
-
-    new_filename = f"{uuid.uuid4().hex}{file.filename}"
-
-    if to_supabase:
-        async def upload_file(file: UploadFile, filename: str):
-            return {"url": f"https://your-supabase-url/public/{SUPABASE_BUCKET}/{filename}"}
-        return await upload_file(file, new_filename)
-    else:
-        async def save_to_local(file: UploadFile, filename: str):
-            return {"url": f"/local/path/{filename}"}
-        return await save_to_local(file, new_filename)
-
-
-
 SUPABASE_BUCKET = "buses" 
 def get_supabase_path_from_url(url: str, bucket_name: str) -> str:
     parts = url.split(f"/public/{bucket_name}/")
