@@ -21,7 +21,7 @@ from typing import Optional
 from db import get_db
 from models import Estacion  
 from schemas import EstacionResponse
-from supabase_client import supabase, save_file, get_supabase_path_from_url
+from supabase_client import supabase, save_file
 
 
 # Crear tablas
