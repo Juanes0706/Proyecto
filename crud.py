@@ -1,3 +1,4 @@
+import supabase
 from db import SessionLocal, async_session
 import models
 from models import Bus, Estacion # ¡Importación agregada!
@@ -5,6 +6,28 @@ from typing import Optional
 from fastapi import HTTPException, UploadFile # Importación de UploadFile
 import asyncio # Importación para asyncio.to_thread
 from schemas import BusUpdateForm, EstacionUpdateForm
+import logging
+from sqlalchemy.orm import Session
+import unicodedata
+import uuid
+
+
+
+async def save_file(file: UploadFile, to_supabase: bool):
+    if not file.content_type.startswith("image/"):
+        return {"error": "Solo se permiten imágenes"}
+
+    new_filename = f"{uuid.uuid4().hex}{file.filename}"
+
+    if to_supabase:
+        async def upload_file(file: UploadFile, filename: str):
+            return {"url": f"https://your-supabase-url/public/{SUPABASE_BUCKET}/{filename}"}
+        return await upload_file(file, new_filename)
+    else:
+        async def save_to_local(file: UploadFile, filename: str):
+            return {"url": f"/local/path/{filename}"}
+        return await save_to_local(file, new_filename)
+
 
 
 SUPABASE_BUCKET = "buses" 
@@ -13,9 +36,6 @@ def get_supabase_path_from_url(url: str, bucket_name: str) -> str:
     if len(parts) > 1:
         return parts[-1]
     return ""
-
-
-# --- Funciones existentes (se mantienen para completitud, asegurar que no haya duplicados o conflictos) ---
 
 def obtener_buses(bus_id: Optional[int] = None, tipo: Optional[str] = None, activo: Optional[bool] = None):
     db: Session = SessionLocal()
