@@ -10,6 +10,8 @@ import logging
 from sqlalchemy.orm import Session
 import unicodedata
 import uuid
+from supabase_client import * 
+
 
 SUPABASE_BUCKET = "buses" 
 def get_supabase_path_from_url(url: str, bucket_name: str) -> str:
