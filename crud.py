@@ -9,61 +9,72 @@ import models
 from typing import Optional
 from fastapi import HTTPException
 
-async def actualizar_bus_async(bus_id: int, vehiculo_update, session: AsyncSession):
-    result = await session.execute(select(models.Bus).where(models.Bus.id == bus_id))
+async def actualizar_bus_db_form(bus_id: int, bus_update: BusUpdateForm, session: AsyncSession):
+    result = await session.execute(select(Bus).where(Bus.id == bus_id))
     bus = result.scalar_one_or_none()
     if bus is None:
         raise HTTPException(status_code=404, detail="Bus no encontrado")
-    imagen_actual = bus.imagen
+    
+    imagen_actual = bus.imagen_url
     nueva_imagen_url: Optional[str] = None
-    if hasattr(vehiculo_update, "imagen") and vehiculo_update.imagen:
-        resultado = await save_file(vehiculo_update.imagen, to_supabase=True)
+
+    if bus_update.imagen:
+        resultado = await save_file(bus_update.imagen, to_supabase=True)
+
         if "url" in resultado:
-            nueva_imagen_url = resultado["url"]["publicUrl"] if isinstance(resultado["url"], dict) else resultado["url"]
+            nueva_imagen_url = resultado["url"]
             if imagen_actual:
-                bucket = "buses"
-                path_antiguo = imagen_actual.split(f"/{bucket}/")[-1]
-                supabase.storage.from_(bucket).remove([path_antiguo])
+                path_antiguo = get_supabase_path_from_url(imagen_actual, SUPABASE_BUCKET)
+                supabase.storage.from_(SUPABASE_BUCKET).remove([path_antiguo])
         else:
-            logging.error(f"Error al subir nueva imagen: {resultado.get('error')}")
-    for campo in ["nombre_bus", "tipo", "activo"]:
-        valor = getattr(vehiculo_update, campo)
+            print("Error al subir nueva imagen:", resultado.get("error"))
+
+    for campo in ["placa", "capacidad", "modelo"]:
+        valor = getattr(bus_update, campo)
         if valor is not None:
             setattr(bus, campo, valor)
+
     if nueva_imagen_url:
-        bus.imagen = nueva_imagen_url
+        bus.imagen_url = nueva_imagen_url
+
     session.add(bus)
     await session.commit()
     await session.refresh(bus)
     return bus
 
-async def actualizar_estacion_async(estacion_id: int, vehiculo_update, session: AsyncSession):
-    result = await session.execute(select(models.Estacion).where(models.Estacion.id == estacion_id))
+async def actualizar_estacion_db_form(estacion_id: int, estacion_update: EstacionUpdateForm, session: AsyncSession):
+    result = await session.execute(select(Estacion).where(Estacion.id == estacion_id))
     estacion = result.scalar_one_or_none()
     if estacion is None:
         raise HTTPException(status_code=404, detail="Estación no encontrada")
-    imagen_actual = estacion.imagen
+    
+    imagen_actual = estacion.imagen_url
     nueva_imagen_url: Optional[str] = None
-    if hasattr(vehiculo_update, "imagen") and vehiculo_update.imagen:
-        resultado = await save_file(vehiculo_update.imagen, to_supabase=True)
+
+    if estacion_update.imagen:
+        resultado = await save_file(estacion_update.imagen, to_supabase=True)
+
         if "url" in resultado:
-            nueva_imagen_url = resultado["url"]["publicUrl"] if isinstance(resultado["url"], dict) else resultado["url"]
+            nueva_imagen_url = resultado["url"]
             if imagen_actual:
-                bucket = "estaciones"
-                path_antiguo = imagen_actual.split(f"/{bucket}/")[-1]
-                supabase.storage.from_(bucket).remove([path_antiguo])
+                path_antiguo = get_supabase_path_from_url(imagen_actual, SUPABASE_BUCKET)
+                supabase.storage.from_(SUPABASE_BUCKET).remove([path_antiguo])
         else:
-            logging.error(f"Error al subir nueva imagen: {resultado.get('error')}")
-    for campo in ["nombre_estacion", "localidad", "rutas_asociadas", "activo"]:
-        valor = getattr(vehiculo_update, campo)
+            print("Error al subir nueva imagen:", resultado.get("error"))
+
+    for campo in ["nombre", "ubicacion"]:
+        valor = getattr(estacion_update, campo)
         if valor is not None:
             setattr(estacion, campo, valor)
+
     if nueva_imagen_url:
-        estacion.imagen = nueva_imagen_url
+        estacion.imagen_url = nueva_imagen_url
+
     session.add(estacion)
     await session.commit()
     await session.refresh(estacion)
     return estacion
+
 
 def obtener_buses(bus_id: Optional[int] = None, tipo: Optional[str] = None, activo: Optional[bool] = None):
     db: Session = SessionLocal()
