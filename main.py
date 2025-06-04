@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional, List
 import models
 from schemas import Bus as BusSchema, Estacion as EstacionSchema, BusResponse, EstacionResponse
+from schemas import BusUpdateForm, EstacionUpdateForm
 from db import SessionLocal, engine, async_session, get_db
 from supabase_client import supabase, save_file
 from update_functions import actualizar_bus_db_form, actualizar_estacion_db_form, get_supabase_path_from_url

@@ -1,12 +1,9 @@
-
-
-
-def get_supabase_path_from_url(url: str, bucket_name: str) -> str:
-    """Extrae la ruta dentro del bucket de una URL pública de Supabase."""
-    parts = url.split(f"/public/{bucket_name}/")
-    if len(parts) > 1:
-        return parts[-1]
-    return ""
+import logging
+import unicodedata
+from supabase_client import supabase, save_file
+from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 from db import SessionLocal, async_session
 import models
 from models import Bus, Estacion # ¡Importación agregada!
