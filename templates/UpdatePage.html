@@ -54,7 +54,11 @@
       }
 
       try {
-        const bodyData = { nombre_bus: nombre, tipo, activo };
+        // Only include fields that have values to avoid overwriting with empty strings
+        const bodyData = {};
+        if (nombre.trim() !== '') bodyData.nombre_bus = nombre;
+        if (tipo.trim() !== '') bodyData.tipo = tipo;
+        bodyData.activo = activo;
         if (imagenUrl !== null) {
           bodyData.imagen = imagenUrl;
         }
@@ -169,7 +173,7 @@
       </div>
     </div>
 
-    <!-- Update Estación Form -->
+    
     <div class="col-md-6 form-section">
       <div class="card shadow-sm">
         <div class="card-header bg-danger text-white">

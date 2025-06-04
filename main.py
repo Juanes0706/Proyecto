@@ -236,27 +236,18 @@ def eliminar_estacion_endpoint(estacion_id: int):
     })
     return {"mensaje": "Estación eliminada"}
 
+from fastapi import Body
+
 @app.put("/buses/{bus_id}", response_model=BusResponse)
 async def actualizar_bus_endpoint(
     bus_id: int,
-    nombre_bus: Optional[str] = Form(None),
-    tipo: Optional[str] = Form(None),
-    activo: Optional[bool] = Form(None),
-    imagen: Optional[UploadFile] = File(None)
+    update_data: dict = Body(...)
 ):
-    update_data = {}
-    if nombre_bus is not None:
-        update_data["nombre_bus"] = nombre_bus
-    if tipo is not None:
-        update_data["tipo"] = tipo.lower().strip()
-    if activo is not None:
-        update_data["activo"] = activo
-
-    if imagen:
-        result = await crud.save_file(imagen, to_supabase=True)
-        if "url" in result:
-            imagen_url = result["url"]["publicUrl"] if isinstance(result["url"], dict) else result["url"]
-            update_data["imagen"] = imagen_url
+    # Process update_data keys and values
+    if "nombre_bus" in update_data and update_data["nombre_bus"] is not None:
+        update_data["nombre_bus"] = update_data["nombre_bus"].strip()
+    if "tipo" in update_data and update_data["tipo"] is not None:
+        update_data["tipo"] = update_data["tipo"].lower().strip()
 
     updated_bus = crud.actualizar_bus(bus_id, update_data)
     if not updated_bus:
@@ -266,27 +257,14 @@ async def actualizar_bus_endpoint(
 @app.put("/estaciones/{estacion_id}", response_model=EstacionResponse)
 async def actualizar_estacion_endpoint(
     estacion_id: int,
-    nombre_estacion: Optional[str] = Form(None),
-    localidad: Optional[str] = Form(None),
-    rutas_asociadas: Optional[str] = Form(None),
-    activo: Optional[bool] = Form(None),
-    imagen: Optional[UploadFile] = File(None)
+    update_data: dict = Body(...)
 ):
-    update_data = {}
-    if nombre_estacion is not None:
-        update_data["nombre_estacion"] = nombre_estacion
-    if localidad is not None:
-        update_data["localidad"] = localidad
-    if rutas_asociadas is not None:
-        update_data["rutas_asociadas"] = rutas_asociadas
-    if activo is not None:
-        update_data["activo"] = activo
-
-    if imagen:
-        result = await crud.save_file(imagen, to_supabase=True)
-        if "url" in result:
-            imagen_url = result["url"]["publicUrl"] if isinstance(result["url"], dict) else result["url"]
-            update_data["imagen"] = imagen_url
+    if "nombre_estacion" in update_data and update_data["nombre_estacion"] is not None:
+        update_data["nombre_estacion"] = update_data["nombre_estacion"].strip()
+    if "localidad" in update_data and update_data["localidad"] is not None:
+        update_data["localidad"] = update_data["localidad"].strip()
+    if "rutas_asociadas" in update_data and update_data["rutas_asociadas"] is not None:
+        update_data["rutas_asociadas"] = update_data["rutas_asociadas"].strip()
 
     updated_estacion = crud.actualizar_estacion(estacion_id, update_data)
     if not updated_estacion:
