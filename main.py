@@ -328,7 +328,7 @@ def actualizar_estacion_db_form(
     db.refresh(estacion)
     return estacion
 
-@app.put("/update/{id}", response_model=BusOut)
+@app.put("/update/{id}", response_model=BusResponse)
 async def actualizar_bus_db_form(
     id: int,
     nombre_bus: str = Form(...),
