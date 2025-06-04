@@ -55,11 +55,11 @@ async def actualizar_bus_db_form(bus_id: int, bus_update: BusUpdateForm, session
             logging.error(f"Excepción al subir nueva imagen para bus {bus_id}: {e}")
 
     # Actualizar campos del bus
-    if bus_update.nombre_bus is not None:
+    if bus_update.nombre_bus is not None and bus_update.nombre_bus != "":
         bus.nombre_bus = bus_update.nombre_bus
-    if bus_update.tipo is not None:
+    if bus_update.tipo is not None and bus_update.tipo != "":
         bus.tipo = bus_update.tipo
-    if bus_update.activo is not None:
+    if bus_update.activo is not None and bus_update.activo != "":
         # CAMBIO AQUÍ: Convertir 'activo' de str a bool
         bus.activo = bus_update.activo.lower() == 'true'
 
