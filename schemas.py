@@ -39,7 +39,7 @@ class BusUpdateForm:
         self,
         nombre_bus: Optional[str] = Form(None),
         tipo: Optional[str] = Form(None),
-        activo: Optional[bool] = Form(None),
+        activo: Optional[str] = Form(None), # CAMBIO AQUÍ: de bool a str
         imagen: Optional[UploadFile] = File(None)
     ):
         self.nombre_bus = nombre_bus
@@ -82,7 +82,7 @@ class EstacionUpdateForm:
         nombre_estacion: Optional[str] = Form(None),
         localidad: Optional[str] = Form(None),
         rutas_asociadas: Optional[str] = Form(None),
-        activo: Optional[bool] = Form(None),
+        activo: Optional[str] = Form(None), # CAMBIO AQUÍ: de bool a str
         imagen: Optional[UploadFile] = File(None)
     ):
         self.nombre_estacion = nombre_estacion
