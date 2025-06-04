@@ -266,8 +266,9 @@ def eliminar_estacion_endpoint(estacion_id: int):
 @app.post("/buses/update/{bus_id}", tags=["Buses"])
 async def actualizar_bus_post(
     bus_id: int,
-    bus_update: BusUpdateForm = Depends(), # Pasa el objeto directamente
-    session: AsyncSession = Depends(async_session)
+    bus_update: BusUpdateForm = Depends(),
+    session: AsyncSession = Depends(async_session),
+    local_kw: Optional[str] = Query(None) # <--- AÑADE ESTA LÍNEA
 ):
     # Llama a la función asíncrona correcta y pasa el objeto directamente
     bus = await crud.actualizar_bus_db_form(bus_id, bus_update, session)
@@ -278,8 +279,9 @@ async def actualizar_bus_post(
 @app.post("/estaciones/update/{estacion_id}", tags=["Estaciones"])
 async def actualizar_estacion_post(
     estacion_id: int,
-    estacion_update: EstacionUpdateForm = Depends(), # Pasa el objeto directamente
-    session: AsyncSession = Depends(async_session)
+    estacion_update: EstacionUpdateForm = Depends(),
+    session: AsyncSession = Depends(async_session),
+    local_kw: Optional[str] = Query(None) # <--- AÑADE ESTA LÍNEA
 ):
     # Llama a la función asíncrona correcta y pasa el objeto directamente
     estacion = await crud.actualizar_estacion_db_form(estacion_id, estacion_update, session)
