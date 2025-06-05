@@ -290,3 +290,13 @@ async def actualizar_estacion_post(
 ):
     estacion = await actualizar_estacion_db_form( estacion_id, estacion_update, session)
     return RedirectResponse(url="/update", status_code=status.HTTP_303_SEE_OTHER)  
+
+@app.get("/buses/ids", response_model=List[int])
+def obtener_ids_buses(db: Session = Depends(get_db)):
+    buses = db.query(models.Bus.id).all()
+    return [bus.id for bus in buses]
+
+@app.get("/estaciones/ids", response_model=List[int])
+def obtener_ids_estaciones(db: Session = Depends(get_db)):
+    estaciones = db.query(models.Estacion.id).all()
+    return [estacion.id for estacion in estaciones]
