@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Bus{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Editar Bus - ID: {{ bus.id }}</h2>
+    <form id="editBusForm" method="post" enctype="multipart/form-data" action="/buses/update/{{ bus.id }}">
+        <div class="mb-3">
+            <label for="nombre_bus" class="form-label">Nombre del Bus</label>
+            <input type="text" class="form-control" id="nombre_bus" name="nombre_bus" value="{{ bus.nombre_bus }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="tipo" class="form-label">Tipo</label>
+            <input type="text" class="form-control" id="tipo" name="tipo" value="{{ bus.tipo }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="activo" class="form-label">Activo</label>
+            <select class="form-select" id="activo" name="activo" required>
+                <option value="true" {% if bus.activo %}selected{% endif %}>Activo</option>
+                <option value="false" {% if not bus.activo %}selected{% endif %}>Inactivo</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="imagen" class="form-label">Imagen (opcional)</label>
+            <input type="file" class="form-control" id="imagen" name="imagen" accept="image/*">
+            {% if bus.imagen %}
+            <img src="{{ bus.imagen }}" alt="Imagen actual" style="max-width: 150px; margin-top: 10px;">
+            {% endif %}
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        <a href="/update" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}
