@@ -6,7 +6,7 @@ from sqlalchemy.future import select
 from app.models.models import Bus, Estacion
 from app.services.supabase_client import supabase, save_file
 from app.schemas.schemas import *
-from app.crud.crud import *
+from app.operations import crud
 
 SUPABASE_BUCKET_BUSES = "buses"
 SUPABASE_BUCKET_ESTACIONES = "estaciones"
