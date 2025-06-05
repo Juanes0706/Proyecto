@@ -9,8 +9,7 @@ from app.models import *
 from app.schemas import *
 from app.services import * 
 from app.services.supabase_client import *
-
-from models import Bus, Estacion  
+from app.models.models import Bus, Estacion  
 
 # ---------------------- CONST ----------------------
 SUPABASE_BUCKET_BUSES = "buses"
