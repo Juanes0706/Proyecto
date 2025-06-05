@@ -282,12 +282,11 @@ async def actualizar_bus_post(
     bus = await actualizar_bus_db_form(bus_id, bus_update, session)
     return RedirectResponse(url="/update", status_code=status.HTTP_303_SEE_OTHER)
     
-@app.put("/estaciones/update/{bus_id}", tags=["Estaciones"])
+@app.put("/estaciones/update/{estacion_id}", tags=["Estaciones"])
 async def actualizar_estacion_post(
     estacion_id: int,
     estacion_update: EstacionCreateForm = Depends(),
     session: AsyncSession = Depends(async_session)
-
 ):
     estacion = await actualizar_estacion_db_form( estacion_id, estacion_update, session)
     return RedirectResponse(url="/update", status_code=status.HTTP_303_SEE_OTHER)  
