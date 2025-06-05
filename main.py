@@ -310,6 +310,52 @@ def obtener_ids_buses(db: Session = Depends(get_db)):
     buses = db.query(models.Bus.id).all()
     return [bus.id for bus in buses]
 
+from pydantic import BaseModel
+
+class BusDetail(BaseModel):
+    id: int
+    nombre_bus: str
+    tipo: str
+    activo: bool
+    imagen: str | None = None
+
+class EstacionDetail(BaseModel):
+    id: int
+    nombre_estacion: str
+    localidad: str
+    rutas_asociadas: str
+    activo: bool
+    imagen: str | None = None
+
+@app.get("/buses/details", response_model=List[BusDetail])
+def obtener_detalles_buses(db: Session = Depends(get_db)):
+    buses = db.query(models.Bus).all()
+    bus_details = []
+    for bus in buses:
+        bus_details.append(BusDetail(
+            id=bus.id,
+            nombre_bus=bus.nombre_bus,
+            tipo=bus.tipo,
+            activo=bus.activo,
+            imagen=bus.imagen
+        ))
+    return bus_details
+
+@app.get("/estaciones/details", response_model=List[EstacionDetail])
+def obtener_detalles_estaciones(db: Session = Depends(get_db)):
+    estaciones = db.query(models.Estacion).all()
+    estacion_details = []
+    for estacion in estaciones:
+        estacion_details.append(EstacionDetail(
+            id=estacion.id,
+            nombre_estacion=estacion.nombre_estacion,
+            localidad=estacion.localidad,
+            rutas_asociadas=estacion.rutas_asociadas,
+            activo=estacion.activo,
+            imagen=estacion.imagen
+        ))
+    return estacion_details
+
 @app.get("/estaciones/ids", response_model=List[int])
 def obtener_ids_estaciones(db: Session = Depends(get_db)):
     estaciones = db.query(models.Estacion.id).all()
