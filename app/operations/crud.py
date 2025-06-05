@@ -8,7 +8,7 @@ from app.database import *
 from app.models import *  
 from app.schemas import *
 from app.services import * 
-from services.supabase_client import *
+from app.services.supabase_client import *
 
 from models import Bus, Estacion  
 
