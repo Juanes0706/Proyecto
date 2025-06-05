@@ -272,20 +272,20 @@ async def update_page(request: Request):
     return templates.TemplateResponse("UpdatePage.html", {"request": request})
 
 # Endpoint para actualizar bus (POST)
-@app.put("/buses/update/{bus_id}", tags=["Buses"])
+@app.post("/buses/update/{bus_id}", tags=["Buses"])
 async def actualizar_bus_post(
     bus_id: int,
-    bus_update: BusCreateForm = Depends(),
+    bus_update: BusUpdateForm = Depends(),
     session: AsyncSession = Depends(async_session)
 
 ):
     bus = await actualizar_bus_db_form(bus_id, bus_update, session)
     return RedirectResponse(url="/update", status_code=status.HTTP_303_SEE_OTHER)
     
-@app.put("/estaciones/update/{estacion_id}", tags=["Estaciones"])
+@app.post("/estaciones/update/{estacion_id}", tags=["Estaciones"])
 async def actualizar_estacion_post(
     estacion_id: int,
-    estacion_update: EstacionCreateForm = Depends(),
+    estacion_update: EstacionUpdateForm = Depends(),
     session: AsyncSession = Depends(async_session)
 ):
     estacion = await actualizar_estacion_db_form( estacion_id, estacion_update, session)
