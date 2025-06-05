@@ -11,7 +11,7 @@ from app.schemas.schemas import Bus as BusSchema, Estacion as EstacionSchema, Bu
 from app.schemas.schemas import BusUpdateForm, EstacionUpdateForm 
 from app.database.db import SessionLocal, engine, async_session, get_db
 from app.services import *
-from app.services import actualizar_estacion_db_form, actualizar_bus_db_form
+from app.services.update_functions import actualizar_estacion_db_form, actualizar_bus_db_form
 import logging
 from datetime import datetime
 
