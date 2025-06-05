@@ -3,45 +3,6 @@
 {% block title %}Editar Bus y Estación{% endblock %}
 
 {% block content %}
-<style>
-    .form-section {
-        margin-bottom: 2rem;
-        background-color: #fff;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        padding: 20px;
-    }
-    .card-header {
-        background-color: #dc3545;
-        color: white;
-        font-weight: bold;
-        border-top-left-radius: 8px;
-        border-top-right-radius: 8px;
-    }
-    .btn-primary {
-        background-color: #dc3545;
-        border-color: #dc3545;
-    }
-    .btn-primary:hover {
-        background-color: #b02a37;
-        border-color: #b02a37;
-    }
-    .btn-secondary {
-        background-color: #6c757d;
-        border-color: #6c757d;
-    }
-    .btn-secondary:hover {
-        background-color: #565e64;
-        border-color: #565e64;
-    }
-    img {
-        max-width: 150px;
-        margin-top: 10px;
-        border-radius: 4px;
-        box-shadow: 0 0 5px rgba(0,0,0,0.1);
-    }
-</style>
-
 <div class="container mt-5">
     <div class="row">
         <div class="col-md-6 form-section">
@@ -71,7 +32,7 @@
                             <label for="imagen" class="form-label">Imagen (opcional)</label>
                             <input type="file" class="form-control" id="imagen" name="imagen" accept="image/*">
                             {% if bus.imagen %}
-                            <img src="{{ bus.imagen }}" alt="Imagen actual">
+                            <img src="{{ bus.imagen }}" alt="Imagen actual" style="max-width: 150px; margin-top: 10px; border-radius: 4px; box-shadow: 0 0 5px rgba(0,0,0,0.1);">
                             {% endif %}
                         </div>
                         <button type="submit" class="btn btn-primary">Guardar Cambios</button>
@@ -115,7 +76,7 @@
                             <label for="imagen" class="form-label">Imagen (opcional)</label>
                             <input type="file" class="form-control" id="imagen" name="imagen" accept="image/*">
                             {% if estacion.imagen %}
-                            <img src="{{ estacion.imagen }}" alt="Imagen actual">
+                            <img src="{{ estacion.imagen }}" alt="Imagen actual" style="max-width: 150px; margin-top: 10px; border-radius: 4px; box-shadow: 0 0 5px rgba(0,0,0,0.1);">
                             {% endif %}
                         </div>
                         <button type="submit" class="btn btn-primary">Guardar Cambios</button>
