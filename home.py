@@ -28,8 +28,8 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
-app.mount("/static/css", StaticFiles(directory="css"), name="css")
-app.mount("/static/js", StaticFiles(directory="js"), name="js")
+app.mount("/static/css", StaticFiles(directory="static/css"), name="css")
+app.mount("/static/js", StaticFiles(directory="static/js"), name="js")
 app.mount("/static/img", StaticFiles(directory="img"), name="img")
 
 # Dependencia de base de datos
