@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional, List
 from pydantic import BaseModel
 from app.operations import crud
-import models
+from app import models
 from app.schemas import Bus as BusSchema, Estacion as EstacionSchema, BusResponse, EstacionResponse
 from app.schemas import BusUpdateForm, EstacionUpdateForm 
 from app.db import SessionLocal, engine, async_session, get_db
