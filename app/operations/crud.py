@@ -4,7 +4,7 @@ import unicodedata
 from typing import Optional
 from fastapi import HTTPException, UploadFile
 from sqlalchemy.orm import Session
-from db import SessionLocal, async_session
+from database import *
 import models
 from models import *  
 from schemas import *
