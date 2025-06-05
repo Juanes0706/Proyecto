@@ -77,7 +77,7 @@ async def read_page(request: Request):
 
 @app.get("/update", response_class=HTMLResponse)
 async def update_page(request: Request):
-    return templates.TemplateResponse("UpdatePage.html", {"request": request})
+    return templates.TemplateResponse("EditUnifiedPage.html", {"request": request})
 
 @app.get("/edit", response_class=HTMLResponse)
 async def edit_page(request: Request, bus_id: Optional[int] = None, estacion_id: Optional[int] = None, db: Session = Depends(get_db)):
