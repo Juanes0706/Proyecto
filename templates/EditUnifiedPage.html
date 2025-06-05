@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Bus y Estación{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6 form-section">
+            <div class="card shadow-sm">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">Editar Bus {% if bus %} - ID: {{ bus.id }}{% endif %}</h4>
+                </div>
+                <div class="card-body">
+                    {% if bus %}
+                    <form id="editBusForm" method="post" enctype="multipart/form-data" action="/buses/update/{{ bus.id }}">
+                        <div class="mb-3">
+                            <label for="nombre_bus" class="form-label">Nombre del Bus</label>
+                            <input type="text" class="form-control" id="nombre_bus" name="nombre_bus" value="{{ bus.nombre_bus }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="tipo" class="form-label">Tipo</label>
+                            <input type="text" class="form-control" id="tipo" name="tipo" value="{{ bus.tipo }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="activo" class="form-label">Activo</label>
+                            <select class="form-select" id="activo" name="activo" required>
+                                <option value="true" {% if bus.activo %}selected{% endif %}>Activo</option>
+                                <option value="false" {% if not bus.activo %}selected{% endif %}>Inactivo</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="imagen" class="form-label">Imagen (opcional)</label>
+                            <input type="file" class="form-control" id="imagen" name="imagen" accept="image/*">
+                            {% if bus.imagen %}
+                            <img src="{{ bus.imagen }}" alt="Imagen actual" style="max-width: 150px; margin-top: 10px;">
+                            {% endif %}
+                        </div>
+                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                        <a href="/update" class="btn btn-secondary">Cancelar</a>
+                    </form>
+                    {% else %}
+                    <p>No se ha seleccionado ningún bus para editar.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 form-section">
+            <div class="card shadow-sm">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">Editar Estación {% if estacion %} - ID: {{ estacion.id }}{% endif %}</h4>
+                </div>
+                <div class="card-body">
+                    {% if estacion %}
+                    <form id="editEstacionForm" method="post" enctype="multipart/form-data" action="/estaciones/update/{{ estacion.id }}">
+                        <div class="mb-3">
+                            <label for="nombre_estacion" class="form-label">Nombre de la Estación</label>
+                            <input type="text" class="form-control" id="nombre_estacion" name="nombre_estacion" value="{{ estacion.nombre_estacion }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="localidad" class="form-label">Localidad</label>
+                            <input type="text" class="form-control" id="localidad" name="localidad" value="{{ estacion.localidad }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="rutas_asociadas" class="form-label">Rutas Asociadas</label>
+                            <input type="text" class="form-control" id="rutas_asociadas" name="rutas_asociadas" value="{{ estacion.rutas_asociadas }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="activo" class="form-label">Activo</label>
+                            <select class="form-select" id="activo" name="activo" required>
+                                <option value="true" {% if estacion.activo %}selected{% endif %}>Activo</option>
+                                <option value="false" {% if not estacion.activo %}selected{% endif %}>Inactivo</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="imagen" class="form-label">Imagen (opcional)</label>
+                            <input type="file" class="form-control" id="imagen" name="imagen" accept="image/*">
+                            {% if estacion.imagen %}
+                            <img src="{{ estacion.imagen }}" alt="Imagen actual" style="max-width: 150px; margin-top: 10px;">
+                            {% endif %}
+                        </div>
+                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                        <a href="/update" class="btn btn-secondary">Cancelar</a>
+                    </form>
+                    {% else %}
+                    <p>No se ha seleccionado ninguna estación para editar.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

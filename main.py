@@ -79,6 +79,20 @@ async def read_page(request: Request):
 async def update_page(request: Request):
     return templates.TemplateResponse("UpdatePage.html", {"request": request})
 
+@app.get("/edit", response_class=HTMLResponse)
+async def edit_page(request: Request, bus_id: Optional[int] = None, estacion_id: Optional[int] = None, db: Session = Depends(get_db)):
+    bus = None
+    estacion = None
+    if bus_id is not None:
+        bus = crud.obtener_bus_por_id(bus_id)
+        if not bus:
+            raise HTTPException(status_code=404, detail="Bus no encontrado")
+    if estacion_id is not None:
+        estacion = crud.obtener_estacion_por_id(estacion_id)
+        if not estacion:
+            raise HTTPException(status_code=404, detail="Estación no encontrada")
+    return templates.TemplateResponse("EditUnifiedPage.html", {"request": request, "bus": bus, "estacion": estacion})
+
 @app.get("/delete", response_class=HTMLResponse)
 async def delete_page(request: Request):
     return templates.TemplateResponse("DeletePage.html", {"request": request})
