@@ -218,9 +218,10 @@
                         <label for="busId" class="form-label">ID del Bus</label>
                         <div class="input-group">
                             <input type="number" class="form-control" id="busId" required />
-                            <button class="btn btn-outline-secondary" type="button" id="showBusIdsBtn" data-bs-toggle="modal" data-bs-target="#busIdsModal">Mostrar IDs</button>
-                        </div>
+                        <button class="btn btn-outline-secondary" type="button" id="showBusIdsBtn" data-bs-toggle="modal" data-bs-target="#busIdsModal">Mostrar IDs</button>
+                        <a href="#" id="editBusLink" class="btn btn-primary ms-2" style="display:none;">Editar Bus</a>
                     </div>
+                </div>
 
                     <!-- Modal for Bus IDs -->
                     <div class="modal fade" id="busIdsModal" tabindex="-1" aria-labelledby="busIdsModalLabel" aria-hidden="true">
@@ -235,10 +236,46 @@
                           </div>
                           <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const editBusLink = document.getElementById('editBusLink');
+        const busIdInput = document.getElementById('busId');
+
+        document.getElementById('showBusIdsBtn').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/buses/ids');
+                if (response.ok) {
+                    const ids = await response.json();
+                    const busIdsList = document.getElementById('busIdsList');
+                    busIdsList.innerHTML = '';
+                    ids.forEach(id => {
+                        const idButton = document.createElement('button');
+                        idButton.type = 'button';
+                        idButton.className = 'list-group-item list-group-item-action';
+                        idButton.textContent = id;
+                        idButton.addEventListener('click', () => {
+                            busIdInput.value = id;
+                            editBusLink.href = `/edit?bus_id=${id}`;
+                            editBusLink.style.display = 'inline-block';
+                            const busIdsModal = bootstrap.Modal.getInstance(document.getElementById('busIdsModal'));
+                            busIdsModal.hide();
+                        });
+                        busIdsList.appendChild(idButton);
+                    });
+                } else {
+                    alert('Error al obtener los IDs de buses');
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        });
+    });
+</script>
                         <div class="mb-3">
                             <label for="busNombre" class="form-label">Nombre del Bus</label>
                             <input type="text" class="form-control" id="busNombre" required />
