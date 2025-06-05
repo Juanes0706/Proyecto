@@ -7,8 +7,8 @@ from typing import Optional, List
 from pydantic import BaseModel
 from app.operations import crud
 from app import models
-from app.schemas import Bus as BusSchema, Estacion as EstacionSchema, BusResponse, EstacionResponse
-from app.schemas import BusUpdateForm, EstacionUpdateForm 
+from app.schemas.schemas import Bus as BusSchema, Estacion as EstacionSchema, BusResponse, EstacionResponse
+from app.schemas.schemas import BusUpdateForm, EstacionUpdateForm 
 from app.db import SessionLocal, engine, async_session, get_db
 from app.services import *
 from app.services import actualizar_estacion_db_form, actualizar_bus_db_form
