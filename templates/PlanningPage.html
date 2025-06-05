@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Planning Phase</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+            background-color: #f4f4f4;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            line-height: 1.6;
+        }
+        .navbar-brand img {
+            height: 40px;
+        }
+        h1, h2, h3 {
+            color: #b22222;
+        }
+        p {
+            font-size: 1.1rem;
+        }
+        ol {
+            margin-left: 20px;
+        }
+        ol li {
+            margin-bottom: 10px;
+        }
+        ul li {
+            margin-bottom: 5px;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(178, 34, 34, 0.3);
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 8px 12px;
+            border: 1px solid #b22222;
+        }
+        th {
+            background-color: #b22222;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-danger">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+<img src="{{ url_for('img', path='logotransmilenio.jpg') }}" alt="Logo TransMilenio" />
+        </a>
+        <div id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="/">🏠 Inicio</a></li>
+                <li class="nav-item"><a class="nav-link" href="/create">🆕 Crear</a></li>
+                <li class="nav-item"><a class="nav-link" href="/read">📖 Leer</a></li>
+                <li class="nav-item"><a class="nav-link" href="/update">✏️ Actualizar</a></li>
+                <li class="nav-item"><a class="nav-link" href="/delete">❌ Eliminar</a></li>
+                <li class="nav-item"><a class="nav-link" href="/developer-info">👨‍💻 Info Desarrollador</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/planning">🗓️ Planeación</a></li>
+                <li class="nav-item"><a class="nav-link" href="/design">🎨 Diseño</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-5">
+    <h1>Fase de Planeación</h1>
+    <p>Esta sección describe la fase de planeación del proyecto, incluyendo requisitos, cronograma y recursos.</p>
+    <h2>Planificación del Proyecto</h2>
+    <p>La planificación del proyecto se realizó considerando una estructura iterativa y por etapas, con el objetivo de desarrollar una API funcional, bien estructurada y fácilmente desplegable. Las fases principales de desarrollo fueron:</p>
+    <ol>
+        <li><strong>Definición de Requerimientos</strong><br/>
+            Se identificaron las funcionalidades clave que debía cumplir el sistema, como la gestión de registros (buses, estaciones, etc.), la persistencia de datos y la posibilidad de asociar imágenes a través de una plataforma externa como Supabase. Se definieron los modelos de datos necesarios y las operaciones CRUD para cada entidad.
+        </li>
+        <li><strong>Diseño de la Arquitectura</strong><br/>
+            Se decidió utilizar el framework FastAPI por su rendimiento y facilidad para crear APIs modernas y asincrónicas. Se planificó una arquitectura modular con separación clara entre rutas, lógica de negocio, esquemas y base de datos. También se planificó el uso de Supabase para el manejo de archivos, permitiendo mantener el almacenamiento desacoplado del servidor principal.
+        </li>
+        <li><strong>Desarrollo por Módulos</strong><br/>
+            El desarrollo se organizó en etapas:
+            <ul>
+                <li>Configuración del entorno y dependencias (requirements.txt, .env).</li>
+                <li>Creación de modelos y esquemas con Pydantic y SQLAlchemy.</li>
+                <li>Implementación de operaciones CRUD básicas.</li>
+                <li>Integración de Supabase para la gestión de archivos.</li>
+                <li>Pruebas y validación de los endpoints mediante Swagger UI.</li>
+            </ul>
+        </li>
+        <li><strong>Pruebas y Ajustes</strong><br/>
+            Se realizaron pruebas funcionales utilizando la documentación automática de FastAPI (/docs) y herramientas como Postman. Se ajustaron detalles técnicos como validaciones, manejo de errores y respuestas HTTP adecuadas.
+        </li>
+        <li><strong>Preparación para el Despliegue</strong><br/>
+            Se incluyó un Procfile y configuración para plataformas de despliegue como Render o Railway, facilitando la publicación del proyecto en un entorno productivo.
+        </li>
+    </ol>
+    <div class="mt-5">
+        <h2>Diagrama Entidad - Relación</h2>
+        <img src="/static/img/png.png" alt="PNG Image" class="img-fluid mb-4" style="max-width: 400px;" />
+        <h2>Casos de uso</h2>
+        <table class="table table-bordered">
+            <thead class="table-danger">
+                <tr>
+                    <th>Caso</th>
+                    <th>Actor</th>
+                    <th>Descripción</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>CU01</td>
+                    <td>Admin</td>
+                    <td>Registrar una nueva ruta</td>
+                </tr>
+                <tr>
+                    <td>CU02</td>
+                    <td>Admin</td>
+                    <td>Crear nuevo bus con imagen</td>
+                </tr>
+                <tr>
+                    <td>CU03</td>
+                    <td>Admin</td>
+                    <td>Registrar estación y asignar imagen</td>
+                </tr>
+                <tr>
+                    <td>CU04</td>
+                    <td>Admin</td>
+                    <td>Actualizar o eliminar entidades</td>
+                </tr>
+                <tr>
+                    <td>CU05</td>
+                    <td>Admin</td>
+                    <td>Consultar rutas, estaciones, buses</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

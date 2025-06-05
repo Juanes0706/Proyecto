@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Estación{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Editar Estación - ID: {{ estacion.id }}</h2>
+    <form id="editEstacionForm" method="post" enctype="multipart/form-data" action="/estaciones/update/{{ estacion.id }}">
+        <div class="mb-3">
+            <label for="nombre_estacion" class="form-label">Nombre de la Estación</label>
+            <input type="text" class="form-control" id="nombre_estacion" name="nombre_estacion" value="{{ estacion.nombre_estacion }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="localidad" class="form-label">Localidad</label>
+            <input type="text" class="form-control" id="localidad" name="localidad" value="{{ estacion.localidad }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="rutas_asociadas" class="form-label">Rutas Asociadas</label>
+            <input type="text" class="form-control" id="rutas_asociadas" name="rutas_asociadas" value="{{ estacion.rutas_asociadas }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="activo" class="form-label">Activo</label>
+            <select class="form-select" id="activo" name="activo" required>
+                <option value="true" {% if estacion.activo %}selected{% endif %}>Activo</option>
+                <option value="false" {% if not estacion.activo %}selected{% endif %}>Inactivo</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="imagen" class="form-label">Imagen (opcional)</label>
+            <input type="file" class="form-control" id="imagen" name="imagen" accept="image/*">
+            {% if estacion.imagen %}
+            <img src="{{ estacion.imagen }}" alt="Imagen actual" style="max-width: 150px; margin-top: 10px;">
+            {% endif %}
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        <a href="/update" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}
