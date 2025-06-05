@@ -9,7 +9,7 @@ from app.operations import crud
 from app import models
 from app.schemas.schemas import Bus as BusSchema, Estacion as EstacionSchema, BusResponse, EstacionResponse
 from app.schemas.schemas import BusUpdateForm, EstacionUpdateForm 
-from app.database.db import SessionLocal, engine, async_session, get_db
+from app.database.db import SessionLocal, engine, async_session, get_db, Base
 from app.services import *
 from app.services.update_functions import actualizar_estacion_db_form, actualizar_bus_db_form
 import logging
@@ -18,7 +18,7 @@ from datetime import datetime
 router = APIRouter()
 
 # Crear tablas
-models.Base.metadata.create_all(bind=engine)
+Base.metadata.create_all(bind=engine)
 
 # Configuración para plantillas HTML y archivos estáticos
 templates = Jinja2Templates(directory="templates")
