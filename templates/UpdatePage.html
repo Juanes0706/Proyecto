@@ -95,6 +95,35 @@
                     document.getElementById('estacionUpdateMessage').textContent = `Error: ${error.message}`;
                 }
             });
+
+            // New code to show IDs
+            document.getElementById('showBusIdsBtn').addEventListener('click', async () => {
+                try {
+                    const response = await fetch('/buses/ids');
+                    if (response.ok) {
+                        const ids = await response.json();
+                        alert('IDs disponibles para modificar: ' + ids.join(', '));
+                    } else {
+                        alert('Error al obtener los IDs de buses');
+                    }
+                } catch (error) {
+                    alert('Error: ' + error.message);
+                }
+            });
+
+            document.getElementById('showEstacionIdsBtn').addEventListener('click', async () => {
+                try {
+                    const response = await fetch('/estaciones/ids');
+                    if (response.ok) {
+                        const ids = await response.json();
+                        alert('IDs disponibles para modificar: ' + ids.join(', '));
+                    } else {
+                        alert('Error al obtener los IDs de estaciones');
+                    }
+                } catch (error) {
+                    alert('Error: ' + error.message);
+                }
+            });
         });
     </script>
 </head>
@@ -130,9 +159,12 @@
                 <div class="card-body">
                     <form id="updateBusForm">
                         <div class="mb-3">
-                            <label for="busId" class="form-label">ID del Bus</label>
+                        <label for="busId" class="form-label">ID del Bus</label>
+                        <div class="input-group">
                             <input type="number" class="form-control" id="busId" required />
+                            <button class="btn btn-outline-secondary" type="button" id="showBusIdsBtn">Mostrar IDs</button>
                         </div>
+                    </div>
                         <div class="mb-3">
                             <label for="busNombre" class="form-label">Nombre del Bus</label>
                             <input type="text" class="form-control" id="busNombre" required />
@@ -167,9 +199,12 @@
                 <div class="card-body">
                     <form id="updateEstacionForm">
                         <div class="mb-3">
-                            <label for="estacionId" class="form-label">ID de la Estación</label>
+                        <label for="estacionId" class="form-label">ID de la Estación</label>
+                        <div class="input-group">
                             <input type="number" class="form-control" id="estacionId" required />
+                            <button class="btn btn-outline-secondary" type="button" id="showEstacionIdsBtn">Mostrar IDs</button>
                         </div>
+                    </div>
                         <div class="mb-3">
                             <label for="estacionNombre" class="form-label">Nombre de la Estación</label>
                             <input type="text" class="form-control" id="estacionNombre" required />
