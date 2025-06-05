@@ -5,10 +5,9 @@ from typing import Optional
 from fastapi import HTTPException, UploadFile
 from sqlalchemy.orm import Session
 from app.database import *
-import models
-from models import *  
-from schemas import *
-from services import * 
+from app.models import *  
+from app.schemas import *
+from app.services import * 
 from services.supabase_client import *
 
 from models import Bus, Estacion  
