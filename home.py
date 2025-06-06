@@ -1,24 +1,24 @@
-# home.py
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, UploadFile, File, Form, status
 from fastapi.responses import HTMLResponse, RedirectResponse
-# from sqlalchemy.orm import Session # Ya no se usa
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional, List
 from pydantic import BaseModel
-from app.operations import crud
-from app import models
+from app.operations import crud # Importa el módulo crud
+from app import models # Importa el módulo models (aunque no se usa directamente en este archivo en las rutas)
 from app.schemas.schemas import Bus as BusSchema, Estacion as EstacionSchema, BusResponse, EstacionResponse
 from app.schemas.schemas import BusUpdateForm, EstacionUpdateForm, BusCreateForm, EstacionCreateForm
-from app.database.db import async_session, get_async_db # Importar get_async_db
+from app.database.db import async_session, get_async_db # Importa get_async_db
 from app.services.update_functions import actualizar_estacion_db_form, actualizar_bus_db_form
 import logging
 from datetime import datetime
+from fastapi.templating import Jinja2Templates # Importa Jinja2Templates aquí si se usa directamente
 
 router = APIRouter()
 
-from fastapi.templating import Jinja2Templates
+# Configuración de Jinja2Templates (asumiendo que está en el mismo nivel o es accesible)
 templates = Jinja2Templates(directory="templates")
 
+# Lista en memoria para el historial de elementos eliminados (solo para demostración)
 historial_eliminados = []
 
 
@@ -40,6 +40,17 @@ async def update_html(request: Request):
 async def delete_html(request: Request):
     return templates.TemplateResponse("delete.html", {"request": request})
 
+# NUEVA RUTA: Endpoint GET /read para mostrar buses y estaciones
+@router.get("/read", response_class=HTMLResponse, tags=["Read"])
+async def read_html(request: Request, session: AsyncSession = Depends(get_async_db)):
+    # Obtener todos los buses y estaciones para mostrarlos en la página
+    buses = await crud.obtener_buses(session)
+    estaciones = await crud.obtener_estaciones(session)
+    return templates.TemplateResponse(
+        "read.html",
+        {"request": request, "buses": buses, "estaciones": estaciones}
+    )
+
 
 # -------------------- BUS API --------------------
 @router.get("/buses", response_model=List[BusResponse], tags=["Buses"])
@@ -47,17 +58,17 @@ async def get_buses(
     bus_id: Optional[int] = None,
     tipo: Optional[str] = None,
     activo: Optional[bool] = None,
-    session: AsyncSession = Depends(get_async_db) 
+    session: AsyncSession = Depends(get_async_db)
 ):
-    buses = await crud.obtener_buses(session, bus_id, tipo, activo) 
+    buses = await crud.obtener_buses(session, bus_id, tipo, activo)
     return [BusResponse.from_orm(bus) for bus in buses]
 
 @router.post("/buses", response_model=BusResponse, status_code=status.HTTP_201_CREATED, tags=["Buses"])
 async def create_bus(
     bus_create: BusCreateForm = Depends(),
-    session: AsyncSession = Depends(get_async_db) 
+    session: AsyncSession = Depends(get_async_db)
 ):
-    new_bus = await crud.crear_bus( 
+    new_bus = await crud.crear_bus(
         session,
         bus_create.nombre_bus,
         bus_create.tipo,
@@ -71,9 +82,9 @@ async def create_bus(
 @router.delete("/buses/{bus_id}", tags=["Buses"])
 async def delete_bus(
     bus_id: int,
-    session: AsyncSession = Depends(get_async_db) # Usar get_async_db
+    session: AsyncSession = Depends(get_async_db)
 ):
-    bus_to_delete = await crud.obtener_buses(session, bus_id=bus_id) 
+    bus_to_delete = await crud.obtener_buses(session, bus_id=bus_id)
     if not bus_to_delete:
         raise HTTPException(status_code=404, detail="Bus no encontrado")
     
@@ -82,7 +93,7 @@ async def delete_bus(
     if not bus_obj:
         raise HTTPException(status_code=404, detail="Bus no encontrado")
 
-    resultado = await crud.eliminar_bus(session, bus_id) 
+    resultado = await crud.eliminar_bus(session, bus_id)
     if not resultado:
         raise HTTPException(status_code=404, detail="Error al eliminar el bus")
     
@@ -99,7 +110,7 @@ async def delete_bus(
 async def actualizar_bus_post(
     bus_id: int,
     bus_update: BusUpdateForm = Depends(),
-    session: AsyncSession = Depends(get_async_db) 
+    session: AsyncSession = Depends(get_async_db)
 ):
     await actualizar_bus_db_form(bus_id, bus_update, session)
     return RedirectResponse(url="/update", status_code=status.HTTP_303_SEE_OTHER)
@@ -111,17 +122,17 @@ async def get_estaciones(
     estacion_id: Optional[int] = None,
     localidad: Optional[str] = None,
     activo: Optional[bool] = None,
-    session: AsyncSession = Depends(get_async_db) 
+    session: AsyncSession = Depends(get_async_db)
 ):
-    estaciones = await crud.obtener_estaciones(session, estacion_id, localidad, activo) 
+    estaciones = await crud.obtener_estaciones(session, estacion_id, localidad, activo)
     return [EstacionResponse.from_orm(estacion) for estacion in estaciones]
 
 @router.post("/estaciones", response_model=EstacionResponse, status_code=status.HTTP_201_CREATED, tags=["Estaciones"])
 async def create_estacion(
     estacion_create: EstacionCreateForm = Depends(),
-    session: AsyncSession = Depends(get_async_db) # Usar get_async_db
+    session: AsyncSession = Depends(get_async_db)
 ):
-    new_estacion = await crud.crear_estacion( 
+    new_estacion = await crud.crear_estacion(
         session,
         estacion_create.nombre_estacion,
         estacion_create.localidad,
@@ -136,9 +147,9 @@ async def create_estacion(
 @router.delete("/estaciones/{estacion_id}", tags=["Estaciones"])
 async def delete_estacion(
     estacion_id: int,
-    session: AsyncSession = Depends(get_async_db) 
+    session: AsyncSession = Depends(get_async_db)
 ):
-    estacion_to_delete_list = await crud.obtener_estaciones(session, estacion_id=estacion_id) 
+    estacion_to_delete_list = await crud.obtener_estaciones(session, estacion_id=estacion_id)
     if not estacion_to_delete_list:
         raise HTTPException(status_code=404, detail="Estación no encontrada")
     
@@ -147,7 +158,7 @@ async def delete_estacion(
     if not estacion_obj:
         raise HTTPException(status_code=404, detail="Estación no encontrada")
 
-    resultado = await crud.eliminar_estacion(session, estacion_id) 
+    resultado = await crud.eliminar_estacion(session, estacion_id)
     if not resultado:
         raise HTTPException(status_code=404, detail="Error al eliminar la estación")
     
@@ -164,7 +175,7 @@ async def delete_estacion(
 async def actualizar_estacion_post(
     estacion_id: int,
     estacion_update: EstacionUpdateForm = Depends(),
-    session: AsyncSession = Depends(get_async_db) 
+    session: AsyncSession = Depends(get_async_db)
 ):
     await actualizar_estacion_db_form(estacion_id, estacion_update, session)
     return RedirectResponse(url="/update", status_code=status.HTTP_303_SEE_OTHER)
