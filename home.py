@@ -143,7 +143,7 @@ async def get_bus_details_api(session: AsyncSession = Depends(get_async_db)):
     return [BusResponse.from_orm(bus) for bus in buses]
 
 
-@router.post("/buses", response_model=CreateBusResponse, status_code=status.HTTP_201_CREATED, tags=["Buses API"])
+@router.post("/buses", status_code=status.HTTP_303_SEE_OTHER, tags=["Buses API"])
 async def create_bus_api(
     bus_create: BusCreateForm = Depends(),
     session: AsyncSession = Depends(get_async_db)
@@ -157,7 +157,7 @@ async def create_bus_api(
     )
     if not new_bus:
         raise HTTPException(status_code=400, detail="Error al crear bus")
-    return {"message": "Bus creado exitosamente", "bus": BusResponse.from_orm(new_bus)}
+    return RedirectResponse(url="/update", status_code=status.HTTP_303_SEE_OTHER)
 
 @router.delete("/buses/{bus_id}", tags=["Buses API"])
 async def delete_bus_api(
@@ -217,7 +217,7 @@ async def get_estacion_details_api(session: AsyncSession = Depends(get_async_db)
     return [EstacionResponse.from_orm(estacion) for estacion in estaciones]
 
 
-@router.post("/estaciones", response_model=CreateEstacionResponse, status_code=status.HTTP_201_CREATED, tags=["Estaciones API"])
+@router.post("/estaciones", status_code=status.HTTP_303_SEE_OTHER, tags=["Estaciones API"])
 async def create_estacion_api(
     estacion_create: EstacionCreateForm = Depends(),
     session: AsyncSession = Depends(get_async_db)
@@ -232,7 +232,7 @@ async def create_estacion_api(
     )
     if not new_estacion:
         raise HTTPException(status_code=400, detail="Error al crear estación")
-    return {"message": "Estación creada exitosamente", "estacion": EstacionResponse.from_orm(new_estacion)}
+    return RedirectResponse(url="/update", status_code=status.HTTP_303_SEE_OTHER)
 
 @router.delete("/estaciones/{estacion_id}", tags=["Estaciones API"])
 async def delete_estacion_api(

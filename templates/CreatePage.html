@@ -27,9 +27,11 @@
     <div class="container">
         <h1>Crear Nuevo Registro</h1>
 
+        <div id="message_area" style="margin-bottom: 20px; text-align: center; font-weight: bold;"></div>
+
         <div class="form-section">
             <h2>Crear Estación</h2>
-            <form action="/estaciones" method="post" enctype="multipart/form-data">
+            <form id="createEstacionForm" enctype="multipart/form-data">
                 <label for="nombre_estacion_create">Nombre de la Estación:</label>
                 <input type="text" id="nombre_estacion_create" name="nombre_estacion" required>
 
@@ -37,7 +39,7 @@
                 <input type="text" id="localidad_create" name="localidad" required>
 
                 <label for="rutas_asociadas_create">Rutas Asociadas (separadas por coma):</label>
-                <input type="text" id="rutas_asociadas_create" name="rutas_asociadas" required>
+                <input type="text" id="rutas_asociadas_create" name="rutas_asociadas">
 
                 <label>Estado:</label>
                 <input type="radio" id="activo_estacion_true" name="activo" value="true" checked>
@@ -54,7 +56,7 @@
 
         <div class="form-section">
             <h2>Crear Bus</h2>
-            <form action="/buses" method="post" enctype="multipart/form-data">
+            <form id="createBusForm" enctype="multipart/form-data">
                 <label for="nombre_bus_create">Nombre del Bus:</label>
                 <input type="text" id="nombre_bus_create" name="nombre_bus" required>
 
@@ -77,5 +79,71 @@
             </form>
         </div>
     </div>
+
+    <script>
+        const messageArea = document.getElementById('message_area');
+
+        // Función para mostrar mensajes de éxito o error
+        function showMessage(message, type = 'success') {
+            messageArea.textContent = message;
+            messageArea.style.color = (type === 'success') ? 'green' : 'red';
+            // Opcional: limpiar el mensaje después de unos segundos
+            setTimeout(() => {
+                messageArea.textContent = '';
+            }, 5000); // El mensaje desaparece después de 5 segundos
+        }
+
+        // Manejar el envío del formulario de Estación
+        document.getElementById('createEstacionForm').addEventListener('submit', async function(event) {
+            event.preventDefault(); // Evita que la página se recargue
+
+            const formData = new FormData(this); // Crea un objeto FormData con los datos del formulario
+
+            try {
+                const response = await fetch('/estaciones', {
+                    method: 'POST',
+                    body: formData // Envía los datos del formulario directamente
+                });
+
+                const data = await response.json(); // Parsea la respuesta JSON
+
+                if (response.ok) { // Si la respuesta HTTP es 2xx (éxito)
+                    showMessage(data.message || 'Estación creada exitosamente', 'success');
+                    this.reset(); // Limpia el formulario
+                } else { // Si la respuesta HTTP es un error (ej. 400, 500)
+                    showMessage(data.detail || 'Error al crear la estación', 'error');
+                }
+            } catch (error) {
+                console.error('Error al enviar el formulario de estación:', error);
+                showMessage('Error de conexión con el servidor al crear la estación', 'error');
+            }
+        });
+
+        // Manejar el envío del formulario de Bus
+        document.getElementById('createBusForm').addEventListener('submit', async function(event) {
+            event.preventDefault(); // Evita que la página se recargue
+
+            const formData = new FormData(this); // Crea un objeto FormData con los datos del formulario
+
+            try {
+                const response = await fetch('/buses', {
+                    method: 'POST',
+                    body: formData // Envía los datos del formulario directamente
+                });
+
+                const data = await response.json(); // Parsea la respuesta JSON
+
+                if (response.ok) { // Si la respuesta HTTP es 2xx (éxito)
+                    showMessage(data.message || 'Bus creado exitosamente', 'success');
+                    this.reset(); // Limpia el formulario
+                } else { // Si la respuesta HTTP es un error (ej. 400, 500)
+                    showMessage(data.detail || 'Error al crear el bus', 'error');
+                }
+            } catch (error) {
+                console.error('Error al enviar el formulario de bus:', error);
+                showMessage('Error de conexión con el servidor al crear el bus', 'error');
+            }
+        });
+    </script>
 </body>
 </html>
