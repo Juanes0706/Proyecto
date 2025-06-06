@@ -18,7 +18,7 @@ def get_supabase_path_from_url(url: str, bucket_name: str) -> str:
         return parts[-1]
     return ""
 
-async def actualizar_bus_db_form(bus_id: int, bus_update: BusUpdateForm, session: AsyncSession) -> Bus:
+async def actualizar_bus_db_form(bus_id: int, bus_update: schemas_schemas.BusUpdateForm, session: AsyncSession) -> Bus:
     result = await session.execute(select(Bus).where(Bus.id == bus_id))
     bus = result.scalar_one_or_none()
     if bus is None:
@@ -58,7 +58,7 @@ async def actualizar_bus_db_form(bus_id: int, bus_update: BusUpdateForm, session
     await session.refresh(bus)
     return bus
 
-async def actualizar_estacion_db_form(estacion_id: int, estacion_update: EstacionUpdateForm, session: AsyncSession) -> Estacion:
+async def actualizar_estacion_db_form(estacion_id: int, estacion_update: schemas_schemas.EstacionUpdateForm, session: AsyncSession) -> Estacion:
     result = await session.execute(select(Estacion).where(Estacion.id == estacion_id))
     estacion = result.scalar_one_or_none()
     if estacion is None:
