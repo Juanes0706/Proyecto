@@ -10,77 +10,19 @@ from app import models
 from app.schemas.schemas import Bus as BusSchema, Estacion as EstacionSchema, BusResponse, EstacionResponse
 from app.schemas.schemas import BusUpdateForm, EstacionUpdateForm, BusCreateForm, EstacionCreateForm
 from app.database.db import SessionLocal, engine, async_session, get_db, Base
-from app.services import *
+from app.services import * # Consider being more specific with imports
 from app.services.update_functions import actualizar_estacion_db_form, actualizar_bus_db_form
 import logging
 from datetime import datetime
 
 router = APIRouter()
 
-# Crear tablas
-Base.metadata.create_all(bind=engine)
-
-# Configuración para plantillas HTML y archivos estáticos
+# Jinja2Templates configuration (should align with main.py if passed from there)
 templates = Jinja2Templates(directory="templates")
 
-# Mount static files
-from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
-
-app = FastAPI()
-app.mount("/static/css", StaticFiles(directory="static/css"), name="css")
-app.mount("/static/js", StaticFiles(directory="static/js"), name="js")
-
-# Dependencia de base de datos
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-# ---------------------- MODELOS DETALLE ----------------------
-
-class BusDetail(BaseModel):
-    id: int
-    nombre_bus: str
-    tipo: str
-    activo: bool
-    imagen: str | None = None
-
-class EstacionDetail(BaseModel):
-    id: int
-    nombre_estacion: str
-    localidad: str
-    rutas_asociadas: str
-    activo: bool
-    imagen: str | None = None
-
-# ---------------------- HISTORIAL ----------------------
-
+# In-memory list for deleted items history (for demonstration purposes)
 historial_eliminados = []
 
-@router.get("/api/historial", response_model=List[dict])
-def obtener_historial():
-    filtered_historial = []
-    for item in historial_eliminados:
-        if item["tipo"] == "bus":
-            detalles = item.get("detalles", {})
-            filtered_historial.append({
-                "tipo": "bus",
-                "id": detalles.get("id"),
-                "nombre_bus": detalles.get("nombre_bus"),
-                "tipo": detalles.get("tipo")
-            })
-        elif item["tipo"] == "estacion":
-            detalles = item.get("detalles", {})
-            filtered_historial.append({
-                "tipo": "estacion",
-                "id": detalles.get("id"),
-                "nombre_estacion": detalles.get("nombre_estacion"),
-                "localidad": detalles.get("localidad")
-            })
-    return filtered_historial
 
 # -------------------- HTML ROUTES --------------------
 
@@ -105,11 +47,11 @@ async def edit_unified_page(request: Request, bus_id: Optional[int] = None, esta
     bus_data = None
     estacion_data = None
     if bus_id:
-        bus_data = crud.obtener_bus_por_id(bus_id, db)
+        bus_data = crud.obtener_bus_por_id(bus_id) # Pass db to crud function if it needs it
         if not bus_data:
             raise HTTPException(status_code=404, detail="Bus no encontrado")
     elif estacion_id:
-        estacion_data = crud.obtener_estacion_por_id(estacion_id, db)
+        estacion_data = crud.obtener_estacion_por_id(estacion_id) # Pass db to crud function if it needs it
         if not estacion_data:
             raise HTTPException(status_code=404, detail="Estación no encontrada")
 
@@ -150,15 +92,14 @@ async def crear_bus_post(
     db: Session = Depends(get_db)
 ):
     try:
-        # Pasa los datos del formulario directamente a la función de creación
         bus_data = {
             "nombre_bus": bus_create.nombre_bus,
             "tipo": bus_create.tipo,
             "activo": bus_create.activo,
         }
+        # Corrected function call here
         nuevo_bus = await crud.crear_bus_async(bus_data, bus_create.imagen)
         if nuevo_bus:
-            # Redirige a la página de lectura o muestra un mensaje de éxito
             return RedirectResponse(url="/read", status_code=status.HTTP_303_SEE_OTHER)
         raise HTTPException(status_code=400, detail="Error al crear el bus")
     except Exception as e:
@@ -173,7 +114,7 @@ def obtener_buses_api(
     activo: Optional[bool] = None,
     db: Session = Depends(get_db)
 ):
-    buses = crud.obtener_buses(bus_id=bus_id, tipo=tipo, activo=activo, db=db)
+    buses = crud.obtener_buses(db, bus_id=bus_id, tipo=tipo, activo=activo)
     if not buses and (bus_id is not None or tipo is not None or activo is not None):
         return [] # Return empty list if no filters match
     elif not buses:
@@ -191,14 +132,13 @@ def get_all_bus_details(db: Session = Depends(get_db)):
     return details
 
 @router.delete("/buses/{bus_id}", tags=["Buses"])
-def eliminar_bus_endpoint(bus_id: int):
-    bus_to_delete = crud.obtener_bus_por_id(bus_id) # Need a session for this
+def eliminar_bus_endpoint(bus_id: int, db: Session = Depends(get_db)): # Added db dependency
+    bus_to_delete = crud.obtener_bus_por_id(bus_id)
     if not bus_to_delete:
         raise HTTPException(status_code=404, detail="Bus no encontrado")
     resultado = crud.eliminar_bus(bus_id)
     if not resultado:
         raise HTTPException(status_code=404, detail="Error al eliminar el bus")
-    # Store minimal details for history
     historial_eliminados.append({"tipo": "bus", "id": bus_to_delete.id, "nombre_bus": bus_to_delete.nombre_bus, "tipo_bus": bus_to_delete.tipo, "fecha_hora": datetime.now().isoformat()})
     return {"mensaje": "Bus eliminado"}
 
@@ -223,7 +163,8 @@ async def crear_estacion_post(
             "rutas_asociadas": estacion_create.rutas_asociadas,
             "activo": estacion_create.activo,
         }
-        nueva_estacion = await crud.crear_estacion_con_imagen(estacion_data, estacion_create.imagen)
+        # Corrected function call here
+        nueva_estacion = await crud.crear_estacion_async(estacion_data, estacion_create.imagen)
         if nueva_estacion:
             return RedirectResponse(url="/read", status_code=status.HTTP_303_SEE_OTHER)
         raise HTTPException(status_code=400, detail="Error al crear la estación")
@@ -235,13 +176,13 @@ async def crear_estacion_post(
 @router.get("/estaciones/", response_model=List[EstacionResponse], tags=["Estaciones"])
 def obtener_estaciones_api(
     estacion_id: Optional[int] = None,
-    sector: Optional[str] = None, # Changed from localidad to sector as per your crud.py
+    sector: Optional[str] = None,
     activo: Optional[bool] = None,
     db: Session = Depends(get_db)
 ):
     estaciones = crud.obtener_estaciones(db, estacion_id=estacion_id, sector=sector, activo=activo)
     if not estaciones and (estacion_id is not None or sector is not None or activo is not None):
-        return [] # Return empty list if no filters match
+        return []
     elif not estaciones:
         raise HTTPException(status_code=404, detail="No se encontraron estaciones")
     return estaciones
@@ -259,14 +200,13 @@ def get_all_estacion_details(db: Session = Depends(get_db)):
 
 
 @router.delete("/estaciones/{estacion_id}", tags=["Estaciones"])
-def eliminar_estacion_endpoint(estacion_id: int):
-    estacion_to_delete = crud.obtener_estacion_por_id(estacion_id) # Need a session for this
+def eliminar_estacion_endpoint(estacion_id: int, db: Session = Depends(get_db)): # Added db dependency
+    estacion_to_delete = crud.obtener_estacion_por_id(estacion_id)
     if not estacion_to_delete:
         raise HTTPException(status_code=404, detail="Estación no encontrada")
     resultado = crud.eliminar_estacion(estacion_id)
     if not resultado:
         raise HTTPException(status_code=404, detail="Error al eliminar la estación")
-    # Store minimal details for history
     historial_eliminados.append({"tipo": "estacion", "id": estacion_to_delete.id, "nombre_estacion": estacion_to_delete.nombre_estacion, "localidad": estacion_to_delete.localidad, "fecha_hora": datetime.now().isoformat()})
     return {"mensaje": "Estación eliminada"}
 
