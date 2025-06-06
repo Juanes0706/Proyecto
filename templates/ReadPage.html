@@ -44,7 +44,7 @@
 
             let url = '/estaciones/?';
             if (estacionId) url += `estacion_id=${estacionId}&`;
-            if (estacionLocalidad) url += `sector=${estacionLocalidad}&`;
+            if (estacionLocalidad) url += `localidad=${estacionLocalidad}&`;
             if (estacionActivo !== '') url += `activo=${estacionActivo}&`;
 
             const response = await fetch(url);
