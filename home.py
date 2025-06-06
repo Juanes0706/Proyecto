@@ -201,6 +201,7 @@ async def get_estaciones_api(
     activo: Optional[bool] = None,
     session: AsyncSession = Depends(get_async_db)
 ):
+    print(f"Filtering estaciones with localidad: {localidad}")
     estaciones = await crud.obtener_estaciones(session, estacion_id, localidad, activo)
     return [EstacionResponse.from_orm(estacion) for estacion in estaciones]
 

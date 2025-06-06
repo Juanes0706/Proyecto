@@ -131,6 +131,7 @@ async def obtener_estaciones(
     if activo is not None:
         query = query.where(Estacion.activo == activo)
     
+    query = query.order_by(Estacion.id.desc())
     result = await session.execute(query)
     return result.scalars().all()
 
