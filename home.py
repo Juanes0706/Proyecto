@@ -156,7 +156,7 @@ async def crear_bus_post(
             "tipo": bus_create.tipo,
             "activo": bus_create.activo,
         }
-        nuevo_bus = await crud.crear_bus_con_imagen(bus_data, bus_create.imagen)
+        nuevo_bus = await crud.crear_bus_async(bus_data, bus_create.imagen)
         if nuevo_bus:
             # Redirige a la página de lectura o muestra un mensaje de éxito
             return RedirectResponse(url="/read", status_code=status.HTTP_303_SEE_OTHER)
