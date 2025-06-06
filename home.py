@@ -84,6 +84,10 @@ async def planning_page(request: Request):
 async def design_page(request: Request):
     return templates.TemplateResponse("DesignPage.html", {"request": request})
 
+@router.get("/informacion-del-proyecto", response_class=HTMLResponse, include_in_schema=False)
+async def informacion_del_proyecto_page(request: Request):
+    return templates.TemplateResponse("informacion_del_proyecto.html", {"request": request})
+
 
 # -------------------- API ROUTES (Buses) --------------------
 
