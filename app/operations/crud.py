@@ -1,15 +1,14 @@
+# app/operations/crud.py
 import logging
 import asyncio
 import unicodedata
-from typing import Optional
+from typing import Optional, List
 from fastapi import HTTPException, UploadFile
 from sqlalchemy.orm import Session
-from app.database.db import *
-from app.models import *  
-from app.schemas import *
-from app.services import * 
-from app.services.supabase_client import *
-from app.models.models import Bus, Estacion  
+from app.database.db import SessionLocal # Specifically import SessionLocal
+from app.models.models import Bus, Estacion # Specifically import Bus and Estacion
+from app.services.supabase_client import supabase, save_file # Specifically import supabase and save_file
+
 
 # ---------------------- CONST ----------------------
 SUPABASE_BUCKET_BUSES = "buses"
@@ -153,6 +152,13 @@ def actualizar_imagen_bus(bus_id: int, imagen_url: str):
     db.close()
     return bus
 
+def get_all_bus_ids(db: Session) -> List[int]:
+    """Retrieves all bus IDs from the database."""
+    return [bus.id for bus in db.query(Bus.id).all()]
+
+def get_all_bus_details(db: Session) -> List[Bus]:
+    """Retrieves all bus details from the database."""
+    return db.query(Bus).all()
 
 # ---------------------- ESTACION CRUD ----------------------
 def obtener_estaciones(estacion_id: Optional[int] = None, sector: Optional[str] = None, activo: Optional[bool] = None):
@@ -283,3 +289,11 @@ def actualizar_imagen_estacion(estacion_id: int, imagen_url: str):
     db.refresh(estacion)
     db.close()
     return estacion
+
+def get_all_estacion_ids(db: Session) -> List[int]:
+    """Retrieves all estacion IDs from the database."""
+    return [estacion.id for estacion in db.query(Estacion.id).all()]
+
+def get_all_estacion_details(db: Session) -> List[Estacion]:
+    """Retrieves all estacion details from the database."""
+    return db.query(Estacion).all()
