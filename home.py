@@ -1,3 +1,5 @@
+```python
+# home.py
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, UploadFile, File, Form, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -47,11 +49,13 @@ async def edit_unified_page(request: Request, bus_id: Optional[int] = None, esta
     bus_data = None
     estacion_data = None
     if bus_id:
-        bus_data = crud.obtener_bus_por_id(bus_id) # Pass db to crud function if it needs it
+        # crud.obtener_bus_por_id manages its own session, no need to pass 'db'
+        bus_data = crud.obtener_bus_por_id(bus_id) 
         if not bus_data:
             raise HTTPException(status_code=404, detail="Bus no encontrado")
     elif estacion_id:
-        estacion_data = crud.obtener_estacion_por_id(estacion_id) # Pass db to crud function if it needs it
+        # crud.obtener_estacion_por_id manages its own session, no need to pass 'db'
+        estacion_data = crud.obtener_estacion_por_id(estacion_id) 
         if not estacion_data:
             raise HTTPException(status_code=404, detail="Estación no encontrada")
 
@@ -97,7 +101,7 @@ async def crear_bus_post(
             "tipo": bus_create.tipo,
             "activo": bus_create.activo,
         }
-        # Corrected function call here
+        # crud.crear_bus_async manages its own session, no need to pass 'db'
         nuevo_bus = await crud.crear_bus_async(bus_data, bus_create.imagen)
         if nuevo_bus:
             return RedirectResponse(url="/read", status_code=status.HTTP_303_SEE_OTHER)
@@ -114,7 +118,8 @@ def obtener_buses_api(
     activo: Optional[bool] = None,
     db: Session = Depends(get_db)
 ):
-    buses = crud.obtener_buses(db, bus_id=bus_id, tipo=tipo, activo=activo)
+    # crud.obtener_buses manages its own session, removed 'db' from the call
+    buses = crud.obtener_buses(bus_id=bus_id, tipo=tipo, activo=activo)
     if not buses and (bus_id is not None or tipo is not None or activo is not None):
         return [] # Return empty list if no filters match
     elif not buses:
@@ -123,20 +128,22 @@ def obtener_buses_api(
 
 @router.get("/buses/ids", response_model=List[int], tags=["Buses"])
 def get_all_bus_ids(db: Session = Depends(get_db)):
+    # Assuming crud.get_all_bus_ids expects db
     ids = crud.get_all_bus_ids(db)
     return ids
 
 @router.get("/buses/details", response_model=List[BusResponse], tags=["Buses"])
 def get_all_bus_details(db: Session = Depends(get_db)):
+    # Assuming crud.get_all_bus_details expects db
     details = crud.get_all_bus_details(db)
     return details
 
 @router.delete("/buses/{bus_id}", tags=["Buses"])
-def eliminar_bus_endpoint(bus_id: int, db: Session = Depends(get_db)): # Added db dependency
-    bus_to_delete = crud.obtener_bus_por_id(bus_id)
+def eliminar_bus_endpoint(bus_id: int, db: Session = Depends(get_db)): # db dependency is fine, but crud functions manage own sessions
+    bus_to_delete = crud.obtener_bus_por_id(bus_id) # crud.obtener_bus_por_id manages its own session
     if not bus_to_delete:
         raise HTTPException(status_code=404, detail="Bus no encontrado")
-    resultado = crud.eliminar_bus(bus_id)
+    resultado = crud.eliminar_bus(bus_id) # crud.eliminar_bus manages its own session
     if not resultado:
         raise HTTPException(status_code=404, detail="Error al eliminar el bus")
     historial_eliminados.append({"tipo": "bus", "id": bus_to_delete.id, "nombre_bus": bus_to_delete.nombre_bus, "tipo_bus": bus_to_delete.tipo, "fecha_hora": datetime.now().isoformat()})
@@ -163,7 +170,7 @@ async def crear_estacion_post(
             "rutas_asociadas": estacion_create.rutas_asociadas,
             "activo": estacion_create.activo,
         }
-        # Corrected function call here
+        # crud.crear_estacion_async manages its own session, no need to pass 'db'
         nueva_estacion = await crud.crear_estacion_async(estacion_data, estacion_create.imagen)
         if nueva_estacion:
             return RedirectResponse(url="/read", status_code=status.HTTP_303_SEE_OTHER)
@@ -180,7 +187,8 @@ def obtener_estaciones_api(
     activo: Optional[bool] = None,
     db: Session = Depends(get_db)
 ):
-    estaciones = crud.obtener_estaciones(estacion_id=estacion_id, sector=sector, activo=activo, db=db)
+    # crud.obtener_estaciones manages its own session, removed 'db' from the call
+    estaciones = crud.obtener_estaciones(estacion_id=estacion_id, sector=sector, activo=activo)
     if not estaciones and (estacion_id is not None or sector is not None or activo is not None):
         return []
     elif not estaciones:
@@ -190,21 +198,23 @@ def obtener_estaciones_api(
 
 @router.get("/estaciones/ids", response_model=List[int], tags=["Estaciones"])
 def get_all_estacion_ids(db: Session = Depends(get_db)):
+    # Assuming crud.get_all_estacion_ids expects db
     ids = crud.get_all_estacion_ids(db)
     return ids
 
 @router.get("/estaciones/details", response_model=List[EstacionResponse], tags=["Estaciones"])
 def get_all_estacion_details(db: Session = Depends(get_db)):
+    # Assuming crud.get_all_estacion_details expects db
     details = crud.get_all_estacion_details(db)
     return details
 
 
 @router.delete("/estaciones/{estacion_id}", tags=["Estaciones"])
-def eliminar_estacion_endpoint(estacion_id: int, db: Session = Depends(get_db)): # Added db dependency
-    estacion_to_delete = crud.obtener_estacion_por_id(estacion_id)
+def eliminar_estacion_endpoint(estacion_id: int, db: Session = Depends(get_db)): # db dependency is fine, but crud functions manage own sessions
+    estacion_to_delete = crud.obtener_estacion_por_id(estacion_id) # crud.obtener_estacion_por_id manages its own session
     if not estacion_to_delete:
         raise HTTPException(status_code=404, detail="Estación no encontrada")
-    resultado = crud.eliminar_estacion(estacion_id)
+    resultado = crud.eliminar_estacion(estacion_id) # crud.eliminar_estacion manages its own session
     if not resultado:
         raise HTTPException(status_code=404, detail="Error al eliminar la estación")
     historial_eliminados.append({"tipo": "estacion", "id": estacion_to_delete.id, "nombre_estacion": estacion_to_delete.nombre_estacion, "localidad": estacion_to_delete.localidad, "fecha_hora": datetime.now().isoformat()})
