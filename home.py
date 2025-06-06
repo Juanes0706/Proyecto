@@ -180,7 +180,7 @@ def obtener_estaciones_api(
     activo: Optional[bool] = None,
     db: Session = Depends(get_db)
 ):
-    estaciones = crud.obtener_estaciones(db, estacion_id=estacion_id, sector=sector, activo=activo)
+    estaciones = crud.obtener_estaciones(estacion_id=estacion_id, sector=sector, activo=activo, db=db)
     if not estaciones and (estacion_id is not None or sector is not None or activo is not None):
         return []
     elif not estaciones:
