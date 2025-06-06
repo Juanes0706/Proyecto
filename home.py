@@ -101,6 +101,14 @@ async def edit_estacion_html(request: Request, estacion_id: int, session: AsyncS
         raise HTTPException(status_code=404, detail="Estación no encontrada para edición.")
     return templates.TemplateResponse("EditUnifiedPage.html", {"request": request, "estacion": estacion})
 
+@router.get("/edit-estacion", response_class=HTMLResponse, tags=["HTML Pages"])
+async def edit_estacion_redirect(request: Request, estacion_id: int = None):
+    """Redirige la ruta /edit-estacion?estacion_id= a /edit-estacion/{estacion_id} para compatibilidad."""
+    if estacion_id is not None:
+        return RedirectResponse(url=f"/edit-estacion/{estacion_id}", status_code=302)
+    else:
+        raise HTTPException(status_code=400, detail="Se requiere el parámetro estacion_id")
+
 
 # -------------------- BUS API --------------------
 @router.get("/buses", response_model=List[BusResponse], tags=["Buses API"])
