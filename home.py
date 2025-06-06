@@ -70,6 +70,11 @@ async def design_html(request: Request):
     """Muestra una página HTML con el diseño del proyecto."""
     return templates.TemplateResponse("DesignPage.html", {"request": request})
 
+@router.get("/historial", response_class=HTMLResponse, tags=["HTML Pages"])
+async def historial_html(request: Request):
+    """Muestra la página HTML del historial de eliminaciones."""
+    return templates.TemplateResponse("HistorialPage.html", {"request": request})
+
 @router.get("/edit-bus/{bus_id}", response_class=HTMLResponse, tags=["HTML Pages"])
 async def edit_bus_html(request: Request, bus_id: int, session: AsyncSession = Depends(get_async_db)):
     """Muestra la página de edición unificada para un bus específico."""
