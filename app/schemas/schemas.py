@@ -50,18 +50,21 @@ class BusCreateForm:
         self.activo = activo
         self.imagen = imagen
 
+# Ejemplo para BusUpdateForm
 class BusUpdateForm:
     def __init__(
         self,
         nombre_bus: Optional[str] = Form(None),
         tipo: Optional[str] = Form(None),
-        activo: Optional[bool] = Form(None),  # CAMBIADO A bool
-        imagen: Optional[UploadFile] = File(None)
+        activo: Optional[bool] = Form(None),
+        imagen: Optional[UploadFile] = File(None),
+        local_kw: Optional[str] = Form(None) 
     ):
         self.nombre_bus = nombre_bus
         self.tipo = tipo
         self.activo = activo
         self.imagen = imagen
+        self.local_kw = local_kw 
 
 # ---------------------- ESTACIONES ----------------------
 
@@ -114,10 +117,12 @@ class EstacionUpdateForm:
         localidad: Optional[str] = Form(None),
         rutas_asociadas: Optional[str] = Form(None),
         activo: Optional[bool] = Form(None),  # CAMBIADO A bool
-        imagen: Optional[UploadFile] = File(None)
+        imagen: Optional[UploadFile] = File(None),
+        local_kw: Optional[str] = Form(None)
     ):
         self.nombre_estacion = nombre_estacion
         self.localidad = localidad
         self.rutas_asociadas = rutas_asociadas
         self.activo = activo
         self.imagen = imagen
+        self.local_kw = local_kw
