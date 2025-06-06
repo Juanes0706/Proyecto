@@ -4,7 +4,8 @@ from fastapi import HTTPException, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from app.models.models import Bus, Estacion
-from app.services.supabase_client import *
+from app.services.supabase_client import *  # keep existing imports
+from app.services.supabase_client import delete_file  # explicitly import delete_file
 from app.schemas.schemas import *
 from app.operations import crud 
 
