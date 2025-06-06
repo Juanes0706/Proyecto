@@ -46,7 +46,7 @@ async def read_html(request: Request, session: AsyncSession = Depends(get_async_
     buses = await crud.obtener_buses(session)
     estaciones = await crud.obtener_estaciones(session)
     return templates.TemplateResponse(
-        "ReadPage.html", # Cambiado a ReadPage.html
+        "ReadPage.html", 
         {"request": request, "buses": buses, "estaciones": estaciones}
     )
 
