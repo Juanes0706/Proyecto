@@ -152,7 +152,11 @@ def eliminar_bus_endpoint(bus_id: int, db: Session = Depends(get_db)): # db depe
     return {"mensaje": "Bus eliminado"}
 
 @router.post("/buses/update/{bus_id}", tags=["Buses"])
-async def actualizar_bus_post(bus_id: int, bus_update: BusUpdateForm = Depends(), session: AsyncSession = Depends(async_session)):
+async def actualizar_bus_post(
+    bus_id: int,
+    bus_update: BusUpdateForm = Depends(BusUpdateForm.as_form),
+    session: AsyncSession = Depends(async_session)
+):
     await actualizar_bus_db_form(bus_id, bus_update, session)
     return RedirectResponse(url="/update", status_code=status.HTTP_303_SEE_OTHER)
 

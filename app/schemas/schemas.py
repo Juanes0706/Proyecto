@@ -50,21 +50,31 @@ class BusCreateForm:
         self.activo = activo
         self.imagen = imagen
 
-# Ejemplo para BusUpdateForm
-class BusUpdateForm:
-    def __init__(
-        self,
+class BusUpdateForm(BaseModel):
+    # Los nombres de los campos aquí deben coincidir con los atributos 'name' en tu HTML
+    nombre_bus: Optional[str] = None
+    tipo: Optional[str] = None
+    activo: Optional[bool] = None 
+    imagen: Optional[UploadFile] = None 
+
+
+    @classmethod
+    def as_form(
+        cls,
         nombre_bus: Optional[str] = Form(None),
         tipo: Optional[str] = Form(None),
         activo: Optional[bool] = Form(None),
         imagen: Optional[UploadFile] = File(None),
-        local_kw: Optional[str] = Form(None) 
+        
     ):
-        self.nombre_bus = nombre_bus
-        self.tipo = tipo
-        self.activo = activo
-        self.imagen = imagen
-        self.local_kw = local_kw 
+        return cls(
+            nombre_bus=nombre_bus,
+            tipo=tipo,
+            activo=activo,
+            imagen=imagen,
+           
+        )
+
 
 # ---------------------- ESTACIONES ----------------------
 
@@ -125,4 +135,3 @@ class EstacionUpdateForm:
         self.rutas_asociadas = rutas_asociadas
         self.activo = activo
         self.imagen = imagen
-        self.local_kw = local_kw
