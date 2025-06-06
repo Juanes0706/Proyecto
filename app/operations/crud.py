@@ -1,19 +1,16 @@
-# app/operations/crud.py
+# crud.py
 import logging
-import asyncio
 import unicodedata
 from typing import Optional, List
 from fastapi import HTTPException, UploadFile
-from sqlalchemy.orm import Session
-from app.database.db import SessionLocal # Specifically import SessionLocal
-from app.models.models import Bus, Estacion # Specifically import Bus and Estacion
-from app.services.supabase_client import supabase, save_file # Specifically import supabase and save_file
-
+from sqlalchemy.ext.asyncio import AsyncSession # Usar AsyncSession
+from sqlalchemy.future import select # Para consultas asíncronas
+from app.models.models import Bus, Estacion
+from app.services.supabase_client import supabase, save_file
 
 # ---------------------- CONST ----------------------
 SUPABASE_BUCKET_BUSES = "buses"
 SUPABASE_BUCKET_ESTACIONES = "estaciones"
-
 
 # ---------------------- UTILS ----------------------
 def get_supabase_path_from_url(url: str, bucket_name: str) -> str:
@@ -25,275 +22,189 @@ def get_supabase_path_from_url(url: str, bucket_name: str) -> str:
 def normalize_string(s: str) -> str:
     return ''.join(c for c in unicodedata.normalize('NFD', s.lower()) if unicodedata.category(c) != 'Mn').strip()
 
-
 # ---------------------- BUS CRUD ----------------------
-def obtener_buses(bus_id: Optional[int] = None, tipo: Optional[str] = None, activo: Optional[bool] = None):
-    db: Session = SessionLocal()
-    query = db.query(Bus)
+async def obtener_buses(
+    session: AsyncSession, 
+    bus_id: Optional[int] = None,
+    tipo: Optional[str] = None,
+    activo: Optional[bool] = None
+) -> List[Bus]:
+    query = select(Bus)
     if bus_id is not None:
-        query = query.filter(Bus.id == bus_id)
-    if tipo:
-        query = query.filter(Bus.tipo.ilike(f"%{tipo}%"))
+        query = query.where(Bus.id == bus_id)
+    if tipo is not None:
+        query = query.where(Bus.tipo == tipo)
     if activo is not None:
-        query = query.filter(Bus.activo == activo)
-    buses = query.all()
-    for bus in buses:
-        if bus.tipo:
-            bus.tipo = bus.tipo.strip().lower()
-    db.close()
-    return buses
+        query = query.where(Bus.activo == activo)
+    
+    result = await session.execute(query)
+    return result.scalars().all()
 
-def obtener_bus_por_id(bus_id: int):
-    db: Session = SessionLocal()
-    bus = db.query(Bus).filter(Bus.id == bus_id).first()
-    db.close()
-    return bus
-
-def actualizar_bus(bus_id: int, update_data: dict):
-    logging.info(f"Actualizar bus {bus_id} con datos: {update_data}")
-    db: Session = SessionLocal()
-    bus = db.query(Bus).filter(Bus.id == bus_id).first()
-    if not bus:
-        db.close()
-        logging.warning(f"Bus {bus_id} no encontrado para actualizar")
-        return None
+async def crear_bus(
+    session: AsyncSession,
+    nombre_bus: str,
+    tipo: str,
+    activo: bool,
+    imagen: Optional[UploadFile] = None
+) -> Optional[Bus]:
     try:
-        if "imagen" in update_data and update_data["imagen"] and bus.imagen:
-            try:
-                filename = get_supabase_path_from_url(bus.imagen, SUPABASE_BUCKET_BUSES)
-                if filename:
-                    supabase.storage.from_(SUPABASE_BUCKET_BUSES).remove([filename])
-                    logging.info(f"Imagen antigua de bus eliminada: {filename}")
-            except Exception as e:
-                logging.error(f"Error eliminando imagen antigua de bus: {e}")
+        new_bus = Bus(
+            nombre_bus=nombre_bus,
+            tipo=tipo,
+            activo=activo,
+            imagen=None
+        )
 
-        for key, value in update_data.items():
-            setattr(bus, key, value)
-        db.commit()
-        db.refresh(bus)
-    except Exception as e:
-        logging.error(f"Error actualizando bus {bus_id}: {e}")
-        db.rollback()
-        bus = None
-    finally:
-        db.close()
-    return bus
-
-def eliminar_bus(bus_id: int):
-    db: Session = SessionLocal()
-    bus = db.query(Bus).filter(Bus.id == bus_id).first()
-    if not bus:
-        db.close()
-        return None
-    imagen_url = bus.imagen
-    if imagen_url:
-        try:
-            filename = get_supabase_path_from_url(imagen_url, SUPABASE_BUCKET_BUSES)
-            if filename:
-                supabase.storage.from_(SUPABASE_BUCKET_BUSES).remove([filename])
-                logging.info(f"Imagen de bus eliminada: {filename}")
-        except Exception as e:
-            logging.error(f"Error eliminando imagen de bus: {e}")
-    db.delete(bus)
-    db.commit()
-    db.close()
-    return {"mensaje": "Bus eliminado"}
-
-async def crear_bus_async(bus: dict, imagen: UploadFile):
-    imagen_url = None
-    if imagen:
-        result = await save_file(imagen, to_supabase=True)
-        if "url" in result:
-            imagen_url = result["url"].get("publicUrl") if isinstance(result["url"], dict) else result["url"]
-        elif "error" in result:
-            logging.error(f"Error al subir imagen para nuevo bus: {result['error']}")
-
-    def db_task():
-        db: Session = SessionLocal()
-        try:
-            nuevo_bus = Bus(
-                nombre_bus=bus.get("nombre_bus"),
-                tipo=bus.get("tipo", "").lower().strip(),
-                activo=bus.get("activo"),
-                imagen=imagen_url
-            )
-            db.add(nuevo_bus)
-            db.commit()
-            db.refresh(nuevo_bus)
-            return nuevo_bus
-        except Exception as e:
-            logging.error(f"Error creando bus en la base de datos: {e}")
-            return None
-        finally:
-            db.close()
-
-    return await asyncio.to_thread(db_task)
-
-def actualizar_estado_bus(bus_id: int, nuevo_estado: bool):
-    db: Session = SessionLocal()
-    bus = db.query(Bus).filter(Bus.id == bus_id).first()
-    if not bus:
-        db.close()
-        return None
-    bus.activo = nuevo_estado
-    db.commit()
-    db.close()
-    return {"mensaje": f"Estado de bus actualizado a {'activo' if nuevo_estado else 'inactivo'}"}
-
-def actualizar_imagen_bus(bus_id: int, imagen_url: str):
-    db: Session = SessionLocal()
-    bus = db.query(Bus).filter(Bus.id == bus_id).first()
-    if not bus:
-        db.close()
-        return None
-    bus.imagen = imagen_url
-    db.commit()
-    db.refresh(bus)
-    db.close()
-    return bus
-
-def get_all_bus_ids(db: Session) -> List[int]:
-    """Retrieves all bus IDs from the database."""
-    return [bus.id for bus in db.query(Bus.id).all()]
-
-def get_all_bus_details(db: Session) -> List[Bus]:
-    """Retrieves all bus details from the database."""
-    return db.query(Bus).all()
-
-# ---------------------- ESTACION CRUD ----------------------
-def obtener_estaciones(estacion_id: Optional[int] = None, sector: Optional[str] = None, activo: Optional[bool] = None):
-    db: Session = SessionLocal()
-    query = db.query(Estacion)
-    if estacion_id is not None:
-        query = query.filter(Estacion.id == estacion_id)
-    if sector:
-        sector_norm = normalize_string(sector)
-        query = query.filter(Estacion.localidad.ilike(f"%{sector_norm}%"))
-    if activo is not None:
-        query = query.filter(Estacion.activo == activo)
-    estaciones = query.all()
-    db.close()
-    return estaciones
-
-def obtener_estacion_por_id(estacion_id: int):
-    db: Session = SessionLocal()
-    estacion = db.query(Estacion).filter(Estacion.id == estacion_id).first()
-    db.close()
-    return estacion
-
-def actualizar_estacion(estacion_id: int, update_data: dict):
-    logging.info(f"Actualizar estación {estacion_id} con datos: {update_data}")
-    db: Session = SessionLocal()
-    estacion = db.query(Estacion).filter(Estacion.id == estacion_id).first()
-    if not estacion:
-        db.close()
-        return None
-    try:
-        if "imagen" in update_data and estacion.imagen:
-            try:
-                filename = get_supabase_path_from_url(estacion.imagen, SUPABASE_BUCKET_ESTACIONES)
-                if filename:
-                    supabase.storage.from_(SUPABASE_BUCKET_ESTACIONES).remove([filename])
-            except Exception as e:
-                logging.error(f"Error eliminando imagen antigua de estación: {e}")
-
-        valid_keys = set(c.name for c in Estacion.__table__.columns)
-        for key in list(update_data.keys()):
-            if key not in valid_keys:
-                update_data.pop(key)
-
-        for key, value in update_data.items():
-            setattr(estacion, key, value)
-        db.commit()
-        db.refresh(estacion)
-    except Exception as e:
-        logging.error(f"Error actualizando estación {estacion_id}: {e}")
-        db.rollback()
-        estacion = None
-    finally:
-        db.close()
-    return estacion
-
-def eliminar_estacion(estacion_id: int):
-    db: Session = SessionLocal()
-    estacion = db.query(Estacion).filter(Estacion.id == estacion_id).first()
-    if not estacion:
-        db.close()
-        return None
-    imagen_url = estacion.imagen
-    if imagen_url:
-        try:
-            filename = get_supabase_path_from_url(imagen_url, SUPABASE_BUCKET_ESTACIONES)
-            if filename:
-                supabase.storage.from_(SUPABASE_BUCKET_ESTACIONES).remove([filename])
-        except Exception as e:
-            logging.error(f"Error deleting estacion image: {e}")
-    db.delete(estacion)
-    db.commit()
-    db.close()
-    return {"mensaje": "Estación eliminada"}
-
-async def crear_estacion_async(estacion: dict, imagen: Optional[UploadFile]) -> Optional[Estacion]:
-    imagen_url = None
-    if imagen:
-        try:
+        if imagen:
             result = await save_file(imagen, to_supabase=True)
             if "url" in result:
-                imagen_url = result["url"].get("publicUrl") if isinstance(result["url"], dict) else result["url"]
-            elif "error" in result:
-                logging.error(f"Error al subir imagen de estación: {result['error']}")
-        except Exception as e:
-            logging.error(f"Excepción al subir imagen de estación: {e}")
+                new_bus.imagen = result["url"]
+            else:
+                logging.error(f"Error al subir imagen para bus: {result.get('error', 'Unknown error')}")
+                return None
 
-    def db_task():
-        db: Session = SessionLocal()
-        try:
-            nueva_estacion = Estacion(
-                nombre_estacion=estacion.get("nombre_estacion"),
-                localidad=estacion.get("localidad"),
-                rutas_asociadas=estacion.get("rutas_asociadas"),
-                activo=estacion.get("activo"),
-                imagen=imagen_url
-            )
-            db.add(nueva_estacion)
-            db.commit()
-            db.refresh(nueva_estacion)
-            return nueva_estacion
-        except Exception as e:
-            logging.error(f"Error creando estación en la base de datos: {e}")
-            return None
-        finally:
-            db.close()
+        session.add(new_bus)
+        await session.commit()
+        await session.refresh(new_bus)
+        return new_bus
+    except Exception as e:
+        logging.error(f"Error creando bus en la base de datos: {e}")
+        await session.rollback() 
+        return None
 
-    return await asyncio.to_thread(db_task)
+async def eliminar_bus(session: AsyncSession, bus_id: int) -> bool: 
+    bus = await session.execute(select(Bus).where(Bus.id == bus_id))
+    bus_to_delete = bus.scalar_one_or_none()
+    if bus_to_delete:
+        if bus_to_delete.imagen:
+            try:
+                path_to_delete = get_supabase_path_from_url(bus_to_delete.imagen, SUPABASE_BUCKET_BUSES)
+                if path_to_delete:
+                    supabase.storage.from_(SUPABASE_BUCKET_BUSES).remove([path_to_delete])
+                    logging.info(f"Imagen {path_to_delete} eliminada de Supabase.")
+            except Exception as e:
+                logging.error(f"Error al eliminar imagen de Supabase para bus {bus_id}: {e}")
+        
+        await session.delete(bus_to_delete)
+        await session.commit()
+        return True
+    return False
 
-def actualizar_estado_estacion(estacion_id: int, nuevo_estado: bool):
-    db: Session = SessionLocal()
-    estacion = db.query(Estacion).filter(Estacion.id == estacion_id).first()
+async def actualizar_estado_bus(session: AsyncSession, bus_id: int, nuevo_estado: bool) -> Optional[Bus]: 
+    result = await session.execute(select(Bus).where(Bus.id == bus_id))
+    bus = result.scalar_one_or_none()
+    if not bus:
+        return None
+    bus.activo = nuevo_estado
+    await session.commit()
+    await session.refresh(bus)
+    return bus
+
+async def actualizar_imagen_bus(session: AsyncSession, bus_id: int, imagen_url: str) -> Optional[Bus]: 
+    result = await session.execute(select(Bus).where(Bus.id == bus_id))
+    bus = result.scalar_one_or_none()
+    if not bus:
+        return None
+    bus.imagen = imagen_url
+    await session.commit()
+    await session.refresh(bus)
+    return bus
+
+async def get_all_bus_ids(session: AsyncSession) -> List[int]: 
+    result = await session.execute(select(Bus.id))
+    return result.scalars().all()
+
+
+# ---------------------- ESTACION CRUD ----------------------
+async def obtener_estaciones(
+    session: AsyncSession, 
+    estacion_id: Optional[int] = None,
+    localidad: Optional[str] = None,
+    activo: Optional[bool] = None
+) -> List[Estacion]:
+    query = select(Estacion)
+    if estacion_id is not None:
+        query = query.where(Estacion.id == estacion_id)
+    if localidad is not None:
+        query = query.where(Estacion.localidad == localidad)
+    if activo is not None:
+        query = query.where(Estacion.activo == activo)
+    
+    result = await session.execute(query)
+    return result.scalars().all()
+
+async def crear_estacion(
+    session: AsyncSession, 
+    nombre_estacion: str,
+    localidad: str,
+    rutas_asociadas: str,
+    activo: bool,
+    imagen: Optional[UploadFile] = None
+) -> Optional[Estacion]:
+    try:
+        nueva_estacion = Estacion(
+            nombre_estacion=nombre_estacion,
+            localidad=localidad,
+            rutas_asociadas=rutas_asociadas,
+            activo=activo,
+            imagen=None
+        )
+
+        if imagen:
+            result = await save_file(imagen, to_supabase=True)
+            if "url" in result:
+                nueva_estacion.imagen = result["url"]
+            else:
+                logging.error(f"Error al subir imagen para estación: {result.get('error', 'Unknown error')}")
+                return None
+
+        session.add(nueva_estacion)
+        await session.commit()
+        await session.refresh(nueva_estacion)
+        return nueva_estacion
+    except Exception as e:
+        logging.error(f"Error creando estación en la base de datos: {e}")
+        await session.rollback() 
+        return None
+
+async def eliminar_estacion(session: AsyncSession, estacion_id: int) -> bool: 
+    estacion = await session.execute(select(Estacion).where(Estacion.id == estacion_id))
+    estacion_to_delete = estacion.scalar_one_or_none()
+    if estacion_to_delete:
+        if estacion_to_delete.imagen:
+            try:
+                path_to_delete = get_supabase_path_from_url(estacion_to_delete.imagen, SUPABASE_BUCKET_ESTACIONES)
+                if path_to_delete:
+                    supabase.storage.from_(SUPABASE_BUCKET_ESTACIONES).remove([path_to_delete])
+                    logging.info(f"Imagen {path_to_delete} eliminada de Supabase.")
+            except Exception as e:
+                logging.error(f"Error al eliminar imagen de Supabase para estación {estacion_id}: {e}")
+        
+        await session.delete(estacion_to_delete)
+        await session.commit()
+        return True
+    return False
+
+async def actualizar_estado_estacion(session: AsyncSession, estacion_id: int, nuevo_estado: bool) -> Optional[Estacion]: 
+    result = await session.execute(select(Estacion).where(Estacion.id == estacion_id))
+    estacion = result.scalar_one_or_none()
     if not estacion:
-        db.close()
         return None
     estacion.activo = nuevo_estado
-    db.commit()
-    db.close()
-    return {"mensaje": f"Estado de estación actualizado a {'activo' if nuevo_estado else 'inactivo'}"}
-
-def actualizar_imagen_estacion(estacion_id: int, imagen_url: str):
-    db: Session = SessionLocal()
-    estacion = db.query(Estacion).filter(Estacion.id == estacion_id).first()
-    if not estacion:
-        db.close()
-        return None
-    estacion.imagen = imagen_url
-    db.commit()
-    db.refresh(estacion)
-    db.close()
+    await session.commit()
+    await session.refresh(estacion)
     return estacion
 
-def get_all_estacion_ids(db: Session) -> List[int]:
-    """Retrieves all estacion IDs from the database."""
-    return [estacion.id for estacion in db.query(Estacion.id).all()]
+async def actualizar_imagen_estacion(session: AsyncSession, estacion_id: int, imagen_url: str) -> Optional[Estacion]: 
+    result = await session.execute(select(Estacion).where(Estacion.id == estacion_id))
+    estacion = result.scalar_one_or_none()
+    if not estacion:
+        return None
+    estacion.imagen = imagen_url
+    await session.commit()
+    await session.refresh(estacion)
+    return estacion
 
-def get_all_estacion_details(db: Session) -> List[Estacion]:
-    """Retrieves all estacion details from the database."""
-    return db.query(Estacion).all()
+async def get_all_estacion_ids(session: AsyncSession) -> List[int]: 
+    result = await session.execute(select(Estacion.id))
+    return result.scalars().all()
