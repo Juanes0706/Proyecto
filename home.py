@@ -16,6 +16,13 @@ from fastapi.templating import Jinja2Templates
 
 router = APIRouter()
 
+class CreateBusResponse(BaseModel):
+    message: str
+    bus: BusResponse
+
+class CreateEstacionResponse(BaseModel):
+    message: str
+    estacion: EstacionResponse
 
 templates = Jinja2Templates(directory="templates")
 
@@ -136,7 +143,7 @@ async def get_bus_details_api(session: AsyncSession = Depends(get_async_db)):
     return [BusResponse.from_orm(bus) for bus in buses]
 
 
-@router.post("/buses", response_model=BusResponse, status_code=status.HTTP_201_CREATED, tags=["Buses API"])
+@router.post("/buses", response_model=CreateBusResponse, status_code=status.HTTP_201_CREATED, tags=["Buses API"])
 async def create_bus_api(
     bus_create: BusCreateForm = Depends(),
     session: AsyncSession = Depends(get_async_db)
@@ -210,7 +217,7 @@ async def get_estacion_details_api(session: AsyncSession = Depends(get_async_db)
     return [EstacionResponse.from_orm(estacion) for estacion in estaciones]
 
 
-@router.post("/estaciones", response_model=EstacionResponse, status_code=status.HTTP_201_CREATED, tags=["Estaciones API"])
+@router.post("/estaciones", response_model=CreateEstacionResponse, status_code=status.HTTP_201_CREATED, tags=["Estaciones API"])
 async def create_estacion_api(
     estacion_create: EstacionCreateForm = Depends(),
     session: AsyncSession = Depends(get_async_db)
