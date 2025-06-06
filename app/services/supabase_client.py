@@ -71,17 +71,3 @@ async def save_to_local(file: UploadFile, filename: str):
 async def get_public_url(filename: str, bucket_name: str) -> str: 
     return supabase.storage.from_(bucket_name).get_public_url(filename) 
 
-async def delete_file(filename: str, bucket_name: str) -> bool: 
-    try:
-        res = supabase.storage.from_(bucket_name).remove([filename]) 
-        logging.info(f"Respuesta delete: {res}") 
-        
-        if isinstance(res, list) and not res: 
-            return True 
-        elif isinstance(res, list) and res and res[0].get('error'): 
-            logging.error(f"Error deleting file {filename} from bucket {bucket_name}: {res[0]['error']}") 
-            return False 
-        return True 
-    except Exception as e:
-        logging.error(f"Excepción al eliminar archivo {filename} de Supabase: {e}") 
-        return False 
