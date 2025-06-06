@@ -173,7 +173,7 @@ def obtener_buses_api(
     activo: Optional[bool] = None,
     db: Session = Depends(get_db)
 ):
-    buses = crud.obtener_buses(db, bus_id=bus_id, tipo=tipo, activo=activo)
+    buses = crud.obtener_buses(bus_id=bus_id, tipo=tipo, activo=activo, db=db)
     if not buses and (bus_id is not None or tipo is not None or activo is not None):
         return [] # Return empty list if no filters match
     elif not buses:
