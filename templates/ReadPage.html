@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultar Registros</title>
+    <link rel="stylesheet" href="{{ url_for('css', path='/style.css') }}">
+    <script>
+        async function fetchBuses() {
+            const busId = document.getElementById('bus_id_filter').value;
+            const busTipo = document.getElementById('bus_tipo_filter').value;
+            const busActivo = document.getElementById('bus_activo_filter').value;
+
+            let url = '/buses/?';
+            if (busId) url += `bus_id=${busId}&`;
+            if (busTipo) url += `tipo=${busTipo}&`;
+            if (busActivo !== '') url += `activo=${busActivo}&`;
+
+            const response = await fetch(url);
+            const buses = await response.json();
+            const resultsDiv = document.getElementById('bus_results');
+            resultsDiv.innerHTML = '<h3>Resultados de Buses:</h3>';
+            if (buses.length > 0) {
+                buses.forEach(bus => {
+                    resultsDiv.innerHTML += `
+                        <div class="result-item">
+                            <p><strong>ID:</strong> ${bus.id}</p>
+                            <p><strong>Nombre:</strong> ${bus.nombre_bus}</p>
+                            <p><strong>Tipo:</strong> ${bus.tipo}</p>
+                            <p><strong>Estado:</strong> ${bus.activo ? 'Activo' : 'Inactivo'}</p>
+                            ${bus.imagen ? `<img src="${bus.imagen}" alt="Imagen del Bus" style="max-width: 100px;">` : ''}
+                        </div>
+                    `;
+                });
+            } else {
+                resultsDiv.innerHTML += '<p>No se encontraron buses con los criterios de búsqueda.</p>';
+            }
+        }
+
+        async function fetchEstaciones() {
+            const estacionId = document.getElementById('estacion_id_filter').value;
+            const estacionLocalidad = document.getElementById('estacion_localidad_filter').value;
+            const estacionActivo = document.getElementById('estacion_activo_filter').value;
+
+            let url = '/estaciones/?';
+            if (estacionId) url += `estacion_id=${estacionId}&`;
+            if (estacionLocalidad) url += `sector=${estacionLocalidad}&`;
+            if (estacionActivo !== '') url += `activo=${estacionActivo}&`;
+
+            const response = await fetch(url);
+            const estaciones = await response.json();
+            const resultsDiv = document.getElementById('estacion_results');
+            resultsDiv.innerHTML = '<h3>Resultados de Estaciones:</h3>';
+            if (estaciones.length > 0) {
+                estaciones.forEach(estacion => {
+                    resultsDiv.innerHTML += `
+                        <div class="result-item">
+                            <p><strong>ID:</strong> ${estacion.id}</p>
+                            <p><strong>Nombre:</strong> ${estacion.nombre_estacion}</p>
+                            <p><strong>Localidad:</strong> ${estacion.localidad}</p>
+                            <p><strong>Rutas Asociadas:</strong> ${estacion.rutas_asociadas}</p>
+                            <p><strong>Estado:</strong> ${estacion.activo ? 'Activo' : 'Inactivo'}</p>
+                            ${estacion.imagen ? `<img src="${estacion.imagen}" alt="Imagen de la Estación" style="max-width: 100px;">` : ''}
+                        </div>
+                    `;
+                });
+            } else {
+                resultsDiv.innerHTML += '<p>No se encontraron estaciones con los criterios de búsqueda.</p>';
+            }
+        }
+    </script>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/">Inicio</a>
+        <div class="dropdown">
+            <button class="dropbtn">Operaciones</button>
+            <div class="dropdown-content">
+                <a href="/create">Crear</a>
+                <a href="/read">Leer</a>
+                <a href="/update">Actualizar</a>
+                <a href="/delete">Eliminar</a>
+            </div>
+        </div>
+        <a href="/historial">Historial</a>
+        <a href="/developer-info">Información del Desarrollador</a>
+        <a href="/planning">Planificación</a>
+        <a href="/design">Diseño</a>
+    </nav>
+    <div class="container">
+        <h1>Consultar Registros</h1>
+
+        <div class="filter-section">
+            <h2>Buses</h2>
+            <label for="bus_id_filter">Filtrar por ID:</label>
+            <input type="number" id="bus_id_filter" onkeyup="fetchBuses()">
+
+            <label for="bus_tipo_filter">Filtrar por Tipo:</label>
+            <select id="bus_tipo_filter" onchange="fetchBuses()">
+                <option value="">Todos</option>
+                <option value="troncal">Troncal</option>
+                <option value="zonal">Zonal</option>
+            </select>
+
+            <label for="bus_activo_filter">Filtrar por Estado:</label>
+            <select id="bus_activo_filter" onchange="fetchBuses()">
+                <option value="">Todos</option>
+                <option value="true">Activo</option>
+                <option value="false">Inactivo</option>
+            </select>
+            <button onclick="fetchBuses()">Buscar Buses</button>
+            <div id="bus_results"></div>
+        </div>
+
+        <div class="filter-section">
+            <h2>Estaciones</h2>
+            <label for="estacion_id_filter">Filtrar por ID:</label>
+            <input type="number" id="estacion_id_filter" onkeyup="fetchEstaciones()">
+
+            <label for="estacion_localidad_filter">Filtrar por Localidad:</label>
+            <input type="text" id="estacion_localidad_filter" onkeyup="fetchEstaciones()">
+
+            <label for="estacion_activo_filter">Filtrar por Estado:</label>
+            <select id="estacion_activo_filter" onchange="fetchEstaciones()">
+                <option value="">Todos</option>
+                <option value="true">Activo</option>
+                <option value="false">Inactivo</option>
+            </select>
+            <button onclick="fetchEstaciones()">Buscar Estaciones</button>
+            <div id="estacion_results"></div>
+        </div>
+    </div>
+    <script>
+        // Initial fetch when page loads
+        fetchBuses();
+        fetchEstaciones();
+    </script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial de Eliminados</title>
+    <link rel="stylesheet" href="{{ url_for('css', path='/style.css') }}">
+    <script>
+        async function fetchHistorial() {
+            const response = await fetch('/api/historial');
+            const historial = await response.json();
+            const historialDiv = document.getElementById('historial_list');
+            historialDiv.innerHTML = '';
+            if (historial.length > 0) {
+                historial.forEach(item => {
+                    let details = '';
+                    if (item.tipo === 'bus') {
+                        details = `<strong>Nombre:</strong> ${item.nombre_bus}, <strong>Tipo:</strong> ${item.tipo}`;
+                    } else if (item.tipo === 'estacion') {
+                        details = `<strong>Nombre:</strong> ${item.nombre_estacion}, <strong>Localidad:</strong> ${item.localidad}`;
+                    }
+                    historialDiv.innerHTML += `
+                        <div class="historial-item">
+                            <p><strong>Tipo:</strong> ${item.tipo}</p>
+                            <p><strong>ID:</strong> ${item.id}</p>
+                            <p>${details}</p>
+                            <p><strong>Fecha/Hora Eliminación:</strong> ${new Date(item.fecha_hora).toLocaleString()}</p>
+                        </div>
+                    `;
+                });
+            } else {
+                historialDiv.innerHTML = '<p>No hay registros en el historial de eliminaciones.</p>';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchHistorial);
+    </script>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/">Inicio</a>
+        <div class="dropdown">
+            <button class="dropbtn">Operaciones</button>
+            <div class="dropdown-content">
+                <a href="/create">Crear</a>
+                <a href="/read">Leer</a>
+                <a href="/update">Actualizar</a>
+                <a href="/delete">Eliminar</a>
+            </div>
+        </div>
+        <a href="/historial">Historial</a>
+        <a href="/developer-info">Información del Desarrollador</a>
+        <a href="/planning">Planificación</a>
+        <a href="/design">Diseño</a>
+    </nav>
+    <div class="container">
+        <h1>Historial de Registros Eliminados</h1>
+        <div id="historial_list">
+            </div>
+    </div>
+</body>
+</html>

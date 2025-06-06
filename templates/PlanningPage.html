@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planificación del Proyecto</title>
+    <link rel="stylesheet" href="{{ url_for('css', path='/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/">Inicio</a>
+        <div class="dropdown">
+            <button class="dropbtn">Operaciones</button>
+            <div class="dropdown-content">
+                <a href="/create">Crear</a>
+                <a href="/read">Leer</a>
+                <a href="/update">Actualizar</a>
+                <a href="/delete">Eliminar</a>
+            </div>
+        </div>
+        <a href="/historial">Historial</a>
+        <a href="/developer-info">Información del Desarrollador</a>
+        <a href="/planning">Planificación</a>
+        <a href="/design">Diseño</a>
+    </nav>
+    <div class="container">
+        <h1>Planificación del Proyecto</h1>
+        <div class="planning-section">
+            <h2>Fases del Proyecto</h2>
+            <ol>
+                <li>
+                    <h3>Definición de Requisitos:</h3>
+                    <ul>
+                        <li>Identificación de entidades (Buses, Estaciones, Rutas).</li>
+                        <li>Definición de operaciones CRUD para cada entidad.</li>
+                        <li>Requisitos de persistencia de datos e integración de imágenes.</li>
+                    </ul>
+                </li>
+                <li>
+                    <h3>Diseño de la Base de Datos:</h3>
+                    <ul>
+                        <li>Modelado de tablas (`rutas`, `buses`, `estaciones`) usando SQLAlchemy.</li>
+                        <li>Definición de campos y relaciones.</li>
+                    </ul>
+                </li>
+                <li>
+                    <h3>Desarrollo del Backend (FastAPI):</h3>
+                    <ul>
+                        <li>Configuración de la base de datos (SQLAlchemy).</li>
+                        <li>Creación de modelos ORM.</li>
+                        <li>Implementación de las operaciones CRUD (funciones en `crud.py`).</li>
+                        <li>Definición de esquemas de datos (Pydantic en `schemas.py`).</li>
+                        <li>Creación de endpoints API para cada operación.</li>
+                        <li>Integración con Supabase para almacenamiento de imágenes.</li>
+                    </ul>
+                </li>
+                <li>
+                    <h3>Desarrollo del Frontend (HTML/Jinja2/CSS/JS):</h3>
+                    <ul>
+                        <li>Diseño de la interfaz de usuario para cada operación (Crear, Leer, Actualizar, Eliminar).</li>
+                        <li>Uso de Jinja2 para renderizar plantillas HTML dinámicamente.</li>
+                        <li>Implementación de formularios para la entrada de datos.</li>
+                        <li>Visualización de datos y resultados de búsqueda.</li>
+                        <li>Estilización con CSS.</li>
+                        <li>Uso de JavaScript para interacciones dinámicas (filtros, confirmaciones, etc.).</li>
+                    </ul>
+                </li>
+                <li>
+                    <h3>Pruebas:</h3>
+                    <ul>
+                        <li>Pruebas unitarias de las funciones CRUD.</li>
+                        <li>Pruebas de integración de los endpoints API.</li>
+                        <li>Pruebas de interfaz de usuario para verificar la funcionalidad completa.</li>
+                    </ul>
+                </li>
+                <li>
+                    <h3>Despliegue:</h3>
+                    <ul>
+                        <li>Preparación para el despliegue en un entorno de producción (ej. Heroku, Vercel, etc.).</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+    </div>
+</body>
+</html>

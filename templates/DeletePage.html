@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-4">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eliminar Registro</title>
+    <link rel="stylesheet" href="{{ url_for('css', path='/style.css') }}">
+    <script>
+        async function loadBusDetailsForDelete() {
+            const response = await fetch('/buses/details');
+            const buses = await response.json();
+            const select = document.getElementById('bus_id_delete');
+            select.innerHTML = '<option value="">-- Seleccionar Bus --</option>';
+            buses.forEach(bus => {
+                const option = document.createElement('option');
+                option.value = bus.id;
+                option.textContent = `ID: ${bus.id} - ${bus.nombre_bus} (${bus.tipo})`;
+                select.appendChild(option);
+            });
+        }
+
+        async function loadEstacionDetailsForDelete() {
+            const response = await fetch('/estaciones/details');
+            const estaciones = await response.json();
+            const select = document.getElementById('estacion_id_delete');
+            select.innerHTML = '<option value="">-- Seleccionar Estación --</option>';
+            estaciones.forEach(estacion => {
+                const option = document.createElement('option');
+                option.value = estacion.id;
+                option.textContent = `ID: ${estacion.id} - ${estacion.nombre_estacion} (${estacion.localidad})`;
+                select.appendChild(option);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadBusDetailsForDelete();
+            loadEstacionDetailsForDelete();
+        });
+
+        async function confirmDeleteBus() {
+            const busId = document.getElementById('bus_id_delete').value;
+            if (!busId) {
+                alert('Por favor, selecciona un bus para eliminar.');
+                return;
+            }
+            if (confirm(`¿Estás seguro de que quieres eliminar el bus con ID ${busId}?`)) {
+                const response = await fetch(`/buses/${busId}`, { method: 'DELETE' });
+                const result = await response.json();
+                alert(result.mensaje);
+                if (response.ok) {
+                    loadBusDetailsForDelete(); // Recargar la lista
+                }
+            }
+        }
+
+        async function confirmDeleteEstacion() {
+            const estacionId = document.getElementById('estacion_id_delete').value;
+            if (!estacionId) {
+                alert('Por favor, selecciona una estación para eliminar.');
+                return;
+            }
+            if (confirm(`¿Estás seguro de que quieres eliminar la estación con ID ${estacionId}?`)) {
+                const response = await fetch(`/estaciones/${estacionId}`, { method: 'DELETE' });
+                const result = await response.json();
+                alert(result.mensaje);
+                if (response.ok) {
+                    loadEstacionDetailsForDelete(); // Recargar la lista
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/">Inicio</a>
+        <div class="dropdown">
+            <button class="dropbtn">Operaciones</button>
+            <div class="dropdown-content">
+                <a href="/create">Crear</a>
+                <a href="/read">Leer</a>
+                <a href="/update">Actualizar</a>
+                <a href="/delete">Eliminar</a>
+            </div>
+        </div>
+        <a href="/historial">Historial</a>
+        <a href="/developer-info">Información del Desarrollador</a>
+        <a href="/planning">Planificación</a>
+        <a href="/design">Diseño</a>
+    </nav>
+    <div class="container">
+        <h1>Eliminar Registro</h1>
+
+        <div class="delete-section">
+            <h2>Eliminar Bus</h2>
+            <label for="bus_id_delete">Seleccionar Bus a Eliminar:</label>
+            <select id="bus_id_delete"></select>
+            <button onclick="confirmDeleteBus()">Eliminar Bus</button>
+        </div>
+
+        <div class="delete-section">
+            <h2>Eliminar Estación</h2>
+            <label for="estacion_id_delete">Seleccionar Estación a Eliminar:</label>
+            <select id="estacion_id_delete"></select>
+            <button onclick="confirmDeleteEstacion()">Eliminar Estación</button>
+        </div>
+    </div>
+</body>
+</html>

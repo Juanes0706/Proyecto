@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Registro</title>
+    <link rel="stylesheet" href="{{ url_for('css', path='/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/">Inicio</a>
+        <div class="dropdown">
+            <button class="dropbtn">Operaciones</button>
+            <div class="dropdown-content">
+                <a href="/create">Crear</a>
+                <a href="/read">Leer</a>
+                <a href="/update">Actualizar</a>
+                <a href="/delete">Eliminar</a>
+            </div>
+        </div>
+        <a href="/historial">Historial</a>
+        <a href="/developer-info">Información del Desarrollador</a>
+        <a href="/planning">Planificación</a>
+        <a href="/design">Diseño</a>
+    </nav>
+    <div class="container">
+        <h1>Editar Registro</h1>
+
+        {% if bus %}
+            <h2>Editar Bus (ID: {{ bus.id }})</h2>
+            <form action="/buses/update/{{ bus.id }}" method="post" enctype="multipart/form-data">
+                <label for="nombre_bus_edit">Nombre del Bus:</label>
+                <input type="text" id="nombre_bus_edit" name="nombre_bus" value="{{ bus.nombre_bus }}">
+
+                <label>Tipo de Bus:</label>
+                <input type="radio" id="tipo_bus_troncal_edit" name="tipo" value="troncal" {% if bus.tipo == 'troncal' %}checked{% endif %}>
+                <label for="tipo_bus_troncal_edit">Troncal</label>
+                <input type="radio" id="tipo_bus_zonal_edit" name="tipo" value="zonal" {% if bus.tipo == 'zonal' %}checked{% endif %}>
+                <label for="tipo_bus_zonal_edit">Zonal</label>
+
+                <label>Estado:</label>
+                <input type="radio" id="activo_bus_true_edit" name="activo" value="true" {% if bus.activo %}checked{% endif %}>
+                <label for="activo_bus_true_edit">Activo</label>
+                <input type="radio" id="activo_bus_false_edit" name="activo" value="false" {% if not bus.activo %}checked{% endif %}>
+                <label for="activo_bus_false_edit">Inactivo</label>
+
+                {% if bus.imagen %}
+                    <p>Imagen actual:</p>
+                    <img src="{{ bus.imagen }}" alt="Imagen actual del Bus" style="max-width: 200px; display: block; margin-bottom: 10px;">
+                    <p>Si subes una nueva imagen, la actual será reemplazada.</p>
+                {% endif %}
+                <label for="imagen_bus_edit">Nueva Imagen (opcional):</label>
+                <input type="file" id="imagen_bus_edit" name="imagen" accept="image/*">
+
+                <button type="submit">Actualizar Bus</button>
+            </form>
+        {% elif estacion %}
+            <h2>Editar Estación (ID: {{ estacion.id }})</h2>
+            <form action="/estaciones/update/{{ estacion.id }}" method="post" enctype="multipart/form-data">
+                <label for="nombre_estacion_edit">Nombre de la Estación:</label>
+                <input type="text" id="nombre_estacion_edit" name="nombre_estacion" value="{{ estacion.nombre_estacion }}">
+
+                <label for="localidad_edit">Localidad:</label>
+                <input type="text" id="localidad_edit" name="localidad" value="{{ estacion.localidad }}">
+
+                <label for="rutas_asociadas_edit">Rutas Asociadas (separadas por coma):</label>
+                <input type="text" id="rutas_asociadas_edit" name="rutas_asociadas" value="{{ estacion.rutas_asociadas }}">
+
+                <label>Estado:</label>
+                <input type="radio" id="activo_estacion_true_edit" name="activo" value="true" {% if estacion.activo %}checked{% endif %}>
+                <label for="activo_estacion_true_edit">Activo</label>
+                <input type="radio" id="activo_estacion_false_edit" name="activo" value="false" {% if not estacion.activo %}checked{% endif %}>
+                <label for="activo_estacion_false_edit">Inactivo</label>
+
+                {% if estacion.imagen %}
+                    <p>Imagen actual:</p>
+                    <img src="{{ estacion.imagen }}" alt="Imagen actual de la Estación" style="max-width: 200px; display: block; margin-bottom: 10px;">
+                    <p>Si subes una nueva imagen, la actual será reemplazada.</p>
+                {% endif %}
+                <label for="imagen_estacion_edit">Nueva Imagen (opcional):</label>
+                <input type="file" id="imagen_estacion_edit" name="imagen" accept="image/*">
+
+                <button type="submit">Actualizar Estación</button>
+            </form>
+        {% else %}
+            <p>Selecciona un bus o estación para editar desde la página de <a href="/update">Actualizar</a>.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

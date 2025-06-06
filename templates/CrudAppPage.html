@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Transporte Público</title>
+    <link rel="stylesheet" href="{{ url_for('css', path='/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/">Inicio</a>
+        <div class="dropdown">
+            <button class="dropbtn">Operaciones</button>
+            <div class="dropdown-content">
+                <a href="/create">Crear</a>
+                <a href="/read">Leer</a>
+                <a href="/update">Actualizar</a>
+                <a href="/delete">Eliminar</a>
+            </div>
+        </div>
+        <a href="/historial">Historial</a>
+        <a href="/developer-info">Información del Desarrollador</a>
+        <a href="/planning">Planificación</a>
+        <a href="/design">Diseño</a>
+    </nav>
+    <div class="container">
+        <h1>Bienvenido al Sistema de Gestión de Transporte Público</h1>
+        <p>Utiliza la barra de navegación para explorar las diferentes funcionalidades de la aplicación.</p>
+        <div class="home-sections">
+            <div class="section-card">
+                <h2>Crear Registros</h2>
+                <p>Añade nuevos buses y estaciones a la base de datos.</p>
+                <a href="/create" class="btn">Ir a Crear</a>
+            </div>
+            <div class="section-card">
+                <h2>Consultar Registros</h2>
+                <p>Visualiza y busca buses y estaciones existentes.</p>
+                <a href="/read" class="btn">Ir a Consultar</a>
+            </div>
+            <div class="section-card">
+                <h2>Actualizar Registros</h2>
+                <p>Modifica la información de buses y estaciones.</p>
+                <a href="/update" class="btn">Ir a Actualizar</a>
+            </div>
+            <div class="section-card">
+                <h2>Eliminar Registros</h2>
+                <p>Remueve buses y estaciones de la base de datos.</p>
+                <a href="/delete" class="btn">Ir a Eliminar</a>
+            </div>
+            <div class="section-card">
+                <h2>Historial de Eliminaciones</h2>
+                <p>Consulta un registro de los elementos eliminados.</p>
+                <a href="/historial" class="btn">Ir a Historial</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

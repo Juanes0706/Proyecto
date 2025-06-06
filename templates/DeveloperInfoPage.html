@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Información del Desarrollador</title>
+    <link rel="stylesheet" href="{{ url_for('css', path='/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/">Inicio</a>
+        <div class="dropdown">
+            <button class="dropbtn">Operaciones</button>
+            <div class="dropdown-content">
+                <a href="/create">Crear</a>
+                <a href="/read">Leer</a>
+                <a href="/update">Actualizar</a>
+                <a href="/delete">Eliminar</a>
+            </div>
+        </div>
+        <a href="/historial">Historial</a>
+        <a href="/developer-info">Información del Desarrollador</a>
+        <a href="/planning">Planificación</a>
+        <a href="/design">Diseño</a>
+    </nav>
+    <div class="container">
+        <h1>Información del Desarrollador</h1>
+        <div class="info-card">
+            <h2>Nombre del Desarrollador:</h2>
+            <p>Juan David Trujillo</p>
+        </div>
+        <div class="info-card">
+            <h2>Tecnologías Utilizadas:</h2>
+            <ul>
+                <li><strong>Backend:</strong> FastAPI, SQLAlchemy, PostgreSQL (con Supabase)</li>
+                <li><strong>Frontend:</strong> HTML, CSS, Jinja2 (para templating), JavaScript (para interacciones)</li>
+                <li><strong>Almacenamiento de Archivos:</strong> Supabase Storage</li>
+                <li><strong>Entorno de Desarrollo:</strong> Python</li>
+            </ul>
+        </div>
+        <div class="info-card">
+            <h2>Acerca del Proyecto:</h2>
+            <p>Este proyecto es un sistema de gestión CRUD (Crear, Leer, Actualizar, Eliminar) para buses y estaciones de transporte público. Permite la administración de información relevante, incluyendo detalles como el tipo de bus, la localidad de la estación, y la gestión de imágenes asociadas a cada registro.</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actualizar Registro</title>
+    <link rel="stylesheet" href="{{ url_for('css', path='/style.css') }}">
+    <script>
+        async function loadBusIds() {
+            const response = await fetch('/buses/ids');
+            const ids = await response.json();
+            const select = document.getElementById('bus_id_update');
+            select.innerHTML = '<option value="">-- Seleccionar ID de Bus --</option>';
+            ids.forEach(id => {
+                const option = document.createElement('option');
+                option.value = id;
+                option.textContent = id;
+                select.appendChild(option);
+            });
+        }
+
+        async function loadEstacionIds() {
+            const response = await fetch('/estaciones/ids');
+            const ids = await response.json();
+            const select = document.getElementById('estacion_id_update');
+            select.innerHTML = '<option value="">-- Seleccionar ID de Estación --</option>';
+            ids.forEach(id => {
+                const option = document.createElement('option');
+                option.value = id;
+                option.textContent = id;
+                select.appendChild(option);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadBusIds();
+            loadEstacionIds();
+        });
+
+        function redirectToEditBus() {
+            const busId = document.getElementById('bus_id_update').value;
+            if (busId) {
+                window.location.href = `/edit?bus_id=${busId}`;
+            } else {
+                alert('Por favor, selecciona un ID de bus.');
+            }
+        }
+
+        function redirectToEditEstacion() {
+            const estacionId = document.getElementById('estacion_id_update').value;
+            if (estacionId) {
+                window.location.href = `/edit?estacion_id=${estacionId}`;
+            } else {
+                alert('Por favor, selecciona un ID de estación.');
+            }
+        }
+    </script>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/">Inicio</a>
+        <div class="dropdown">
+            <button class="dropbtn">Operaciones</button>
+            <div class="dropdown-content">
+                <a href="/create">Crear</a>
+                <a href="/read">Leer</a>
+                <a href="/update">Actualizar</a>
+                <a href="/delete">Eliminar</a>
+            </div>
+        </div>
+        <a href="/historial">Historial</a>
+        <a href="/developer-info">Información del Desarrollador</a>
+        <a href="/planning">Planificación</a>
+        <a href="/design">Diseño</a>
+    </nav>
+    <div class="container">
+        <h1>Actualizar Registro Existente</h1>
+
+        <div class="select-section">
+            <h2>Actualizar Bus</h2>
+            <label for="bus_id_update">Seleccionar Bus por ID:</label>
+            <select id="bus_id_update"></select>
+            <button onclick="redirectToEditBus()">Editar Bus</button>
+        </div>
+
+        <div class="select-section">
+            <h2>Actualizar Estación</h2>
+            <label for="estacion_id_update">Seleccionar Estación por ID:</label>
+            <select id="estacion_id_update"></select>
+            <button onclick="redirectToEditEstacion()">Editar Estación</button>
+        </div>
+    </div>
+</body>
+</html>

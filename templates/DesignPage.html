@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diseño del Proyecto</title>
+    <link rel="stylesheet" href="{{ url_for('css', path='/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/">Inicio</a>
+        <div class="dropdown">
+            <button class="dropbtn">Operaciones</button>
+            <div class="dropdown-content">
+                <a href="/create">Crear</a>
+                <a href="/read">Leer</a>
+                <a href="/update">Actualizar</a>
+                <a href="/delete">Eliminar</a>
+            </div>
+        </div>
+        <a href="/historial">Historial</a>
+        <a href="/developer-info">Información del Desarrollador</a>
+        <a href="/planning">Planificación</a>
+        <a href="/design">Diseño</a>
+    </nav>
+    <div class="container">
+        <h1>Diseño del Proyecto</h1>
+        <div class="design-section">
+            <h2>Arquitectura General</h2>
+            <p>El proyecto sigue una arquitectura de tres capas:</p>
+            <ul>
+                <li><strong>Capa de Presentación (Frontend):</strong> Desarrollada con HTML, CSS, y JavaScript, renderizada usando Jinja2. Proporciona la interfaz de usuario para interactuar con el sistema.</li>
+                <li><strong>Capa de Lógica de Negocio (Backend):</strong> Implementada con FastAPI (Python). Contiene la lógica de la aplicación, maneja las solicitudes HTTP, valida los datos y coordina con la capa de datos.</li>
+                <li><strong>Capa de Datos (Base de Datos y Almacenamiento):</strong> Utiliza PostgreSQL como base de datos relacional (gestionada a través de SQLAlchemy) para almacenar la información estructurada de buses y estaciones. Supabase Storage se emplea para el almacenamiento de archivos de imagen.</li>
+            </ul>
+        </div>
+
+        <div class="design-section">
+            <h2>Diseño de la Base de Datos</h2>
+            <p>El esquema de la base de datos incluye las siguientes tablas:</p>
+            <ul>
+                <li>
+                    <h3>Tabla `rutas`:</h3>
+                    <ul>
+                        <li>`id` (Integer, Primary Key)</li>
+                        <li>`nombre_ruta` (String, Unique)</li>
+                        <li>`tipo_servicio` (String)</li>
+                        <li>`horario` (String)</li>
+                        <li>`activo` (Boolean)</li>
+                    </ul>
+                </li>
+                <li>
+                    <h3>Tabla `buses`:</h3>
+                    <ul>
+                        <li>`id` (Integer, Primary Key)</li>
+                        <li>`nombre_bus` (String)</li>
+                        <li>`tipo` (String - ej. 'troncal', 'zonal')</li>
+                        <li>`activo` (Boolean)</li>
+                        <li>`imagen` (String - URL de la imagen en Supabase)</li>
+                    </ul>
+                </li>
+                <li>
+                    <h3>Tabla `estaciones`:</h3>
+                    <ul>
+                        <li>`id` (Integer, Primary Key)</li>
+                        <li>`nombre_estacion` (String, Unique)</li>
+                        <li>`localidad` (String)</li>
+                        <li>`rutas_asociadas` (String - lista de rutas, se puede mejorar con una tabla de relación muchos a muchos)</li>
+                        <li>`activo` (Boolean)</li>
+                        <li>`imagen` (String - URL de la imagen en Supabase)</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <div class="design-section">
+            <h2>Flujo de Datos</h2>
+            <p>Las operaciones típicas siguen este flujo:</p>
+            <ol>
+                <li>El usuario interactúa con la interfaz HTML.</li>
+                <li>Los formularios envían solicitudes HTTP (POST, GET, PUT, DELETE) a los endpoints de FastAPI.</li>
+                <li>FastAPI recibe la solicitud, valida los datos con Pydantic.</li>
+                <li>Las funciones CRUD en `crud.py` interactúan con la base de datos usando SQLAlchemy.</li>
+                <li>Para operaciones con imágenes, se utiliza `supabase_client.py` para subir o eliminar archivos en Supabase Storage.</li>
+                <li>La base de datos (PostgreSQL) almacena o recupera la información.</li>
+                <li>FastAPI devuelve una respuesta (JSON para APIs, o una redirección/HTML para vistas).</li>
+                <li>El navegador del usuario actualiza la interfaz según la respuesta.</li>
+            </ol>
+        </div>
+    </div>
+</body>
+</html>
