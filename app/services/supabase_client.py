@@ -1,5 +1,6 @@
 import os
 import uuid
+import logging 
 from fastapi import UploadFile
 from dotenv import load_dotenv
 import aiofiles
