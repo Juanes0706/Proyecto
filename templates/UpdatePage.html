@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Actualizar Registro</title>
-    <link rel="stylesheet" href="{{ url_for('css', path='/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
     <script>
         async function loadBusIds() {
             const response = await fetch('/buses/ids');
