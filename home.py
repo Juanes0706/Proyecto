@@ -1,5 +1,3 @@
-```python
-# home.py
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, UploadFile, File, Form, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
