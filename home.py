@@ -150,7 +150,7 @@ async def create_bus_api(
     )
     if not new_bus:
         raise HTTPException(status_code=400, detail="Error al crear bus")
-    return BusResponse.from_orm(new_bus)
+    return {"message": "Bus creado exitosamente", "bus": BusResponse.from_orm(new_bus)}
 
 @router.delete("/buses/{bus_id}", tags=["Buses API"])
 async def delete_bus_api(
@@ -225,7 +225,7 @@ async def create_estacion_api(
     )
     if not new_estacion:
         raise HTTPException(status_code=400, detail="Error al crear estación")
-    return EstacionResponse.from_orm(new_estacion)
+    return {"message": "Estación creada exitosamente", "estacion": EstacionResponse.from_orm(new_estacion)}
 
 @router.delete("/estaciones/{estacion_id}", tags=["Estaciones API"])
 async def delete_estacion_api(
