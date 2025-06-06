@@ -4,22 +4,21 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional, List
 from pydantic import BaseModel
-from app.operations import crud # Importa el módulo crud
-from app import models # Importa el módulo models (aunque no se usa directamente en este archivo en las rutas)
+from app.operations import crud
+from app import models
 from app.schemas.schemas import Bus as BusSchema, Estacion as EstacionSchema, BusResponse, EstacionResponse
 from app.schemas.schemas import BusUpdateForm, EstacionUpdateForm, BusCreateForm, EstacionCreateForm
-from app.database.db import get_async_db # Importa get_async_db (el único inyector de dependencia de sesión)
+from app.database.db import get_async_db
 from app.services.update_functions import actualizar_estacion_db_form, actualizar_bus_db_form
 import logging
 from datetime import datetime
-from fastapi.templating import Jinja2Templates # Importa Jinja2Templates
+from fastapi.templating import Jinja2Templates
 
 router = APIRouter()
 
-# Configuración de Jinja2Templates (asumiendo que está en el mismo nivel o es accesible)
+# Configuración de Jinja2Templates
 templates = Jinja2Templates(directory="templates")
 
-# Lista en memoria para el historial de elementos eliminados (solo para demostración)
 historial_eliminados = []
 
 
@@ -41,7 +40,7 @@ async def update_html(request: Request):
 async def delete_html(request: Request):
     return templates.TemplateResponse("delete.html", {"request": request})
 
-@router.get("/read", response_class=HTMLResponse, tags=["Read"])
+@router.get("/read", response_class=HTMLResponse, tags=["HTML Pages"])
 async def read_html(request: Request, session: AsyncSession = Depends(get_async_db)):
     """Muestra una página HTML con la lista de buses y estaciones."""
     buses = await crud.obtener_buses(session)
@@ -51,27 +50,71 @@ async def read_html(request: Request, session: AsyncSession = Depends(get_async_
         {"request": request, "buses": buses, "estaciones": estaciones}
     )
 
-@router.get("/informacion-del-proyecto", response_class=HTMLResponse, tags=["Informacion"])
+@router.get("/informacion-del-proyecto", response_class=HTMLResponse, tags=["HTML Pages"])
 async def project_info_html(request: Request):
     """Muestra una página HTML con información sobre el proyecto."""
     return templates.TemplateResponse("informacion_del_proyecto.html", {"request": request})
 
+@router.get("/developer-info", response_class=HTMLResponse, tags=["HTML Pages"])
+async def developer_info_html(request: Request):
+    """Muestra una página HTML con información del desarrollador."""
+    return templates.TemplateResponse("DeveloperInfoPage.html", {"request": request})
+
+@router.get("/planning", response_class=HTMLResponse, tags=["HTML Pages"])
+async def planning_html(request: Request):
+    """Muestra una página HTML con la planificación del proyecto."""
+    return templates.TemplateResponse("PlanningPage.html", {"request": request})
+
+@router.get("/design", response_class=HTMLResponse, tags=["HTML Pages"])
+async def design_html(request: Request):
+    """Muestra una página HTML con el diseño del proyecto."""
+    return templates.TemplateResponse("DesignPage.html", {"request": request})
+
+@router.get("/edit-bus/{bus_id}", response_class=HTMLResponse, tags=["HTML Pages"])
+async def edit_bus_html(request: Request, bus_id: int, session: AsyncSession = Depends(get_async_db)):
+    """Muestra la página de edición unificada para un bus específico."""
+    bus = await crud.obtener_buses(session, bus_id=bus_id)
+    if not bus:
+        raise HTTPException(status_code=404, detail="Bus no encontrado para edición.")
+    return templates.TemplateResponse("EditUnifiedPage.html", {"request": request, "bus": bus[0]})
+
+@router.get("/edit-estacion/{estacion_id}", response_class=HTMLResponse, tags=["HTML Pages"])
+async def edit_estacion_html(request: Request, estacion_id: int, session: AsyncSession = Depends(get_async_db)):
+    """Muestra la página de edición unificada para una estación específica."""
+    estacion = await crud.obtener_estaciones(session, estacion_id=estacion_id)
+    if not estacion:
+        raise HTTPException(status_code=404, detail="Estación no encontrada para edición.")
+    return templates.TemplateResponse("EditUnifiedPage.html", {"request": request, "estacion": estacion[0]})
+
 
 # -------------------- BUS API --------------------
-@router.get("/buses", response_model=List[BusResponse], tags=["Buses"])
+@router.get("/buses", response_model=List[BusResponse], tags=["Buses API"])
 async def get_buses(
     bus_id: Optional[int] = None,
     tipo: Optional[str] = None,
     activo: Optional[bool] = None,
-    session: AsyncSession = Depends(get_async_db) # Asegura que se usa get_async_db
+    session: AsyncSession = Depends(get_async_db)
 ):
     buses = await crud.obtener_buses(session, bus_id, tipo, activo)
     return [BusResponse.from_orm(bus) for bus in buses]
 
-@router.post("/buses", response_model=BusResponse, status_code=status.HTTP_201_CREATED, tags=["Buses"])
+@router.get("/buses/ids", response_model=List[int], tags=["Buses API"])
+async def get_bus_ids(session: AsyncSession = Depends(get_async_db)):
+    """Devuelve una lista de IDs de todos los buses."""
+    ids = await crud.get_all_bus_ids(session)
+    return ids
+
+@router.get("/buses/details", response_model=List[BusResponse], tags=["Buses API"])
+async def get_bus_details(session: AsyncSession = Depends(get_async_db)):
+    """Devuelve una lista de buses con detalles para la selección de eliminación."""
+    buses = await crud.obtener_buses(session)
+    return [BusResponse.from_orm(bus) for bus in buses]
+
+
+@router.post("/buses", response_model=BusResponse, status_code=status.HTTP_201_CREATED, tags=["Buses API"])
 async def create_bus(
     bus_create: BusCreateForm = Depends(),
-    session: AsyncSession = Depends(get_async_db) # Asegura que se usa get_async_db
+    session: AsyncSession = Depends(get_async_db)
 ):
     new_bus = await crud.crear_bus(
         session,
@@ -84,17 +127,16 @@ async def create_bus(
         raise HTTPException(status_code=400, detail="Error al crear bus")
     return BusResponse.from_orm(new_bus)
 
-@router.delete("/buses/{bus_id}", tags=["Buses"])
+@router.delete("/buses/{bus_id}", tags=["Buses API"])
 async def delete_bus(
     bus_id: int,
-    session: AsyncSession = Depends(get_async_db) # Asegura que se usa get_async_db
+    session: AsyncSession = Depends(get_async_db)
 ):
     bus_to_delete = await crud.obtener_buses(session, bus_id=bus_id)
     if not bus_to_delete:
         raise HTTPException(status_code=404, detail="Bus no encontrado")
     
-    # crud.obtener_buses devuelve una lista, tomamos el primero si existe
-    bus_obj = bus_to_delete[0] 
+    bus_obj = bus_to_delete[0]
 
     resultado = await crud.eliminar_bus(session, bus_id)
     if not resultado:
@@ -109,31 +151,44 @@ async def delete_bus(
     })
     return {"mensaje": "Bus eliminado"}
 
-@router.post("/buses/update/{bus_id}", tags=["Buses"])
+@router.post("/buses/update/{bus_id}", tags=["Buses API"])
 async def actualizar_bus_post(
     bus_id: int,
     bus_update: BusUpdateForm = Depends(),
-    session: AsyncSession = Depends(get_async_db) # Asegura que se usa get_async_db
+    session: AsyncSession = Depends(get_async_db)
 ):
     await actualizar_bus_db_form(bus_id, bus_update, session)
     return RedirectResponse(url="/update", status_code=status.HTTP_303_SEE_OTHER)
 
 
 # -------------------- ESTACION API --------------------
-@router.get("/estaciones", response_model=List[EstacionResponse], tags=["Estaciones"])
+@router.get("/estaciones", response_model=List[EstacionResponse], tags=["Estaciones API"])
 async def get_estaciones(
     estacion_id: Optional[int] = None,
     localidad: Optional[str] = None,
     activo: Optional[bool] = None,
-    session: AsyncSession = Depends(get_async_db) # Asegura que se usa get_async_db
+    session: AsyncSession = Depends(get_async_db)
 ):
     estaciones = await crud.obtener_estaciones(session, estacion_id, localidad, activo)
     return [EstacionResponse.from_orm(estacion) for estacion in estaciones]
 
-@router.post("/estaciones", response_model=EstacionResponse, status_code=status.HTTP_201_CREATED, tags=["Estaciones"])
+@router.get("/estaciones/ids", response_model=List[int], tags=["Estaciones API"])
+async def get_estacion_ids(session: AsyncSession = Depends(get_async_db)):
+    """Devuelve una lista de IDs de todas las estaciones."""
+    ids = await crud.get_all_estacion_ids(session)
+    return ids
+
+@router.get("/estaciones/details", response_model=List[EstacionResponse], tags=["Estaciones API"])
+async def get_estacion_details(session: AsyncSession = Depends(get_async_db)):
+    """Devuelve una lista de estaciones con detalles para la selección de eliminación."""
+    estaciones = await crud.obtener_estaciones(session)
+    return [EstacionResponse.from_orm(estacion) for estacion in estaciones]
+
+
+@router.post("/estaciones", response_model=EstacionResponse, status_code=status.HTTP_201_CREATED, tags=["Estaciones API"])
 async def create_estacion(
     estacion_create: EstacionCreateForm = Depends(),
-    session: AsyncSession = Depends(get_async_db) # Asegura que se usa get_async_db
+    session: AsyncSession = Depends(get_async_db)
 ):
     new_estacion = await crud.crear_estacion(
         session,
@@ -147,17 +202,16 @@ async def create_estacion(
         raise HTTPException(status_code=400, detail="Error al crear estación")
     return EstacionResponse.from_orm(new_estacion)
 
-@router.delete("/estaciones/{estacion_id}", tags=["Estaciones"])
+@router.delete("/estaciones/{estacion_id}", tags=["Estaciones API"])
 async def delete_estacion(
     estacion_id: int,
-    session: AsyncSession = Depends(get_async_db) # Asegura que se usa get_async_db
+    session: AsyncSession = Depends(get_async_db)
 ):
     estacion_to_delete_list = await crud.obtener_estaciones(session, estacion_id=estacion_id)
     if not estacion_to_delete_list:
         raise HTTPException(status_code=404, detail="Estación no encontrada")
     
-    # crud.obtener_estaciones devuelve una lista, tomamos el primero si existe
-    estacion_obj = estacion_to_delete_list[0] 
+    estacion_obj = estacion_to_delete_list[0]
 
     resultado = await crud.eliminar_estacion(session, estacion_id)
     if not resultado:
@@ -172,11 +226,11 @@ async def delete_estacion(
     })
     return {"mensaje": "Estación eliminada"}
 
-@router.post("/estaciones/update/{estacion_id}", tags=["Estaciones"])
+@router.post("/estaciones/update/{estacion_id}", tags=["Estaciones API"])
 async def actualizar_estacion_post(
     estacion_id: int,
     estacion_update: EstacionUpdateForm = Depends(),
-    session: AsyncSession = Depends(get_async_db) # Asegura que se usa get_async_db
+    session: AsyncSession = Depends(get_async_db)
 ):
     await actualizar_estacion_db_form(estacion_id, estacion_update, session)
     return RedirectResponse(url="/update", status_code=status.HTTP_303_SEE_OTHER)
@@ -192,6 +246,6 @@ class HistorialItem(BaseModel):
     localidad: Optional[str] = None
     fecha_hora: str
 
-@router.get("/historial", response_model=List[HistorialItem], tags=["Historial"])
+@router.get("/api/historial", response_model=List[HistorialItem], tags=["Historial API"]) # Cambiado de /historial a /api/historial
 async def get_historial():
     return historial_eliminados
