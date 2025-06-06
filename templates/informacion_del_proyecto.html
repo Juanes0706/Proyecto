@@ -4,60 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Información del Proyecto</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 20px;
-            padding: 0;
-            background-color: #f4f4f4;
-            color: #333;
-        }
-        .container {
-            max-width: 900px;
-            margin: auto;
-            background: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        h1, h2, h3 {
-            color: #0056b3;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
-            margin-top: 20px;
-        }
-        img {
-            max-width: 100%;
-            height: auto;
-            display: block;
-            margin: 20px auto;
-            border-radius: 5px;
-            box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
-        }
-        ul {
-            list-style-type: disc;
-            margin-left: 20px;
-        }
-        p, li {
-            margin-bottom: 10px;
-        }
-        .author {
-            font-style: italic;
-            text-align: right;
-            margin-top: -10px;
-            margin-bottom: 20px;
-            color: #555;
-        }
-        .section-title {
-            font-size: 1.5em;
-            color: #007bff;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
 </head>
 <body>
     <nav class="navbar">
         <a href="/">Inicio</a>
+        <a href="/informacion-del-proyecto">Información del Proyecto</a>
         <div class="dropdown">
             <button class="dropbtn">Operaciones</button>
             <div class="dropdown-content">
@@ -71,7 +23,6 @@
         <a href="/developer-info">Información del Desarrollador</a>
         <a href="/planning">Planificación</a>
         <a href="/design">Diseño</a>
-        <a href="/informacion-del-proyecto">Información del Proyecto</a>
     </nav>
     <div class="container">
         <h1>ANÁLISIS Y GESTIÓN DIGITAL DE RUTAS Y ESTACIONES DEL SISTEMA TRANSMILENIO MEDIANTE UNA API DESARROLLADA CON FASTAPI Y POSTGRESQL</h1>
