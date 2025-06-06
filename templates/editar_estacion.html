@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Editar Estación{% endblock %}
+{% block content %}
+<h1>Editar Estación</h1>
+<form method="post">
+    ID: <input type="number" name="id"><br>
+    Nuevo Nombre: <input type="text" name="nombre"><br>
+    Nueva Ciudad: <input type="text" name="ciudad"><br>
+    <button type="submit">Actualizar</button>
+</form>
+{% endblock %}

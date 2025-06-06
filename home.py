@@ -86,163 +86,47 @@ def obtener_historial():
 # ---------------------- RUTAS HTML ----------------------
 
 @router.get("/", response_class=HTMLResponse)
-async def read_root(request: Request):
-    return templates.TemplateResponse("CrudAppPage.html", {"request": request})
+async def home(request: Request):
+    return templates.TemplateResponse("inicio.html", {"request": request})
 
-@router.get("/operations", response_class=HTMLResponse)
-async def operations_page(request: Request):
-    return templates.TemplateResponse("OperationsPage.html", {"request": request})
+@router.get("/crear_estacion", response_class=HTMLResponse)
+async def crear_estacion_page(request: Request):
+    return templates.TemplateResponse("crear_estacion.html", {"request": request})
 
-@router.get("/create", response_class=HTMLResponse)
-async def create_page(request: Request):
-    return templates.TemplateResponse("CreatePage.html", {"request": request})
+@router.get("/crear_bus", response_class=HTMLResponse)
+async def crear_bus_page(request: Request):
+    return templates.TemplateResponse("crear_bus.html", {"request": request})
 
-@router.get("/read", response_class=HTMLResponse)
-async def read_page(request: Request):
-    return templates.TemplateResponse("ReadPage.html", {"request": request})
+@router.get("/editar_estacion", response_class=HTMLResponse)
+async def editar_estacion_page(request: Request):
+    return templates.TemplateResponse("editar_estacion.html", {"request": request})
 
-@router.get("/update", response_class=HTMLResponse)
-async def update_page(request: Request):
-    return templates.TemplateResponse("UpdatePage.html", {"request": request})
+@router.get("/editar_bus", response_class=HTMLResponse)
+async def editar_bus_page(request: Request):
+    return templates.TemplateResponse("editar_bus.html", {"request": request})
 
-@router.get("/edit", response_class=HTMLResponse)
-async def edit_page(request: Request, bus_id: Optional[int] = None, estacion_id: Optional[int] = None, db: Session = Depends(get_db)):
-    bus = crud.obtener_bus_por_id(bus_id) if bus_id is not None else None
-    if bus_id is not None and not bus:
-        raise HTTPException(status_code=404, detail="Bus no encontrado")
+@router.get("/eliminar_estacion", response_class=HTMLResponse)
+async def eliminar_estacion_page(request: Request):
+    return templates.TemplateResponse("eliminar_estacion.html", {"request": request})
 
-    estacion = crud.obtener_estacion_por_id(estacion_id) if estacion_id is not None else None
-    if estacion_id is not None and not estacion:
-        raise HTTPException(status_code=404, detail="Estación no encontrada")
+@router.get("/eliminar_bus", response_class=HTMLResponse)
+async def eliminar_bus_page(request: Request):
+    return templates.TemplateResponse("eliminar_bus.html", {"request": request})
 
-    return templates.TemplateResponse("EditUnifiedPage.html", {"request": request, "bus": bus, "estacion": estacion})
+@router.get("/historial_estaciones", response_class=HTMLResponse)
+async def historial_estaciones_page(request: Request, db: Session = Depends(get_db)):
+    estaciones = crud.obtener_estaciones_eliminadas()
+    return templates.TemplateResponse("historial_eliminados_estacion.html", {"request": request, "estaciones": estaciones})
 
-@router.get("/delete", response_class=HTMLResponse)
-async def delete_page(request: Request):
-    return templates.TemplateResponse("DeletePage.html", {"request": request})
+@router.get("/historial_buses", response_class=HTMLResponse)
+async def historial_buses_page(request: Request, db: Session = Depends(get_db)):
+    buses = crud.obtener_buses_eliminados()
+    return templates.TemplateResponse("historial_eliminados_bus.html", {"request": request, "buses": buses})
 
-@router.get("/historial", response_class=HTMLResponse)
-async def historial_page(request: Request):
-    return templates.TemplateResponse("HistorialPage.html", {"request": request})
+@router.get("/desarrollador", response_class=HTMLResponse)
+async def desarrollador_page(request: Request):
+    return templates.TemplateResponse("desarrollador.html", {"request": request})
 
-@router.get("/developer-info", response_class=HTMLResponse)
-async def developer_info_page(request: Request):
-    return templates.TemplateResponse("DeveloperInfoPage.html", {"request": request})
-
-@router.get("/planning", response_class=HTMLResponse)
-async def planning_page(request: Request):
-    return templates.TemplateResponse("PlanningPage.html", {"request": request})
-
-@router.get("/design", response_class=HTMLResponse)
-async def design_page(request: Request):
-    return templates.TemplateResponse("DesignPage.html", {"request": request})
-
-# ---------------------- ENDPOINTS API ----------------------
-
-# BUSES
-
-@router.post("/buses", response_model=BusResponse, status_code=status.HTTP_201_CREATED)
-async def crear_bus_con_imagen(nombre_bus: str = Form(...), tipo: str = Form(...), activo: bool = Form(...), imagen: UploadFile = File(...)):
-    nuevo_bus = await crud.crear_bus_async({"nombre_bus": nombre_bus, "tipo": tipo.lower().strip(), "activo": activo}, imagen)
-    if not nuevo_bus:
-        raise HTTPException(status_code=500, detail="No se pudo crear el bus.")
-    return BusResponse.from_orm(nuevo_bus)
-
-@router.get("/buses/{bus_id}", response_model=BusResponse)
-def obtener_bus_por_id_endpoint(bus_id: int):
-    bus = crud.obtener_bus_por_id(bus_id)
-    if not bus:
-        raise HTTPException(status_code=404, detail="Bus no encontrado")
-    return BusResponse.from_orm(bus)
-
-@router.get("/buses/", response_model=List[BusSchema])
-def listar_buses(bus_id: Optional[int] = None, tipo: Optional[str] = None, activo: Optional[str] = None):
-    activo_bool = None
-    if activo is not None:
-        activo_bool = True if activo.lower() == "true" else False if activo.lower() == "false" else None
-    return crud.obtener_buses(bus_id=bus_id, tipo=tipo, activo=activo_bool)
-
-@router.put("/buses/{bus_id}/estado")
-def actualizar_estado_bus_endpoint(bus_id: int, activo: bool):
-    resultado = crud.actualizar_estado_bus(bus_id, activo)
-    if not resultado:
-        raise HTTPException(status_code=404, detail="Bus no encontrado")
-    return resultado
-
-@router.delete("/buses/{bus_id}")
-def eliminar_bus_endpoint(bus_id: int):
-    bus_to_delete = crud.obtener_bus_por_id(bus_id)
-    if not bus_to_delete:
-        raise HTTPException(status_code=404, detail="Bus no encontrado")
-    resultado = crud.eliminar_bus(bus_id)
-    if not resultado:
-        raise HTTPException(status_code=404, detail="Error al eliminar el bus")
-    historial_eliminados.append({"tipo": "bus", "detalles": {"id": bus_to_delete.id, "nombre_bus": bus_to_delete.nombre_bus, "tipo": bus_to_delete.tipo}, "fecha_hora": datetime.now().isoformat()})
-    return {"mensaje": "Bus eliminado"}
-
-@router.post("/buses/update/{bus_id}", tags=["Buses"])
-async def actualizar_bus_post(bus_id: int, bus_update: BusUpdateForm = Depends(), session: AsyncSession = Depends(async_session)):
-    await actualizar_bus_db_form(bus_id, bus_update, session)
-    return RedirectResponse(url="/update", status_code=status.HTTP_303_SEE_OTHER)
-
-@router.get("/buses/ids", response_model=List[int])
-def obtener_ids_buses(db: Session = Depends(get_db)):
-    return [bus.id for bus in db.query(models.Bus.id).all()]
-
-@router.get("/buses/details", response_model=List[BusDetail])
-def obtener_detalles_buses(db: Session = Depends(get_db)):
-    return [BusDetail(**bus.__dict__) for bus in db.query(models.Bus).all()]
-
-# ESTACIONES
-
-@router.post("/estaciones", response_model=EstacionResponse, status_code=status.HTTP_201_CREATED)
-async def crear_estacion_con_imagen(nombre_estacion: str = Form(...), localidad: str = Form(...), rutas_asociadas: str = Form(...), activo: bool = Form(...), imagen: UploadFile = File(...)):
-    nueva_estacion = await crud.crear_estacion_async({"nombre_estacion": nombre_estacion, "localidad": localidad, "rutas_asociadas": rutas_asociadas, "activo": activo}, imagen)
-    if not nueva_estacion:
-        raise HTTPException(status_code=500, detail="No se pudo crear la estación.")
-    return EstacionResponse.from_orm(nueva_estacion)
-
-@router.get("/estaciones/{estacion_id}", response_model=EstacionResponse)
-def obtener_estacion_por_id_endpoint(estacion_id: int):
-    estacion = crud.obtener_estacion_por_id(estacion_id)
-    if not estacion:
-        raise HTTPException(status_code=404, detail="Estación no encontrada")
-    return EstacionResponse.from_orm(estacion)
-
-@router.get("/estaciones/", response_model=List[EstacionSchema])
-def listar_estaciones(estacion_id: Optional[int] = None, sector: Optional[str] = None, activo: Optional[str] = None):
-    activo_bool = None
-    if activo is not None:
-        activo_bool = True if activo.lower() == "true" else False if activo.lower() == "false" else None
-    return crud.obtener_estaciones(estacion_id=estacion_id, sector=sector, activo=activo_bool)
-
-@router.put("/estaciones/{estacion_id}/estado")
-def actualizar_estado_estacion_endpoint(estacion_id: int, activo: bool):
-    resultado = crud.actualizar_estado_estacion(estacion_id, activo)
-    if not resultado:
-        raise HTTPException(status_code=404, detail="Estación no encontrada")
-    return resultado
-
-@router.delete("/estaciones/{estacion_id}")
-def eliminar_estacion_endpoint(estacion_id: int):
-    estacion_to_delete = crud.obtener_estacion_por_id(estacion_id)
-    if not estacion_to_delete:
-        raise HTTPException(status_code=404, detail="Estación no encontrada")
-    resultado = crud.eliminar_estacion(estacion_id)
-    if not resultado:
-        raise HTTPException(status_code=404, detail="Error al eliminar la estación")
-    historial_eliminados.append({"tipo": "estacion", "detalles": {"id": estacion_to_delete.id, "nombre_estacion": estacion_to_delete.nombre_estacion, "localidad": estacion_to_delete.localidad}, "fecha_hora": datetime.now().isoformat()})
-    return {"mensaje": "Estación eliminada"}
-
-@router.post("/estaciones/update/{estacion_id}", tags=["Estaciones"])
-async def actualizar_estacion_post(estacion_id: int, estacion_update: EstacionUpdateForm = Depends(), session: AsyncSession = Depends(async_session)):
-    await actualizar_estacion_db_form(estacion_id, estacion_update, session)
-    return RedirectResponse(url="/update", status_code=status.HTTP_303_SEE_OTHER)
-
-@router.get("/estaciones/details", response_model=List[EstacionDetail])
-def obtener_detalles_estaciones(db: Session = Depends(get_db)):
-    return [EstacionDetail(**est.__dict__) for est in db.query(models.Estacion).all()]
-
-@router.get("/estaciones/ids", response_model=List[int])
-def obtener_ids_estaciones(db: Session = Depends(get_db)):
-    return [est.id for est in db.query(models.Estacion.id).all()]
+@router.get("/diseno", response_class=HTMLResponse)
+async def diseno_page(request: Request):
+    return templates.TemplateResponse("diseno.html", {"request": request})

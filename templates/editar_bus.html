@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Editar Bus{% endblock %}
+{% block content %}
+<h1>Editar Bus</h1>
+<form method="post">
+    ID: <input type="number" name="id"><br>
+    Nueva Placa: <input type="text" name="placa"><br>
+    Nueva Capacidad: <input type="number" name="capacidad"><br>
+    Nueva Estación ID: <input type="number" name="estacion_id"><br>
+    <button type="submit">Actualizar</button>
+</form>
+{% endblock %}

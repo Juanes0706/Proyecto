@@ -1,75 +1,28 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{% block title %}Mi Aplicación{% endblock %}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <style>
-        body {
-            background-color: #f4f4f4;
-        }
-        .navbar-brand img {
-            height: 40px;
-        }
-        .form-section {
-            margin-bottom: 2rem;
-        }
-        .card-header {
-            background-color: #dc3545;
-            color: white;
-            font-weight: bold;
-            border-top-left-radius: 8px;
-            border-top-right-radius: 8px;
-        }
-        .btn-primary {
-            background-color: #dc3545;
-            border-color: #dc3545;
-        }
-        .btn-primary:hover {
-            background-color: #b02a37;
-            border-color: #b02a37;
-        }
-        .btn-secondary {
-            background-color: #6c757d;
-            border-color: #6c757d;
-        }
-        .btn-secondary:hover {
-            background-color: #565e64;
-            border-color: #565e64;
-        }
-        img {
-            max-width: 150px;
-            margin-top: 10px;
-            border-radius: 4px;
-            box-shadow: 0 0 5px rgba(0,0,0,0.1);
-        }
-    </style>
+    <meta charset="UTF-8">
+    <title>{% block title %}Mi Proyecto{% endblock %}</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-danger">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="/">
-            <img src="{{ url_for('img', path='logotransmilenio.jpg') }}" alt="Logo TransMilenio" />
-        </a>
-        <div id="navbarNav">
-            <ul class="navbar-nav">
-                <li class="nav-item"><a class="nav-link" href="/">🏠 Inicio</a></li>
-                <li class="nav-item"><a class="nav-link" href="/create">🆕 Crear</a></li>
-                <li class="nav-item"><a class="nav-link" href="/read">📖 Leer</a></li>
-                <!--<li class="nav-item"><a class="nav-link active" href="/update">✏️ Actualizar</a></li>-->
-                <li class="nav-item"><a class="nav-link" href="/delete">❌ Eliminar</a></li>
-                <li class="nav-item"><a class="nav-link" href="/historial">🕒 Historial</a></li>
-                <li class="nav-item"><a class="nav-link" href="/developer-info">👨‍💻 Info Desarrollador</a></li>
-                <li class="nav-item"><a class="nav-link" href="/planning">🗓️ Planeación</a></li>
-                <li class="nav-item"><a class="nav-link" href="/design">🎨 Diseño</a></li>
-            </ul>
-        </div>
-    </div>
-</nav>
-
-<div class="container mt-5">
-    {% block content %}{% endblock %}
-</div>
+    <nav>
+        <ul>
+            <li><a href="/">Inicio</a></li>
+            <li><a href="/crear_estacion">Crear Estación</a></li>
+            <li><a href="/crear_bus">Crear Bus</a></li>
+            <li><a href="/editar_estacion">Editar Estación</a></li>
+            <li><a href="/editar_bus">Editar Bus</a></li>
+            <li><a href="/eliminar_estacion">Eliminar Estación</a></li>
+            <li><a href="/eliminar_bus">Eliminar Bus</a></li>
+            <li><a href="/historial_estaciones">Historial Estaciones</a></li>
+            <li><a href="/historial_buses">Historial Buses</a></li>
+            <li><a href="/diseno">Diseño</a></li>
+            <li><a href="/desarrollador">Desarrollador</a></li>
+        </ul>
+    </nav>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
 </body>
 </html>
