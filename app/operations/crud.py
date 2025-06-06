@@ -5,6 +5,7 @@ from typing import Optional, List
 from fastapi import HTTPException, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession # Usar AsyncSession
 from sqlalchemy.future import select # Para consultas asíncronas
+from sqlalchemy import func
 from app.models.models import Bus, Estacion
 from app.services.supabase_client import supabase, save_file
 
@@ -126,7 +127,7 @@ async def obtener_estaciones(
     if estacion_id is not None:
         query = query.where(Estacion.id == estacion_id)
     if localidad is not None:
-        query = query.where(Estacion.localidad == localidad)
+        query = query.where(func.lower(func.trim(Estacion.localidad)) == func.lower(func.trim(localidad)))
     if activo is not None:
         query = query.where(Estacion.activo == activo)
     
