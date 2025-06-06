@@ -56,7 +56,7 @@ async def crear_bus(
         )
 
         if imagen:
-            result = await save_file(imagen, to_supabase=True)
+            result = await save_file(imagen, to_supabase=True, bucket_name=SUPABASE_BUCKET_BUSES)
             if "url" in result:
                 new_bus.imagen = result["url"]
             else:
@@ -151,7 +151,7 @@ async def crear_estacion(
         )
 
         if imagen:
-            result = await save_file(imagen, to_supabase=True)
+            result = await save_file(imagen, to_supabase=True, bucket_name=SUPABASE_BUCKET_ESTACIONES)
             if "url" in result:
                 nueva_estacion.imagen = result["url"]
             else:
