@@ -5,10 +5,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional, List
 from pydantic import BaseModel
 from app.operations import crud
-from app import models # Esto puede eliminarse si no se usa directamente en este archivo
+from app import models 
 from app.schemas.schemas import Bus as BusSchema, Estacion as EstacionSchema, BusResponse, EstacionResponse
 from app.schemas.schemas import BusUpdateForm, EstacionUpdateForm, BusCreateForm, EstacionCreateForm
-from app.database.db import get_async_db # SOLO importa get_async_db
+from app.database.db import get_async_db 
 from app.services.update_functions import actualizar_estacion_db_form, actualizar_bus_db_form
 import logging
 from datetime import datetime
@@ -16,7 +16,7 @@ from fastapi.templating import Jinja2Templates
 
 router = APIRouter()
 
-# Configuración de Jinja2Templates
+
 templates = Jinja2Templates(directory="templates")
 
 historial_eliminados = []
@@ -83,6 +83,14 @@ async def edit_bus_html(request: Request, bus_id: int, session: AsyncSession = D
     if not bus:
         raise HTTPException(status_code=404, detail="Bus no encontrado para edición.")
     return templates.TemplateResponse("EditUnifiedPage.html", {"request": request, "bus": bus})
+
+@router.get("/edit", response_class=HTMLResponse, tags=["HTML Pages"])
+async def edit_redirect(request: Request, bus_id: int = None):
+    """Redirige la ruta /edit?bus_id= a /edit-bus/{bus_id} para compatibilidad."""
+    if bus_id is not None:
+        return RedirectResponse(url=f"/edit-bus/{bus_id}", status_code=302)
+    else:
+        raise HTTPException(status_code=400, detail="Se requiere el parámetro bus_id")
 
 @router.get("/edit-estacion/{estacion_id}", response_class=HTMLResponse, tags=["HTML Pages"])
 async def edit_estacion_html(request: Request, estacion_id: int, session: AsyncSession = Depends(get_async_db)):
