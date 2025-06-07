@@ -52,6 +52,10 @@ async def read_html(request: Request, session: AsyncSession = Depends(get_async_
     """Muestra una página HTML con la lista de buses y estaciones."""
     buses = await crud.obtener_buses(session)
     estaciones = await crud.obtener_estaciones(session)
+    # Add debug logging
+    import logging
+    logging.info(f"Read page buses count: {len(buses)}")
+    logging.info(f"Read page estaciones count: {len(estaciones)}")
     return templates.TemplateResponse(
         "ReadPage.html", 
         {"request": request, "buses": buses, "estaciones": estaciones}

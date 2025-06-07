@@ -13,8 +13,3 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 app.include_router(home.router)
 
 templates = Jinja2Templates(directory="templates")
-
-@app.on_event("startup")
-async def startup():
-    async with async_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
