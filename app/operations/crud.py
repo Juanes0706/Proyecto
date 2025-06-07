@@ -1,4 +1,3 @@
-# crud.py
 import logging
 import unicodedata
 from typing import Optional, List
@@ -37,7 +36,7 @@ async def obtener_buses(
         query = query.where(Bus.tipo == tipo)
     if activo is not None:
         query = query.where(Bus.activo == activo)
-    
+
     result = await session.execute(query)
     return result.scalars().all()
 
@@ -57,7 +56,7 @@ async def crear_bus(
         )
 
         if imagen:
-            result = await save_file(imagen, to_supabase=True, bucket_name=SUPABASE_BUCKET_ESTACIONES)
+            result = await save_file(imagen, to_supabase=True, bucket_name=SUPABASE_BUCKET_BUSES)
             if "url" in result:
                 new_bus.imagen = result["url"]
             else:
@@ -85,7 +84,7 @@ async def eliminar_bus(session: AsyncSession, bus_id: int) -> bool:
                     logging.info(f"Imagen {path_to_delete} eliminada de Supabase.")
             except Exception as e:
                 logging.error(f"Error al eliminar imagen de Supabase para bus {bus_id}: {e}")
-        
+
         await session.delete(bus_to_delete)
         await session.commit()
         return True
@@ -127,11 +126,11 @@ async def obtener_estaciones(
     if estacion_id is not None:
         query = query.where(Estacion.id == estacion_id)
     if localidad is not None:
+        query = query.where(Estacion.localidad == localidad)
         query = query.where(func.lower(func.trim(Estacion.localidad)) == func.lower(func.trim(localidad)))
     if activo is not None:
         query = query.where(Estacion.activo == activo)
-    
-    query = query.order_by(Estacion.id.desc())
+
     result = await session.execute(query)
     return result.scalars().all()
 
@@ -181,7 +180,7 @@ async def eliminar_estacion(session: AsyncSession, estacion_id: int) -> bool:
                     logging.info(f"Imagen {path_to_delete} eliminada de Supabase.")
             except Exception as e:
                 logging.error(f"Error al eliminar imagen de Supabase para estación {estacion_id}: {e}")
-        
+
         await session.delete(estacion_to_delete)
         await session.commit()
         return True
@@ -209,4 +208,3 @@ async def actualizar_imagen_estacion(session: AsyncSession, estacion_id: int, im
 
 async def get_all_estacion_ids(session: AsyncSession) -> List[int]: 
     result = await session.execute(select(Estacion.id))
-    return result.scalars().all()

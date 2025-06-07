@@ -1,5 +1,4 @@
-# home.py
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, UploadFile, File, Form, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, UploadFile, File, Form, statusMore actions
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional, List
@@ -16,13 +15,6 @@ from fastapi.templating import Jinja2Templates
 
 router = APIRouter()
 
-class CreateBusResponse(BaseModel):
-    message: str
-    bus: BusResponse
-
-class CreateEstacionResponse(BaseModel):
-    message: str
-    estacion: EstacionResponse
 
 templates = Jinja2Templates(directory="templates")
 
@@ -52,10 +44,6 @@ async def read_html(request: Request, session: AsyncSession = Depends(get_async_
     """Muestra una página HTML con la lista de buses y estaciones."""
     buses = await crud.obtener_buses(session)
     estaciones = await crud.obtener_estaciones(session)
-    # Add debug logging
-    import logging
-    logging.info(f"Read page buses count: {len(buses)}")
-    logging.info(f"Read page estaciones count: {len(estaciones)}")
     return templates.TemplateResponse(
         "ReadPage.html", 
         {"request": request, "buses": buses, "estaciones": estaciones}
@@ -96,6 +84,8 @@ async def edit_bus_html(request: Request, bus_id: int, session: AsyncSession = D
     return templates.TemplateResponse("EditUnifiedPage.html", {"request": request, "bus": bus})
 
 @router.get("/edit", response_class=HTMLResponse, tags=["HTML Pages"])
+async def edit_redirect(request: Request, bus_id: int = None):
+    """Redirige la ruta /edit?bus_id= a /edit-bus/{bus_id} para compatibilidad."""
 async def edit_redirect(request: Request, bus_id: int = None, estacion_id: int = None):
     """Redirige la ruta /edit?bus_id= o /edit?estacion_id= a la ruta correcta para compatibilidad."""
     if bus_id is not None:
@@ -103,6 +93,7 @@ async def edit_redirect(request: Request, bus_id: int = None, estacion_id: int =
     elif estacion_id is not None:
         return RedirectResponse(url=f"/edit-estacion/{estacion_id}", status_code=302)
     else:
+        raise HTTPException(status_code=400, detail="Se requiere el parámetro bus_id")
         raise HTTPException(status_code=400, detail="Se requiere el parámetro bus_id o estacion_id")
 
 @router.get("/edit-estacion/{estacion_id}", response_class=HTMLResponse, tags=["HTML Pages"])
@@ -147,7 +138,7 @@ async def get_bus_details_api(session: AsyncSession = Depends(get_async_db)):
     return [BusResponse.from_orm(bus) for bus in buses]
 
 
-@router.post("/buses", status_code=status.HTTP_303_SEE_OTHER, tags=["Buses API"])
+@router.post("/buses", response_model=BusResponse, status_code=status.HTTP_201_CREATED, tags=["Buses API"])
 async def create_bus_api(
     bus_create: BusCreateForm = Depends(),
     session: AsyncSession = Depends(get_async_db)
@@ -161,7 +152,7 @@ async def create_bus_api(
     )
     if not new_bus:
         raise HTTPException(status_code=400, detail="Error al crear bus")
-    return RedirectResponse(url="/update", status_code=status.HTTP_303_SEE_OTHER)
+    return BusResponse.from_orm(new_bus)
 
 @router.delete("/buses/{bus_id}", tags=["Buses API"])
 async def delete_bus_api(
@@ -171,13 +162,13 @@ async def delete_bus_api(
     bus_to_delete_list = await crud.obtener_buses(session, bus_id=bus_id)
     if not bus_to_delete_list:
         raise HTTPException(status_code=404, detail="Bus no encontrado")
-    
+
     bus_obj = bus_to_delete_list[0]
 
     resultado = await crud.eliminar_bus(session, bus_id) # Pasa la sesión
     if not resultado:
         raise HTTPException(status_code=404, detail="Error al eliminar el bus")
-    
+
     historial_eliminados.append({
         "tipo": "bus",
         "id": bus_obj.id,
@@ -205,7 +196,6 @@ async def get_estaciones_api(
     activo: Optional[bool] = None,
     session: AsyncSession = Depends(get_async_db)
 ):
-    print(f"Filtering estaciones with localidad: {localidad}")
     estaciones = await crud.obtener_estaciones(session, estacion_id, localidad, activo)
     return [EstacionResponse.from_orm(estacion) for estacion in estaciones]
 
@@ -222,7 +212,7 @@ async def get_estacion_details_api(session: AsyncSession = Depends(get_async_db)
     return [EstacionResponse.from_orm(estacion) for estacion in estaciones]
 
 
-@router.post("/estaciones", status_code=status.HTTP_303_SEE_OTHER, tags=["Estaciones API"])
+@router.post("/estaciones", response_model=EstacionResponse, status_code=status.HTTP_201_CREATED, tags=["Estaciones API"])
 async def create_estacion_api(
     estacion_create: EstacionCreateForm = Depends(),
     session: AsyncSession = Depends(get_async_db)
@@ -237,7 +227,7 @@ async def create_estacion_api(
     )
     if not new_estacion:
         raise HTTPException(status_code=400, detail="Error al crear estación")
-    return RedirectResponse(url="/update", status_code=status.HTTP_303_SEE_OTHER)
+    return EstacionResponse.from_orm(new_estacion)
 
 @router.delete("/estaciones/{estacion_id}", tags=["Estaciones API"])
 async def delete_estacion_api(
@@ -247,13 +237,13 @@ async def delete_estacion_api(
     estacion_to_delete_list = await crud.obtener_estaciones(session, estacion_id=estacion_id)
     if not estacion_to_delete_list:
         raise HTTPException(status_code=404, detail="Estación no encontrada")
-    
+
     estacion_obj = estacion_to_delete_list[0]
 
     resultado = await crud.eliminar_estacion(session, estacion_id) # Pasa la sesión
     if not resultado:
         raise HTTPException(status_code=404, detail="Error al eliminar la estación")
-    
+
     historial_eliminados.append({
         "tipo": "estacion",
         "id": estacion_obj.id,
@@ -285,4 +275,3 @@ class HistorialItem(BaseModel):
 
 @router.get("/api/historial", response_model=List[HistorialItem], tags=["Historial API"])
 async def get_historial():
-    return historial_eliminados
