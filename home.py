@@ -275,3 +275,4 @@ class HistorialItem(BaseModel):
 
 @router.get("/api/historial", response_model=List[HistorialItem], tags=["Historial API"])
 async def get_historial():
+    return historial_eliminados
