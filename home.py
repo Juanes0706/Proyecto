@@ -32,8 +32,10 @@ async def create_html(request: Request):
     return templates.TemplateResponse("CreatePage.html", {"request": request}) # Cambiado a CreatePage.html
 
 @router.get("/update", response_class=HTMLResponse, tags=["HTML Pages"])
-async def update_html(request: Request):
-    return templates.TemplateResponse("UpdatePage.html", {"request": request}) # Cambiado a UpdatePage.html
+async def update_html(request: Request, session: AsyncSession = Depends(get_async_db)):
+    bus_ids = await crud.get_all_bus_ids(session)
+    estacion_ids = await crud.get_all_estacion_ids(session)
+    return templates.TemplateResponse("UpdatePage.html", {"request": request, "bus_ids": bus_ids, "estacion_ids": estacion_ids})
 
 @router.get("/delete", response_class=HTMLResponse, tags=["HTML Pages"])
 async def delete_html(request: Request):
