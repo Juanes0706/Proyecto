@@ -203,6 +203,8 @@ async def get_estaciones_api(
 async def get_estacion_ids_api(session: AsyncSession = Depends(get_async_db)):
     """Devuelve una lista de IDs de todas las estaciones."""
     ids = await crud.get_all_estacion_ids(session)
+    if ids is None:
+        return []
     return ids
 
 @router.get("/estaciones/details", response_model=List[EstacionResponse], tags=["Estaciones API"])
