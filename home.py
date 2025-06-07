@@ -92,8 +92,6 @@ async def edit_bus_html(request: Request, bus_id: int, session: AsyncSession = D
     return templates.TemplateResponse("EditUnifiedPage.html", {"request": request, "bus": bus})
 
 @router.get("/edit", response_class=HTMLResponse, tags=["HTML Pages"])
-async def edit_redirect(request: Request, bus_id: int = None):
-    """Redirige la ruta /edit?bus_id= a /edit-bus/{bus_id} para compatibilidad."""
 async def edit_redirect(request: Request, bus_id: int = None, estacion_id: int = None):
     """Redirige la ruta /edit?bus_id= o /edit?estacion_id= a la ruta correcta para compatibilidad."""
     if bus_id is not None:
@@ -101,7 +99,6 @@ async def edit_redirect(request: Request, bus_id: int = None, estacion_id: int =
     elif estacion_id is not None:
         return RedirectResponse(url=f"/edit-estacion/{estacion_id}", status_code=302)
     else:
-        raise HTTPException(status_code=400, detail="Se requiere el parámetro bus_id")
         raise HTTPException(status_code=400, detail="Se requiere el parámetro bus_id o estacion_id")
 
 @router.get("/edit-estacion/{estacion_id}", response_class=HTMLResponse, tags=["HTML Pages"])
