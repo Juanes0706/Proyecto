@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Crear Nuevo Registro</title>
-    <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}" />
 </head>
 <body>
     <nav class="navbar">
@@ -27,28 +27,26 @@
     <div class="container">
         <h1>Crear Nuevo Registro</h1>
 
-        <div id="message_area" style="margin-bottom: 20px; text-align: center; font-weight: bold;"></div>
-
         <div class="form-section">
             <h2>Crear Estación</h2>
-            <form id="createEstacionForm" enctype="multipart/form-data">
+            <form method="post" action="/estaciones" enctype="multipart/form-data">
                 <label for="nombre_estacion_create">Nombre de la Estación:</label>
-                <input type="text" id="nombre_estacion_create" name="nombre_estacion" required>
+                <input type="text" id="nombre_estacion_create" name="nombre_estacion" required />
 
                 <label for="localidad_create">Localidad:</label>
-                <input type="text" id="localidad_create" name="localidad" required>
+                <input type="text" id="localidad_create" name="localidad" required />
 
                 <label for="rutas_asociadas_create">Rutas Asociadas (separadas por coma):</label>
-                <input type="text" id="rutas_asociadas_create" name="rutas_asociadas">
+                <input type="text" id="rutas_asociadas_create" name="rutas_asociadas" />
 
                 <label>Estado:</label>
-                <input type="radio" id="activo_estacion_true" name="activo" value="true" checked>
+                <input type="radio" id="activo_estacion_true" name="activo" value="true" checked />
                 <label for="activo_estacion_true">Activo</label>
-                <input type="radio" id="activo_estacion_false" name="activo" value="false">
+                <input type="radio" id="activo_estacion_false" name="activo" value="false" />
                 <label for="activo_estacion_false">Inactivo</label>
 
                 <label for="imagen_estacion_create">Subir Imagen:</label>
-                <input type="file" id="imagen_estacion_create" name="imagen" accept="image/*">
+                <input type="file" id="imagen_estacion_create" name="imagen" accept="image/*" />
 
                 <button type="submit">Crear Estación</button>
             </form>
@@ -56,29 +54,28 @@
 
         <div class="form-section">
             <h2>Crear Bus</h2>
-            <form id="createBusForm" enctype="multipart/form-data">
+            <form method="post" action="/buses" enctype="multipart/form-data">
                 <label for="nombre_bus_create">Nombre del Bus:</label>
-                <input type="text" id="nombre_bus_create" name="nombre_bus" required>
+                <input type="text" id="nombre_bus_create" name="nombre_bus" required />
 
                 <label>Tipo de Bus:</label>
-                <input type="radio" id="tipo_bus_troncal" name="tipo" value="troncal" checked>
+                <input type="radio" id="tipo_bus_troncal" name="tipo" value="troncal" checked />
                 <label for="tipo_bus_troncal">Troncal</label>
-                <input type="radio" id="tipo_bus_zonal" name="tipo" value="zonal">
+                <input type="radio" id="tipo_bus_zonal" name="tipo" value="zonal" />
                 <label for="tipo_bus_zonal">Zonal</label>
 
                 <label>Estado:</label>
-                <input type="radio" id="activo_bus_true" name="activo" value="true" checked>
+                <input type="radio" id="activo_bus_true" name="activo" value="true" checked />
                 <label for="activo_bus_true">Activo</label>
-                <input type="radio" id="activo_bus_false" name="activo" value="false">
+                <input type="radio" id="activo_bus_false" name="activo" value="false" />
                 <label for="activo_bus_false">Inactivo</label>
 
                 <label for="imagen_bus_create">Subir Imagen:</label>
-                <input type="file" id="imagen_bus_create" name="imagen" accept="image/*">
+                <input type="file" id="imagen_bus_create" name="imagen" accept="image/*" />
 
                 <button type="submit">Crear Bus</button>
             </form>
         </div>
     </div>
-
 </body>
 </html>
