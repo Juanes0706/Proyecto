@@ -9,8 +9,7 @@ from app.models.models import Bus, Estacion
 from app.services.supabase_client import supabase, save_file
 
 # ---------------------- CONST ----------------------
-SUPABASE_BUCKET_BUSES = "buses"
-SUPABASE_BUCKET_ESTACIONES = "estaciones"
+SUPABASE_BUCKET = "buses"
 
 # ---------------------- UTILS ----------------------
 def get_supabase_path_from_url(url: str, bucket_name: str) -> str:
@@ -56,7 +55,7 @@ async def crear_bus(
         )
 
         if imagen:
-            result = await save_file(imagen, to_supabase=True, bucket_name=SUPABASE_BUCKET_BUSES)
+            result = await save_file(imagen, to_supabase=True, bucket_name=SUPABASE_BUCKET)
             if "url" in result:
                 new_bus.imagen = result["url"]
             else:
@@ -78,9 +77,9 @@ async def eliminar_bus(session: AsyncSession, bus_id: int) -> bool:
     if bus_to_delete:
         if bus_to_delete.imagen:
             try:
-                path_to_delete = get_supabase_path_from_url(bus_to_delete.imagen, SUPABASE_BUCKET_BUSES)
+                path_to_delete = get_supabase_path_from_url(bus_to_delete.imagen, SUPABASE_BUCKET)
                 if path_to_delete:
-                    supabase.storage.from_(SUPABASE_BUCKET_BUSES).remove([path_to_delete])
+                    supabase.storage.from_(SUPABASE_BUCKET).remove([path_to_delete])
                     logging.info(f"Imagen {path_to_delete} eliminada de Supabase.")
             except Exception as e:
                 logging.error(f"Error al eliminar imagen de Supabase para bus {bus_id}: {e}")
@@ -152,7 +151,7 @@ async def crear_estacion(
         )
 
         if imagen:
-            result = await save_file(imagen, to_supabase=True, bucket_name=SUPABASE_BUCKET_ESTACIONES)
+            result = await save_file(imagen, to_supabase=True, bucket_name=SUPABASE_BUCKET)
             if "url" in result:
                 nueva_estacion.imagen = result["url"]
             else:
@@ -174,9 +173,9 @@ async def eliminar_estacion(session: AsyncSession, estacion_id: int) -> bool:
     if estacion_to_delete:
         if estacion_to_delete.imagen:
             try:
-                path_to_delete = get_supabase_path_from_url(estacion_to_delete.imagen, SUPABASE_BUCKET_ESTACIONES)
+                path_to_delete = get_supabase_path_from_url(estacion_to_delete.imagen, SUPABASE_BUCKET)
                 if path_to_delete:
-                    supabase.storage.from_(SUPABASE_BUCKET_ESTACIONES).remove([path_to_delete])
+                    supabase.storage.from_(SUPABASE_BUCKET).remove([path_to_delete])
                     logging.info(f"Imagen {path_to_delete} eliminada de Supabase.")
             except Exception as e:
                 logging.error(f"Error al eliminar imagen de Supabase para estación {estacion_id}: {e}")
