@@ -143,7 +143,7 @@ async def get_bus_details_api(session: AsyncSession = Depends(get_async_db)):
     return [BusResponse.from_orm(bus) for bus in buses]
 
 
-@router.post("/buses", response_model=BusResponse, status_code=status.HTTP_201_CREATED, tags=["Buses API"])
+@router.post("/buses", status_code=status.HTTP_201_CREATED, tags=["Buses API"])
 async def create_bus_api(
     bus_create: BusCreateForm = Depends(),
     session: AsyncSession = Depends(get_async_db)
@@ -157,7 +157,7 @@ async def create_bus_api(
     )
     if not new_bus:
         raise HTTPException(status_code=400, detail="Error al crear bus")
-    return BusResponse.from_orm(new_bus)
+    return {"mensaje": "Bus insertado correctamente"}
 
 @router.delete("/buses/{bus_id}", tags=["Buses API"])
 async def delete_bus_api(

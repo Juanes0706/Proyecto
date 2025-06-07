@@ -125,8 +125,9 @@ async def obtener_estaciones(
     if estacion_id is not None:
         query = query.where(Estacion.id == estacion_id)
     if localidad is not None:
-        query = query.where(Estacion.localidad == localidad)
-        query = query.where(func.lower(func.trim(Estacion.localidad)) == func.lower(func.trim(localidad)))
+        # Use case-insensitive partial match for localidad
+        like_pattern = f"%{localidad.lower()}%"
+        query = query.where(func.lower(Estacion.localidad).like(like_pattern))
     if activo is not None:
         query = query.where(Estacion.activo == activo)
 
