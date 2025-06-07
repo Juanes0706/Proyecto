@@ -3,6 +3,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.requests import Request
 
+from app.database.db import async_engine, Base
 import home
 
 app = FastAPI()
