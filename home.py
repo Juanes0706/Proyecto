@@ -35,6 +35,10 @@ async def create_html(request: Request):
 async def update_html(request: Request, session: AsyncSession = Depends(get_async_db)):
     bus_ids = await crud.get_all_bus_ids(session)
     estacion_ids = await crud.get_all_estacion_ids(session)
+    if bus_ids is None:
+        bus_ids = []
+    if estacion_ids is None:
+        estacion_ids = []
     return templates.TemplateResponse("UpdatePage.html", {"request": request, "bus_ids": bus_ids, "estacion_ids": estacion_ids})
 
 @router.get("/delete", response_class=HTMLResponse, tags=["HTML Pages"])
