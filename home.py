@@ -85,6 +85,8 @@ async def edit_bus_html(request: Request, bus_id: int, session: AsyncSession = D
     """Muestra la página de edición unificada para un bus específico."""
     buses = await crud.obtener_buses(session, bus_id=bus_id) # Usa obtener_buses
     bus = buses[0] if buses else None # Obtiene el primer bus si existe
+    import logging
+    logging.info(f"edit_bus_html: bus_id={bus_id}, bus={bus}")
     if not bus:
         raise HTTPException(status_code=404, detail="Bus no encontrado para edición.")
     return templates.TemplateResponse("EditUnifiedPage.html", {"request": request, "bus": bus})
