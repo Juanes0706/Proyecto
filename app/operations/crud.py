@@ -207,3 +207,4 @@ async def actualizar_imagen_estacion(session: AsyncSession, estacion_id: int, im
 
 async def get_all_estacion_ids(session: AsyncSession) -> List[int]: 
     result = await session.execute(select(Estacion.id))
+    return result.scalars().all()
