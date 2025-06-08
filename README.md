@@ -1,6 +1,6 @@
 # 🚌 Sistema de Gestión TransMilenio - FastAPI
 
-Este proyecto es una aplicación web desarrollada con **FastAPI**, diseñada para gestionar datos de buses y estaciones del sistema de transporte **TransMilenio**. Utiliza renderizado de plantillas HTML con **Jinja2**, almacenamiento y consultas a una base de datos relacional mediante **SQLAlchemy (Async)**, y está lista para ser desplegada en plataformas como **Render** o **Heroku**.
+Este proyecto es una aplicación web desarrollada con **FastAPI**, diseñada para gestionar datos de buses y estaciones del sistema de transporte **TransMilenio**. Utiliza renderizado de plantillas HTML con **Jinja2**, almacenamiento y consultas a una base de datos relacional mediante **SQLAlchemy (Async)**, y está lista para ser desplegada en plataformas como **Render**.
 
 ---
 
