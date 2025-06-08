@@ -47,21 +47,20 @@ async def save_file(file: UploadFile, to_supabase: bool, bucket_name: str):
     if to_supabase:
         return await upload_file(file, new_filename, bucket_name)
     else:
-        # Implementar save_to_local si es necesario para guardar localmente
-        # Por ahora, se asume que siempre se subirá a Supabase
+
         return {"error": "Guardado local no implementado para este contexto"}
 
 async def delete_file(file_url: str, bucket_name: str) -> bool:
    
     try:
-        # Extraer la ruta del archivo dentro del bucket de la URL pública
+
         path_in_bucket = get_supabase_path_from_url(file_url, bucket_name)
         if not path_in_bucket:
             print(f"No se pudo extraer la ruta del archivo de la URL: {file_url}")
             return False
 
         res = supabase.storage.from_(bucket_name).remove([path_in_bucket])
-        if res and not res[0].get('error'): # Supabase remove returns a list of objects, check for error key
+        if res and not res[0].get('error'): 
             print(f"Archivo {path_in_bucket} eliminado exitosamente del bucket {bucket_name}.")
             return True
         else:
@@ -75,7 +74,6 @@ def get_supabase_path_from_url(url: str, bucket_name: str) -> str:
     """Extrae la ruta del archivo dentro del bucket de una URL pública de Supabase."""
     parts = url.split(f"/public/{bucket_name}/")
     if len(parts) > 1:
-        # Decodificar URL si contiene caracteres codificados (%2F, etc.)
         import urllib.parse
         return urllib.parse.unquote(parts[-1])
     return ""

@@ -36,7 +36,7 @@ async def actualizar_bus_db_form(bus_id: int, bus_update: schemas_schemas.BusUpd
             if imagen_actual:
                 path_antiguo = get_supabase_path_from_url(imagen_actual, SUPABASE_BUCKET_BUSES)
                 if path_antiguo:
-                    # Usa la nueva función delete_file para eliminar la imagen antigua
+                    
                     await delete_file(path_antiguo, SUPABASE_BUCKET_BUSES)
         else:
             print("Error al subir nueva imagen:", resultado.get("error"))
@@ -48,9 +48,8 @@ async def actualizar_bus_db_form(bus_id: int, bus_update: schemas_schemas.BusUpd
 
     if nueva_imagen_url is not None:
         bus.imagen = nueva_imagen_url
-    elif bus_update.imagen is None and imagen_actual: # Si no se envía nueva imagen y hay una actual, significa que se quiere eliminar
-        # Aquí puedes agregar lógica para eliminar la imagen si se envía un campo vacío o un indicador de eliminación
-        # Por ahora, si no se envía nueva imagen, la existente se mantiene.
+    elif bus_update.imagen is None and imagen_actual: 
+       
         pass
 
     session.add(bus)
@@ -68,12 +67,12 @@ async def actualizar_estacion_db_form(estacion_id: int, estacion_update: schemas
     nueva_imagen_url: Optional[str] = None
 
     if estacion_update.imagen:
-        # Pasa el bucket_name a save_file
+        
         resultado = await save_file(estacion_update.imagen, to_supabase=True, bucket_name=SUPABASE_BUCKET_ESTACIONES)
         if "url" in resultado:
             nueva_imagen_url = resultado["url"]
             if imagen_actual:
-                # Usa la nueva función delete_file para eliminar la imagen antigua
+                
                 await delete_file(imagen_actual, SUPABASE_BUCKET_ESTACIONES)
         else:
             print("Error al subir nueva imagen:", resultado.get("error"))
@@ -85,8 +84,7 @@ async def actualizar_estacion_db_form(estacion_id: int, estacion_update: schemas
 
     if nueva_imagen_url is not None:
         estacion.imagen = nueva_imagen_url
-    elif estacion_update.imagen is None and imagen_actual: # Si no se envía nueva imagen y hay una actual, significa que se quiere eliminar
-        # Similar al bus, si no se envía nueva imagen, la existente se mantiene.
+    elif estacion_update.imagen is None and imagen_actual: 
         pass
 
     session.add(estacion)

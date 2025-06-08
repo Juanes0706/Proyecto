@@ -29,7 +29,7 @@ async def read_root_html(request: Request):
 
 @router.get("/create", response_class=HTMLResponse, tags=["HTML Pages"])
 async def create_html(request: Request):
-    return templates.TemplateResponse("CreatePage.html", {"request": request}) # Cambiado a CreatePage.html
+    return templates.TemplateResponse("CreatePage.html", {"request": request}) 
 
 @router.get("/update", response_class=HTMLResponse, tags=["HTML Pages"])
 async def update_html(request: Request, session: AsyncSession = Depends(get_async_db)):
@@ -43,7 +43,7 @@ async def update_html(request: Request, session: AsyncSession = Depends(get_asyn
 
 @router.get("/delete", response_class=HTMLResponse, tags=["HTML Pages"])
 async def delete_html(request: Request):
-    return templates.TemplateResponse("DeletePage.html", {"request": request}) # Cambiado a DeletePage.html
+    return templates.TemplateResponse("DeletePage.html", {"request": request}) 
 
 @router.get("/read", response_class=HTMLResponse, tags=["HTML Pages"])
 async def read_html(request: Request, session: AsyncSession = Depends(get_async_db)):
@@ -104,8 +104,8 @@ async def edit_redirect(request: Request, bus_id: int = None, estacion_id: int =
 @router.get("/edit-estacion/{estacion_id}", response_class=HTMLResponse, tags=["HTML Pages"])
 async def edit_estacion_html(request: Request, estacion_id: int, session: AsyncSession = Depends(get_async_db)):
     """Muestra la página de edición unificada para una estación específica."""
-    estaciones = await crud.obtener_estaciones(session, estacion_id=estacion_id) # Usa obtener_estaciones
-    estacion = estaciones[0] if estaciones else None # Obtiene la primera estación si existe
+    estaciones = await crud.obtener_estaciones(session, estacion_id=estacion_id)
+    estacion = estaciones[0] if estaciones else None 
     if not estacion:
         raise HTTPException(status_code=404, detail="Estación no encontrada para edición.")
     return templates.TemplateResponse("EditUnifiedPage.html", {"request": request, "estacion": estacion})
@@ -189,7 +189,7 @@ async def actualizar_bus_post(
     bus_update: BusUpdateForm = Depends(),
     session: AsyncSession = Depends(get_async_db)
 ):
-    await actualizar_bus_db_form(bus_id, bus_update, session) # Pasa la sesión
+    await actualizar_bus_db_form(bus_id, bus_update, session) 
     return RedirectResponse(url="/update", status_code=status.HTTP_303_SEE_OTHER)
 
 
@@ -247,7 +247,7 @@ async def delete_estacion_api(
 
     estacion_obj = estacion_to_delete_list[0]
 
-    resultado = await crud.eliminar_estacion(session, estacion_id) # Pasa la sesión
+    resultado = await crud.eliminar_estacion(session, estacion_id) 
     if not resultado:
         raise HTTPException(status_code=404, detail="Error al eliminar la estación")
 
@@ -266,7 +266,7 @@ async def actualizar_estacion_post(
     estacion_update: EstacionUpdateForm = Depends(),
     session: AsyncSession = Depends(get_async_db)
 ):
-    await actualizar_estacion_db_form(estacion_id, estacion_update, session) # Pasa la sesión
+    await actualizar_estacion_db_form(estacion_id, estacion_update, session) 
     return RedirectResponse(url="/update", status_code=status.HTTP_303_SEE_OTHER)
 
 

@@ -10,7 +10,7 @@ app = FastAPI()
 
 @app.on_event("startup")
 async def on_startup():
-    await create_db_tables() # Llama a la función para crear las tablas al iniciar
+    await create_db_tables() 
 
 async def create_db_tables():
     async with async_engine.begin() as conn:
